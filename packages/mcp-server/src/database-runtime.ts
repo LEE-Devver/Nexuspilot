@@ -1,8 +1,8 @@
 import { realpath } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
-import { appError, err, ok, type Result } from '@lnwjud/domain';
-import type { FileActor } from '@lnwjud/application';
-import { hostPathApi, isAbsoluteHostPath, isHostPathWithin, resolveHostPath } from '@lnwjud/workspace';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
+import type { FileActor } from '@nexuspilot/application';
+import { hostPathApi, isAbsoluteHostPath, isHostPathWithin, resolveHostPath } from '@nexuspilot/workspace';
 import type { McpApplicationServices } from './tools/tool-types.js';
 
 /**

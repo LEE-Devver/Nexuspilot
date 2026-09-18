@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BrowserWindow } from 'electron';
-import { comparableHostPath } from '@lnwjud/workspace';
+import { comparableHostPath } from '@nexuspilot/workspace';
 import { windowChromeOptions } from './window-chrome.js';
 
 const mainDirectory = path.dirname(fileURLToPath(import.meta.url));

@@ -2,11 +2,11 @@ import { mkdir, mkdtemp, realpath, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ok, type Result } from '@lnwjud/domain';
-import { permissionProfiles } from '@lnwjud/permissions';
-import type { ManagedProcess, ProcessLogResult } from '@lnwjud/process';
-import type { Workspace, WorkspaceRepository } from '@lnwjud/workspace';
-import type { CodexStatus } from '@lnwjud/codex';
+import { ok, type Result } from '@nexuspilot/domain';
+import { permissionProfiles } from '@nexuspilot/permissions';
+import type { ManagedProcess, ProcessLogResult } from '@nexuspilot/process';
+import type { Workspace, WorkspaceRepository } from '@nexuspilot/workspace';
+import type { CodexStatus } from '@nexuspilot/codex';
 import { CodexService, type CodexAdapterPort } from './codex-service.js';
 
 const roots: string[] = [];

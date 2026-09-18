@@ -1,7 +1,7 @@
 ﻿import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { UpdateStatus } from '@lnwjud/ipc-contracts';
+import type { UpdateStatus } from '@nexuspilot/ipc-contracts';
 import { localizedUpdateStatusMessage, nativeMessages } from '../src/main/native-i18n.js';
 
 const mainRoot = path.resolve(import.meta.dirname, '..', 'src', 'main');

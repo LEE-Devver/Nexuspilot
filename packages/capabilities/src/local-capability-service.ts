@@ -1,4 +1,4 @@
-import { appError, err, type InvocationAuthorization, type Result } from '@lnwjud/domain';
+import { appError, err, type InvocationAuthorization, type Result } from '@nexuspilot/domain';
 import type { CapabilityService, CapabilityToolName } from './index.js';
 
 export interface CapabilityBackend {

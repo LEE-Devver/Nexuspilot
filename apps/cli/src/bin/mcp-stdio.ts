@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { startMcpStdio } from '@lnwjud/mcp-server';
+import { startMcpStdio } from '@nexuspilot/mcp-server';
 import {
   STDIO_ALLOWED_ROOTS_SETTING_KEY,
   STDIO_PERMISSION_PROFILE_SETTING_KEY,
@@ -12,9 +12,9 @@ import {
   parseBooleanSetting,
   parseStdioPermissionProfile,
   resolveLnwjudDataPath,
-} from '@lnwjud/shared';
-import { applyPendingSqliteRestoreSync, SqliteBackupService, SqliteDatabase, SqliteSettingsRepository, SqliteWorkspaceRepository } from '@lnwjud/storage';
-import { comparableHostPath, hostPathApi, isMachineRootPath, normalizeWorkspaceRoot, WorkspaceService, type Workspace } from '@lnwjud/workspace';
+} from '@nexuspilot/shared';
+import { applyPendingSqliteRestoreSync, SqliteBackupService, SqliteDatabase, SqliteSettingsRepository, SqliteWorkspaceRepository } from '@nexuspilot/storage';
+import { comparableHostPath, hostPathApi, isMachineRootPath, normalizeWorkspaceRoot, WorkspaceService, type Workspace } from '@nexuspilot/workspace';
 import { createStdioMcpRuntime, resolveStdioCheckpointKey } from '../runtime/stdio-mcp-runtime.js';
 import { StrictWorkspaceRepository, canonicalizeAllowedRoots, requestedPathInsideAllowedRoot } from '../runtime/strict-workspace-repository.js';
 import { resolveRequestedWorkspacePath } from '../runtime/workspace-selection.js';

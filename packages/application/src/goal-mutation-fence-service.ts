@@ -10,7 +10,7 @@ import {
   type ScheduledContinuationRepository,
   type ScheduledContinuationWorkerLiveness,
   type ScheduledContinuationWorkerLivenessPort,
-} from '@lnwjud/domain';
+} from '@nexuspilot/domain';
 import type { FileActor } from './file-service.js';
 
 export type ManagedGoalTaskState = 'running' | 'terminal' | 'absent' | 'unknown';

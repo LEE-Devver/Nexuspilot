@@ -1,6 +1,6 @@
 import { defineTool, missingService, type McpToolContext, type McpToolDefinition } from './tool-types.js';
-import { appError, err, ok, type InvocationAuthorization, type Result } from '@lnwjud/domain';
-import { DEFAULT_MCP_POLL_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS } from '@lnwjud/shared';
+import { appError, err, ok, type InvocationAuthorization, type Result } from '@nexuspilot/domain';
+import { DEFAULT_MCP_POLL_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS } from '@nexuspilot/shared';
 import { SetOfMarksObservationStore, SetOfMarksService } from '../set-of-marks-service.js';
 import { ComputerUseService } from '../computer-use-service.js';
 import { withReplacementRecoveryDetails } from '../replacement-recovery.js';

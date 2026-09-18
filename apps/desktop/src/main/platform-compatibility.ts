@@ -3,7 +3,7 @@ import {
   detectLinuxSessionProfile,
   type LinuxSessionProfile,
   type PlatformProfile,
-} from '@lnwjud/shared';
+} from '@nexuspilot/shared';
 
 export type WindowsGeneration = 'windows-10' | 'windows-11' | 'unsupported-windows' | 'non-windows';
 

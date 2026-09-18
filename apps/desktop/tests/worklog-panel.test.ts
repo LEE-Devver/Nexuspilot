@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import type { InFlightWorkItem, WorkLogEntry } from '@lnwjud/ipc-contracts';
+import type { InFlightWorkItem, WorkLogEntry } from '@nexuspilot/ipc-contracts';
 import { formatWorkLogCopyText, newestFirstWorkLogRows, WorkLogPanel } from '../src/renderer/features/worklog/WorkLogPanel.js';
 import * as workLogPanelModule from '../src/renderer/features/worklog/WorkLogPanel.js';
 

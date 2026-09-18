@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { TunnelStatus } from '@lnwjud/ipc-contracts';
+import type { TunnelStatus } from '@nexuspilot/ipc-contracts';
 import { autoStartPersistentTunnel } from '../src/main/desktop-services.js';
 import { TunnelRuntimeReconciler, type TunnelRuntimeDesiredState, type TunnelRuntimeReconcilerAdapter } from '../src/main/tunnel-runtime-reconciler.js';
 import { TunnelRuntimeSupervisor, TRANSIENT_BACKOFF_MS } from '../src/main/tunnel-runtime-supervisor.js';

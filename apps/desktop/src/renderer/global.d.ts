@@ -1,4 +1,4 @@
-import type { LnwjudApi } from '@lnwjud/ipc-contracts';
+import type { LnwjudApi } from '@nexuspilot/ipc-contracts';
 
 declare global {
   interface Window {

@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { describe, expect, it, vi } from 'vitest';
-import type { McpHttpServerHandle, McpHttpServerOptions } from '@lnwjud/mcp-server';
+import type { McpHttpServerHandle, McpHttpServerOptions } from '@nexuspilot/mcp-server';
 import { checkConfiguredMcpPort } from '../src/main/desktop-services.js';
 import { DesktopMcpLifecycle, type McpHttpServerStarter } from '../src/main/mcp-lifecycle.js';
 

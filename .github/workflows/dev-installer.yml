@@ -44,9 +44,9 @@ jobs:
       - name: Verify scheduled continuation contract
         shell: pwsh
         run: |
-          corepack pnpm@10.15.0 --filter @lnwjud/mcp-server exec vitest run src/scheduled-continuation-skill-contract.test.ts src/tools/goal-tools.test.ts src/tools/scheduled-continuation-tools.test.ts
-          corepack pnpm@10.15.0 --filter @lnwjud/application exec vitest run src/scheduled-continuation-service.test.ts
-          corepack pnpm@10.15.0 --filter @lnwjud/storage exec vitest run src/scheduled-continuation.integration.test.ts
+          corepack pnpm@10.15.0 --filter @nexuspilot/mcp-server exec vitest run src/scheduled-continuation-skill-contract.test.ts src/tools/goal-tools.test.ts src/tools/scheduled-continuation-tools.test.ts
+          corepack pnpm@10.15.0 --filter @nexuspilot/application exec vitest run src/scheduled-continuation-service.test.ts
+          corepack pnpm@10.15.0 --filter @nexuspilot/storage exec vitest run src/scheduled-continuation.integration.test.ts
 
       - name: Build workspace dependencies
         shell: pwsh
@@ -64,7 +64,7 @@ jobs:
         env:
           LNWJUD_PACKAGED_EXECUTABLE: ${{ github.workspace }}/apps/desktop/dist/installers/win-unpacked/lnwjud.exe
           PLAYWRIGHT_HTML_OPEN: never
-        run: corepack pnpm@10.15.0 --filter @lnwjud/desktop exec playwright test --config playwright.config.ts desktop-dashboard.e2e.ts desktop-mcp-client.e2e.ts tools-doctor.e2e.ts electron-security.e2e.ts --trace=retain-on-failure --reporter=list,html
+        run: corepack pnpm@10.15.0 --filter @nexuspilot/desktop exec playwright test --config playwright.config.ts desktop-dashboard.e2e.ts desktop-mcp-client.e2e.ts tools-doctor.e2e.ts electron-security.e2e.ts --trace=retain-on-failure --reporter=list,html
 
       - name: Upload Windows packaged E2E diagnostics
         if: always()

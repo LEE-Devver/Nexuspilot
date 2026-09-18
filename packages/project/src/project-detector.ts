@@ -1,6 +1,6 @@
 import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { appError, err, ok, type Result } from '@lnwjud/domain';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
 import type { PackageManager, ProjectFramework, ProjectProfile } from './project-profile.js';
 
 export interface ProjectFileSystem {

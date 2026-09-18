@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import type { WorkspaceSummary } from '@lnwjud/ipc-contracts';
+import type { WorkspaceSummary } from '@nexuspilot/ipc-contracts';
 import { ProjectsPage, settleWorkspaceAdd } from '../src/renderer/features/projects/ProjectsPage.js';
 
 const noop = async (): Promise<void> => undefined;

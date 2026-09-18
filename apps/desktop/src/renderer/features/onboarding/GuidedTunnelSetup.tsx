@@ -4,7 +4,7 @@ import {
   type ExternalSetupTarget,
   type TunnelStatus,
   type UiLocale,
-} from '@lnwjud/ipc-contracts';
+} from '@nexuspilot/ipc-contracts';
 import { copyTextToClipboard } from '../../clipboard.js';
 import { createTranslator } from '../../i18n/index.js';
 import { tunnelRuntimeCredentialAvailable } from '../../tunnel-auth-readiness.js';

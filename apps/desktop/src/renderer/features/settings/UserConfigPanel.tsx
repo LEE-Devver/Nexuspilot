@@ -6,7 +6,7 @@ import type {
   PdfProviderInstallResult,
   UiLocale,
   UserSettings,
-} from '@lnwjud/ipc-contracts';
+} from '@nexuspilot/ipc-contracts';
 import { SettingSwitch } from './SettingSwitch.js';
 
 export type UserConfigSection = 'general' | 'security' | 'tools' | 'mcp' | 'tunnel';

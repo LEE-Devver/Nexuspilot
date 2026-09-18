@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import type { ProcessSummary } from '@lnwjud/ipc-contracts';
+import type { ProcessSummary } from '@nexuspilot/ipc-contracts';
 
 interface ProcessPanelProps {
   readonly workspaceId: string | null;

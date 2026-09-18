@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import type { DashboardSnapshot } from '@lnwjud/ipc-contracts';
+import type { DashboardSnapshot } from '@nexuspilot/ipc-contracts';
 import { CapabilityPanel } from '../src/renderer/features/capabilities/CapabilityPanel.js';
 
 const capabilities: DashboardSnapshot['capabilities'] = [

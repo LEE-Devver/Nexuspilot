@@ -11,12 +11,12 @@ import {
   ok,
   type InvocationAuthorization,
   type Result,
-} from '@lnwjud/domain';
-import type { FileActor } from '@lnwjud/application';
-import { capabilityDescriptors, EventLogCapabilityBackend, type CapabilityDescriptor } from '@lnwjud/capabilities';
-import { createProcessTreeTerminator } from '@lnwjud/process';
-import { normalizeProjectProfile } from '@lnwjud/shared';
-import { hostPathApi, isAbsoluteHostPath, normalizeHostPath } from '@lnwjud/workspace';
+} from '@nexuspilot/domain';
+import type { FileActor } from '@nexuspilot/application';
+import { capabilityDescriptors, EventLogCapabilityBackend, type CapabilityDescriptor } from '@nexuspilot/capabilities';
+import { createProcessTreeTerminator } from '@nexuspilot/process';
+import { normalizeProjectProfile } from '@nexuspilot/shared';
+import { hostPathApi, isAbsoluteHostPath, normalizeHostPath } from '@nexuspilot/workspace';
 import type { McpApplicationServices } from './tools/tool-types.js';
 import { ContextEngine } from './context-engine.js';
 import { EccProviderService, type EccArtifactKind } from './ecc-provider.js';

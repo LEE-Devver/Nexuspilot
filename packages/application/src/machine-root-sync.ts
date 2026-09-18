@@ -4,7 +4,7 @@ import {
   normalizeWorkspaceRoot,
   type Workspace,
   type WorkspaceService,
-} from '@lnwjud/workspace';
+} from '@nexuspilot/workspace';
 
 /**
  * Legacy-compatible explicit machine-root registration.

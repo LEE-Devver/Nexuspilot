@@ -1,7 +1,7 @@
 import { McpServer, type CallToolResult, type RegisteredTool } from '@modelcontextprotocol/server';
-import type { DiagnosticLogger, FileActor } from '@lnwjud/application';
-import type { PermissionProfile } from '@lnwjud/permissions';
-import { APP_NAME, APP_VERSION, DEFAULT_PONYTAIL_MODE, parsePonytailMode, type DestructiveAutoApprovalPolicy, type PonytailMode, type ToolAvailabilitySnapshot } from '@lnwjud/shared';
+import type { DiagnosticLogger, FileActor } from '@nexuspilot/application';
+import type { PermissionProfile } from '@nexuspilot/permissions';
+import { APP_NAME, APP_VERSION, DEFAULT_PONYTAIL_MODE, parsePonytailMode, type DestructiveAutoApprovalPolicy, type PonytailMode, type ToolAvailabilitySnapshot } from '@nexuspilot/shared';
 import { readTraceContext, type ActivitySink, type ActivityTracker } from './activity-tracker.js';
 import { withProgressHeartbeat, type ProgressNotifyContext } from './progress-heartbeat.js';
 import { IncrementalVerifier } from './incremental-verifier.js';

@@ -1,6 +1,6 @@
-import { err, ok, type InvocationAuthorization, type Result } from '@lnwjud/domain';
-import type { CapabilityService, EventLogBackendOptions } from '@lnwjud/capabilities';
-import type { ExtensionsService } from '@lnwjud/extensions';
+import { err, ok, type InvocationAuthorization, type Result } from '@nexuspilot/domain';
+import type { CapabilityService, EventLogBackendOptions } from '@nexuspilot/capabilities';
+import type { ExtensionsService } from '@nexuspilot/extensions';
 import type {
   AgentSwarmService,
   ApplyPatchRequest,
@@ -24,7 +24,7 @@ import type {
   WorkspaceIndexService,
   WorkspaceQueryService,
   WriteFileRequest,
-} from '@lnwjud/application';
+} from '@nexuspilot/application';
 import { z } from 'zod';
 import type { ContextEconomyRuntime } from '../context-economy.js';
 import type { EccRuntimeOptions } from '../ecc-provider.js';

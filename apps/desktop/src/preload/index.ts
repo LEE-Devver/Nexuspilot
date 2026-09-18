@@ -76,7 +76,7 @@ import {
   type UserSettings,
   type WorkLogEntry,
   type WorkspaceSummary,
-} from '@lnwjud/ipc-contracts';
+} from '@nexuspilot/ipc-contracts';
 import { parseLogCorrelation } from './log-parser.js';
 
 function invoke(channel: string, payload?: unknown): Promise<unknown> {

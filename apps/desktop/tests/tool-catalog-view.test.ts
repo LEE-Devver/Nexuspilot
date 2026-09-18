@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ToolCatalogItem } from '@lnwjud/ipc-contracts';
+import type { ToolCatalogItem } from '@nexuspilot/ipc-contracts';
 import { catalogStatusCounts, filterAndSortTools, toolControlCanEnable, toolControlEnabled } from '../src/renderer/features/tools/tool-catalog-view.js';
 
 function item(name: string, readiness: ToolCatalogItem['readiness'], origin: ToolCatalogItem['origin'] = 'lnwjud'): ToolCatalogItem {

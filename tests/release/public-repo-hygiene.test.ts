@@ -99,7 +99,7 @@ describe('public repository hygiene', () => {
   });
 
   it('documents the live tool catalog instead of a hand-maintained count', async () => {
-    const { ToolRegistry } = await import('@lnwjud/mcp-server');
+    const { ToolRegistry } = await import('@nexuspilot/mcp-server');
     const readme = await readFile(path.join(repositoryRoot, 'README.md'), 'utf8');
     const actor = { clientId: 'public-repo-hygiene', clientName: 'public-repo-hygiene' };
     const defaultRegistry = new ToolRegistry({}, actor);

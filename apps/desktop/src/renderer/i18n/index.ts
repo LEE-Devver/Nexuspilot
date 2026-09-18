@@ -1,4 +1,4 @@
-import type { UiLocale } from '@lnwjud/ipc-contracts';
+import type { UiLocale } from '@nexuspilot/ipc-contracts';
 import { en, th, type MessageKey, type Messages } from './messages.js';
 import { unrestrictedSafetyBoundaryCopy } from './safety-boundary-copy.js';
 

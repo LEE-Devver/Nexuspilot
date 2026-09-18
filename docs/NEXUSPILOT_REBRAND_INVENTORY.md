@@ -260,10 +260,15 @@ Legacy lnwjud names should be supported only where they protect:
 
 Legacy aliases should be documented, tested, and eventually removable rather than becoming permanent accidental API surface.
 
+## Migration status
+- Stage 1 — visible branding: complete
+- Stage 2 — internal package namespace: complete (`@nexuspilot/*`, root package `nexuspilot`)
+- Stage 3 — compatibility and persistence scaffolding: next
+
 ## Immediate next implementation step
-Start with Stage 1 only.
-Create a small branding commit that changes current visible product identity to NexusPilot while intentionally leaving these untouched:
-- `@lnwjud/*`
+Start Stage 3 compatibility/persistence scaffolding. Before changing canonical external runtime identifiers, add migration helpers and tests for legacy environment/config/data discovery.
+
+The following identities remain intentionally untouched until their later stages:
 - `LNWJUD_*`
 - `.lnwjud`
 - `window.lnwjud`
@@ -274,7 +279,7 @@ Create a small branding commit that changes current visible product identity to 
 - tunnel profile compatibility names
 - historical documents
 
-After Stage 1, run:
+After each migration stage, run:
 ```bash
 corepack pnpm@10.15.0 lint
 corepack pnpm@10.15.0 typecheck

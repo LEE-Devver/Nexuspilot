@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { SearchService, type SearchAdapter } from './search-service.js';
-import type { WorkspaceRepository, Workspace } from '@lnwjud/workspace';
+import type { WorkspaceRepository, Workspace } from '@nexuspilot/workspace';
 
 describe('SearchService', () => {
   it('resolves the workspace before delegating a bounded text search', async () => {

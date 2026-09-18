@@ -3,13 +3,13 @@ import {
   ProtocolError,
   ProtocolErrorCode,
 } from '@modelcontextprotocol/server';
-import type { AppError } from '@lnwjud/domain';
-import type { FileActor } from '@lnwjud/application';
+import type { AppError } from '@nexuspilot/domain';
+import type { FileActor } from '@nexuspilot/application';
 import {
   DEFAULT_MCP_POLL_WAIT_SECONDS,
   MAX_CONFIGURABLE_WAIT_SECONDS,
   MIN_CONFIGURABLE_WAIT_SECONDS,
-} from '@lnwjud/shared';
+} from '@nexuspilot/shared';
 import type { McpApplicationServices } from './tool-registry.js';
 import type { McpToolResponse } from './result-mapper.js';
 import { withCapabilityOwnerMetadata } from './request-scope.js';

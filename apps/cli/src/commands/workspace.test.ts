@@ -1,4 +1,4 @@
-import { ok } from '@lnwjud/domain';
+import { ok } from '@nexuspilot/domain';
 import { describe, expect, it } from 'vitest';
 import { runWorkspaceAdd, runWorkspaceList } from './workspace.js';
 

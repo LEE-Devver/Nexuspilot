@@ -544,4 +544,4 @@ The core V1 catalog intentionally has no:
 The local capability layer is the separate parity extension described in the
 [upgrade architecture contract](../architecture/UPGRADE_ARCHITECTURE.md#god-tier-local-first-vertical-slices).
 
-The skills/MCP bridge package is `@lnwjud/extensions`.
+The skills/MCP bridge package is `@nexuspilot/extensions`.

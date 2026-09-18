@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { appError, err, ok, type Result } from '@lnwjud/domain';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
 import { IncrementalVerifier } from '../incremental-verifier.js';
 import { defineTool, missingService, type McpToolContext, type McpToolDefinition } from './tool-types.js';
 

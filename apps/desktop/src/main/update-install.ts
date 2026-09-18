@@ -1,4 +1,4 @@
-import type { TunnelStatus } from '@lnwjud/ipc-contracts';
+import type { TunnelStatus } from '@nexuspilot/ipc-contracts';
 
 export interface UpdateTunnelStopConfirmationOptions {
   readonly getTunnelStatus: () => Promise<TunnelStatus>;

@@ -7,7 +7,7 @@ import {
   type AuditEventQuery,
   type AuditEventRepository,
   type AuditEventSummaryProjection,
-} from '@lnwjud/audit';
+} from '@nexuspilot/audit';
 import type { SqliteDatabase } from './database.js';
 
 interface AuditEventRow {

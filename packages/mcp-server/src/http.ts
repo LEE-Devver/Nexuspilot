@@ -22,7 +22,7 @@ import { IncrementalVerifier } from './incremental-verifier.js';
 import { RunBudgetGuard } from './run-budget.js';
 import { PonytailActivationLedger } from './ponytail-runtime.js';
 import { createOriginPolicy, type OriginPolicy } from './origin-policy.js';
-import { APP_NAME, APP_VERSION } from '@lnwjud/shared';
+import { APP_NAME, APP_VERSION } from '@nexuspilot/shared';
 
 export const MAX_MCP_HTTP_BODY_BYTES = 1_048_576;
 export const LNWJUD_MCP_IDENTITY_PATH = '/_lnwjud/identity';

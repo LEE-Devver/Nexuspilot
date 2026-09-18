@@ -13,10 +13,10 @@ import {
   LinuxProcessBridge,
   MacosProcessBridge,
   type NativeHostProcessBridge,
-} from '@lnwjud/capabilities';
-import { createProcessTreeTerminator } from '@lnwjud/process';
-import type { DashboardSnapshot } from '@lnwjud/ipc-contracts';
-import { DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS } from '@lnwjud/shared';
+} from '@nexuspilot/capabilities';
+import { createProcessTreeTerminator } from '@nexuspilot/process';
+import type { DashboardSnapshot } from '@nexuspilot/ipc-contracts';
+import { DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS } from '@nexuspilot/shared';
 import { createElectronNativeCapabilityBackends, type ElectronNativeCapabilityApi } from './electron-native-capability-backend.js';
 
 export interface LocalCapabilityRuntime {

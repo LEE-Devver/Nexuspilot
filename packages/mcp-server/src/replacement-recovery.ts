@@ -1,4 +1,4 @@
-import type { Result } from '@lnwjud/domain';
+import type { Result } from '@nexuspilot/domain';
 
 export interface ReplacementRecoveryBackup {
   readonly recoveryId: string;

@@ -1,6 +1,6 @@
 import { useId, useState, type ReactElement } from 'react';
-import type { ActivityTargetDetail, ActivityTargetReference, UiLocale } from '@lnwjud/ipc-contracts';
-import { formatDisplayTimestampItem } from '@lnwjud/shared/date-time-display';
+import type { ActivityTargetDetail, ActivityTargetReference, UiLocale } from '@nexuspilot/ipc-contracts';
+import { formatDisplayTimestampItem } from '@nexuspilot/shared/date-time-display';
 
 interface ExpandableTargetDetailProps {
   readonly locale?: UiLocale;

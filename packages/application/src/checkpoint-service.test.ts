@@ -2,8 +2,8 @@ import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promi
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { permissionProfiles, type PermissionProfile, type PermissionProfileName } from '@lnwjud/permissions';
-import type { Checkpoint, CheckpointRepository, Workspace, WorkspaceRepository } from '@lnwjud/workspace';
+import { permissionProfiles, type PermissionProfile, type PermissionProfileName } from '@nexuspilot/permissions';
+import type { Checkpoint, CheckpointRepository, Workspace, WorkspaceRepository } from '@nexuspilot/workspace';
 import { CheckpointService } from './checkpoint-service.js';
 
 const temporaryRoots: string[] = [];

@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import type { TunnelStatus, UiLocale } from '@lnwjud/ipc-contracts';
+import type { TunnelStatus, UiLocale } from '@nexuspilot/ipc-contracts';
 import { FirstRunTunnelTip } from '../src/renderer/features/onboarding/FirstRunTunnelTip.js';
 import { GuidedTunnelSetup } from '../src/renderer/features/onboarding/GuidedTunnelSetup.js';
 

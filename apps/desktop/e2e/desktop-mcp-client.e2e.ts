@@ -9,7 +9,7 @@ import { electronExecutablePath, terminateProcessTree } from './electron-runtime
 import { settleFirstRunAndOpenHome } from './first-run-helpers.js';
 import { promisify } from 'node:util';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
-import { isAdvertisedDeliveryState, isCodexDelegationTool, UPGRADE_TOOL_CATALOG } from '@lnwjud/mcp-server';
+import { isAdvertisedDeliveryState, isCodexDelegationTool, UPGRADE_TOOL_CATALOG } from '@nexuspilot/mcp-server';
 import { chromium, expect, test, type Page } from '@playwright/test';
 
 const execFileAsync = promisify(execFile);

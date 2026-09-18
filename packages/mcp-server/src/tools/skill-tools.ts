@@ -1,4 +1,4 @@
-import { ok } from '@lnwjud/domain';
+import { ok } from '@nexuspilot/domain';
 import { z } from 'zod';
 import { defineTool, missingService, type McpToolContext, type McpToolDefinition } from './tool-types.js';
 import { skillsListSchema, skillsReadSchema } from './schemas.js';

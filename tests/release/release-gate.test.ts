@@ -107,7 +107,7 @@ describe('MVP release verification gate', () => {
     ) as { scripts?: Record<string, string> };
     expect(desktopPackage.scripts?.['electron:install']).toBe('node node_modules/electron/install.js');
     expect(desktopPackage.scripts?.['test:e2e']).toMatch(/^node node_modules\/electron\/install\.js && /);
-    expect(rootPackage.scripts?.desktop).toContain('--filter @lnwjud/desktop electron:install');
+    expect(rootPackage.scripts?.desktop).toContain('--filter @nexuspilot/desktop electron:install');
   });
 
   it('provisions ripgrep on fresh Windows CI before both verification modes', async () => {
@@ -148,8 +148,8 @@ describe('MVP release verification gate', () => {
     expect(workflow).toContain('desktop-test-shards:');
     expect(workflow).toContain('max-parallel: 6');
     expect(workflow).toContain('--shard=${{ matrix.shard_index }}/${{ matrix.shard_total }}');
-    expect(workflow).toContain("--filter '!@lnwjud/desktop' --if-present test");
-    expect(workflow).toContain("--filter '@lnwjud/mcp-server...' build");
+    expect(workflow).toContain("--filter '!@nexuspilot/desktop' --if-present test");
+    expect(workflow).toContain("--filter '@nexuspilot/mcp-server...' build");
   });
 
   it('installs the pinned Sigstore verifier before authoritative Windows packaging', async () => {

@@ -3,8 +3,8 @@ import { existsSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn, type ChildProcess } from 'node:child_process';
-import { appError, err, ok, type Result } from '@lnwjud/domain';
-import { createProcessTreeTerminator, type ProcessTreeTerminator } from '@lnwjud/process';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
+import { createProcessTreeTerminator, type ProcessTreeTerminator } from '@nexuspilot/process';
 import type { BrowserCdpProtocol, BrowserCdpTab } from './browser-cdp-backend.js';
 
 interface BrowserCdpProtocolOptions {

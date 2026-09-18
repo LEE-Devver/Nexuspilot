@@ -3,8 +3,8 @@ import { createHash, randomBytes, randomInt, timingSafeEqual } from 'node:crypto
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { mkdir, readFile, realpath, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { RemoteMcpStatus } from '@lnwjud/ipc-contracts';
-import type { SecretProtector } from '@lnwjud/shared';
+import type { RemoteMcpStatus } from '@nexuspilot/ipc-contracts';
+import type { SecretProtector } from '@nexuspilot/shared';
 
 export type TokenEndpointAuthMethod = 'none' | 'client_secret_post';
 

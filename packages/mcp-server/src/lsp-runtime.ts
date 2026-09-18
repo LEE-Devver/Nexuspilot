@@ -3,10 +3,10 @@ import { existsSync } from 'node:fs';
 import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { appError, err, ok, type Result } from '@lnwjud/domain';
-import { PathExecutableResolver, toWindowsSpawnInvocation, type ExecutableResolver } from '@lnwjud/process';
-import type { FileActor } from '@lnwjud/application';
-import { hostPathApi, isAbsoluteHostPath, isHostPathWithin, resolveHostPath } from '@lnwjud/workspace';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
+import { PathExecutableResolver, toWindowsSpawnInvocation, type ExecutableResolver } from '@nexuspilot/process';
+import type { FileActor } from '@nexuspilot/application';
+import { hostPathApi, isAbsoluteHostPath, isHostPathWithin, resolveHostPath } from '@nexuspilot/workspace';
 import type { McpApplicationServices } from './tools/tool-types.js';
 
 /**

@@ -2,7 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ok, type Result } from '@lnwjud/domain';
+import { ok, type Result } from '@nexuspilot/domain';
 import type { CapabilityBackend } from './local-capability-service.js';
 import { WslCapabilityBackend, WslFilesystemCapabilityBackend } from './wsl-backend.js';
 import { CAPABILITY_TASK_OWNER_METADATA_KEY } from './task-ownership.js';

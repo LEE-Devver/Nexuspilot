@@ -1,4 +1,4 @@
-import type { UiLocale } from '@lnwjud/ipc-contracts';
+import type { UiLocale } from '@nexuspilot/ipc-contracts';
 
 export function unrestrictedSafetyBoundaryCopy(locale: UiLocale): string {
   return locale === 'th'

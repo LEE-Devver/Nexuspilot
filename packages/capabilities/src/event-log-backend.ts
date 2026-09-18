@@ -1,6 +1,6 @@
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
-import { appError, err, ok, type Result } from '@lnwjud/domain';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
 import type { CapabilityBackend } from './local-capability-service.js';
 import { sanitizedChildEnvironment } from './sanitized-child-environment.js';
 

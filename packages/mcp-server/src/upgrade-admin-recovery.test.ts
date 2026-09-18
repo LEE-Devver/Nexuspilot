@@ -2,8 +2,8 @@ import { mkdtemp, readFile, readdir } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ok } from '@lnwjud/domain';
-import type { FileActor } from '@lnwjud/application';
+import { ok } from '@nexuspilot/domain';
+import type { FileActor } from '@nexuspilot/application';
 import { UpgradeRuntimeService } from './upgrade-runtime.js';
 
 const actor: FileActor = { clientId: 'admin-recovery', clientName: 'admin-recovery-test', sessionId: 'session-a' };

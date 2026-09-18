@@ -1,5 +1,5 @@
 import { useCallback, useState, type ReactElement } from 'react';
-import type { IncidentClassification, LiveLogExportReference, LogLine, LogSource, TunnelAuthStatus, UiLocale, WorkspaceSummary } from '@lnwjud/ipc-contracts';
+import type { IncidentClassification, LiveLogExportReference, LogLine, LogSource, TunnelAuthStatus, UiLocale, WorkspaceSummary } from '@nexuspilot/ipc-contracts';
 import { formatDateTime } from '../../date-time.js';
 import { createTranslator } from '../../i18n/index.js';
 import { tunnelAuthPresentation } from '../../tunnel-auth-presentation.js';

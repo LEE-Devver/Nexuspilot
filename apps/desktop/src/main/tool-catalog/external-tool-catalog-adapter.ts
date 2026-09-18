@@ -1,5 +1,5 @@
-import type { ExtensionsService } from '@lnwjud/extensions';
-import type { ToolCatalogItem, UiLocale } from '@lnwjud/ipc-contracts';
+import type { ExtensionsService } from '@nexuspilot/extensions';
+import type { ToolCatalogItem, UiLocale } from '@nexuspilot/ipc-contracts';
 
 export async function projectExternalMcpTools(
   extensions: ExtensionsService,

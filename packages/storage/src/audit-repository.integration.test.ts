@@ -2,7 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { AuditEvent } from '@lnwjud/audit';
+import type { AuditEvent } from '@nexuspilot/audit';
 import { SqliteAuditRepository } from './audit-repository.js';
 import { SqliteDatabase } from './database.js';
 

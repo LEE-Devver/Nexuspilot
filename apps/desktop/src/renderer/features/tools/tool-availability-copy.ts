@@ -1,4 +1,4 @@
-import type { ToolCatalogItem, UiLocale } from '@lnwjud/ipc-contracts';
+import type { ToolCatalogItem, UiLocale } from '@nexuspilot/ipc-contracts';
 
 export function toolAvailabilityLabel(locale: UiLocale, item: ToolCatalogItem): string {
   if (item.userPreference === 'disabled') {

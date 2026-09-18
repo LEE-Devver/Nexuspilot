@@ -2,7 +2,7 @@ import { readFile, mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createExplicitKeySecretProtector } from '@lnwjud/shared';
+import { createExplicitKeySecretProtector } from '@nexuspilot/shared';
 import { TunnelController } from '../src/main/tunnel-controller.js';
 
 const temporaryRoots: string[] = [];

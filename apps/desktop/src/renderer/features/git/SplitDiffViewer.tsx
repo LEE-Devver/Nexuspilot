@@ -1,5 +1,5 @@
 import { Fragment, useRef, useState, type ReactElement } from 'react';
-import type { UiLocale } from '@lnwjud/ipc-contracts';
+import type { UiLocale } from '@nexuspilot/ipc-contracts';
 
 export interface DiffRow {
   readonly oldLineNumber: number | null;

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import type { DoctorCheck, DoctorReport, RemediationAction, ResolvedRemediation, UiLocale } from '@lnwjud/ipc-contracts';
+import type { DoctorCheck, DoctorReport, RemediationAction, ResolvedRemediation, UiLocale } from '@nexuspilot/ipc-contracts';
 import { formatDateTime } from '../../date-time.js';
 import { createTranslator } from '../../i18n/index.js';
 

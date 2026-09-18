@@ -1,5 +1,5 @@
-import { appError, ok } from '@lnwjud/domain';
-import type { McpServerOptions } from '@lnwjud/mcp-server';
+import { appError, ok } from '@nexuspilot/domain';
+import type { McpServerOptions } from '@nexuspilot/mcp-server';
 import { describe, expect, it } from 'vitest';
 import { runMcpStdioCommand, type McpStdioServerHandle, type McpStdioServerStarter } from './mcp-stdio.js';
 

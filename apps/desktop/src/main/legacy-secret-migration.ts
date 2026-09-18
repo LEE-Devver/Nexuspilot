@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { copyFile, lstat, mkdir, open, readFile, realpath, rename, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { assertSecretPlaintext, SECRET_ENVELOPE_PREFIX, type SecretProtector } from '@lnwjud/shared';
+import { assertSecretPlaintext, SECRET_ENVELOPE_PREFIX, type SecretProtector } from '@nexuspilot/shared';
 
 const MAX_LEGACY_FILE_BYTES = 64 * 1024;
 const MAX_HELPER_OUTPUT_BYTES = 64 * 1024;

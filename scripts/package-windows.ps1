@@ -26,7 +26,7 @@ try {
         $env:LNWJUD_SOURCE_DIRTY_AT_START = if ($sourceDirtyAtStart) { '1' } else { '0' }
         $capturedSourceDirtyAtStart = $true
     }
-    & corepack pnpm@10.15.0 --filter @lnwjud/desktop package:windows
+    & corepack pnpm@10.15.0 --filter @nexuspilot/desktop package:windows
     if ($LASTEXITCODE -ne 0) {
         throw "Windows packaging failed with exit code $LASTEXITCODE"
     }

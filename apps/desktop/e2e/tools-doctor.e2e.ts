@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { electronExecutablePath, terminateProcessTree } from './electron-runtime.js';
-import { ToolRegistry } from '@lnwjud/mcp-server';
+import { ToolRegistry } from '@nexuspilot/mcp-server';
 import { chromium, expect, test, type Browser, type Locator, type Page } from '@playwright/test';
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');

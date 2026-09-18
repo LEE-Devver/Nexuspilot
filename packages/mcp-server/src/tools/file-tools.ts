@@ -1,4 +1,4 @@
-import { appError, err } from '@lnwjud/domain';
+import { appError, err } from '@nexuspilot/domain';
 import { defineTool, missingService, type McpToolContext, type McpToolDefinition } from './tool-types.js';
 import {
   applyPatchSchema,

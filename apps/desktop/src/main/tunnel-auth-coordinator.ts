@@ -1,4 +1,4 @@
-import type { TunnelAuthMode, TunnelAuthStatus } from '@lnwjud/ipc-contracts';
+import type { TunnelAuthMode, TunnelAuthStatus } from '@nexuspilot/ipc-contracts';
 import type { TunnelAuthDiagnostics, TunnelAuthProvider, TunnelRuntimeCredential } from './tunnel-auth.js';
 
 export interface TunnelAuthModeStore {

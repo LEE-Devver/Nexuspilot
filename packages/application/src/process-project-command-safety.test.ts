@@ -2,9 +2,9 @@ import { mkdtemp, realpath, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ok, type CommandSpec, type Result } from '@lnwjud/domain';
-import type { ManagedProcess, ManagedProcessStart, ProcessLogResult } from '@lnwjud/process';
-import type { Workspace, WorkspaceRepository } from '@lnwjud/workspace';
+import { ok, type CommandSpec, type Result } from '@nexuspilot/domain';
+import type { ManagedProcess, ManagedProcessStart, ProcessLogResult } from '@nexuspilot/process';
+import type { Workspace, WorkspaceRepository } from '@nexuspilot/workspace';
 import { ProcessService, type ProcessManagerPort, type ProjectCommandSource } from './process-service.js';
 
 const roots: string[] = [];

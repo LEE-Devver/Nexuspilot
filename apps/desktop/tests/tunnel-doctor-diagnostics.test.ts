@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { McpConnectionStatus, TunnelStatus } from '@lnwjud/ipc-contracts';
+import type { McpConnectionStatus, TunnelStatus } from '@nexuspilot/ipc-contracts';
 import { buildPersistentTunnelDoctorChecks } from '../src/main/desktop-services.js';
 
 function tunnel(overrides: Partial<TunnelStatus> = {}): TunnelStatus {

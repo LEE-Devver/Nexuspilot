@@ -57,7 +57,7 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         shell: bash
         run: |
-          corepack pnpm@10.15.0 --filter @lnwjud/desktop typecheck
+          corepack pnpm@10.15.0 --filter @nexuspilot/desktop typecheck
           corepack pnpm@10.15.0 test:packaging
 
       - name: Open update PR against dev

@@ -2,8 +2,8 @@ import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { AuditService, redactActivityTargetDetail } from '@lnwjud/audit';
-import { SqliteAuditRepository, SqliteDatabase } from '@lnwjud/storage';
+import { AuditService, redactActivityTargetDetail } from '@nexuspilot/audit';
+import { SqliteAuditRepository, SqliteDatabase } from '@nexuspilot/storage';
 import * as desktopServices from '../src/main/desktop-services.js';
 
 const temporaryRoots: string[] = [];

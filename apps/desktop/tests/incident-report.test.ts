@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatOffsetIsoTimestamp } from '@lnwjud/shared/date-time-display';
+import { formatOffsetIsoTimestamp } from '@nexuspilot/shared/date-time-display';
 import { LogHub } from '../src/main/log-hub.js';
 import {
   buildIncidentReport, selectRelevantProcesses,

@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { ok } from '@lnwjud/domain';
+import { ok } from '@nexuspilot/domain';
 import type { McpApplicationServices } from './tools/tool-types.js';
 
 type ServiceResolver = (method: string, args: readonly unknown[]) => unknown;

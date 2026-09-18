@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { FileService } from './file-service.js';
-import { WorkspacePathGuard, type Workspace, type WorkspaceRepository } from '@lnwjud/workspace';
+import { WorkspacePathGuard, type Workspace, type WorkspaceRepository } from '@nexuspilot/workspace';
 
 const temporaryRoots: string[] = [];
 

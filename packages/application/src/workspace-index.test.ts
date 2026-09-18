@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { Workspace, WorkspaceRepository } from '@lnwjud/workspace';
+import type { Workspace, WorkspaceRepository } from '@nexuspilot/workspace';
 import { JsonWorkspaceIndexStore, WorkspaceIndexService } from './workspace-index.js';
 
 function fixtureRepository(workspace: Workspace): WorkspaceRepository {

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { err, ok, type Result } from '@lnwjud/domain';
-import type { FileActor } from '@lnwjud/application';
+import { err, ok, type Result } from '@nexuspilot/domain';
+import type { FileActor } from '@nexuspilot/application';
 import type { McpApplicationServices } from './tools/tool-types.js';
 
 export interface FilePageRequest {

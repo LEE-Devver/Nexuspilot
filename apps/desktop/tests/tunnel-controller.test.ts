@@ -1548,7 +1548,7 @@ interface FakeChild extends EventEmitter {
 async function ownedController(kill: () => boolean, stopTimeoutMs = 2_000, shutdownOptions: {
   platform?: NodeJS.Platform;
   terminateOwnedProcessTree?: (pid: number) => Promise<void>;
-  inspectOwnedProcess?: (pid: number) => Promise<import('@lnwjud/mcp-server').ProcessProbeResult>;
+  inspectOwnedProcess?: (pid: number) => Promise<import('@nexuspilot/mcp-server').ProcessProbeResult>;
   inspectOwnedProcessTree?: (rootPid: number) => Promise<readonly { readonly pid: number; readonly processStartedAt: string }[]>;
   escalationTimeoutMs?: number;
 } = {}, lockHooks?: NonNullable<Parameters<typeof acquireTunnelLock>[0]['hooks']>): Promise<{

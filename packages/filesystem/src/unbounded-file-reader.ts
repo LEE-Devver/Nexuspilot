@@ -1,6 +1,6 @@
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { err, ok, type Result } from '@lnwjud/domain';
+import { err, ok, type Result } from '@nexuspilot/domain';
 
 export interface BinaryFileResult {
   readonly content: string;

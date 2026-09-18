@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactElement } from 'react';
-import type { PermissionProfileName, UiLocale } from '@lnwjud/ipc-contracts';
+import type { PermissionProfileName, UiLocale } from '@nexuspilot/ipc-contracts';
 import { createTranslator } from '../../i18n/index.js';
 
 interface FirstRunTunnelTipProps {

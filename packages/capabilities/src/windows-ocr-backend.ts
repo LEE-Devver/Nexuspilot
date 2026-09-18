@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
-import { appError, err, ok, type AppErrorCode, type Result } from '@lnwjud/domain';
-import { WindowsProcessTree, type ProcessTreeTerminator } from '@lnwjud/process';
+import { appError, err, ok, type AppErrorCode, type Result } from '@nexuspilot/domain';
+import { WindowsProcessTree, type ProcessTreeTerminator } from '@nexuspilot/process';
 import type { CapabilityBackend } from './local-capability-service.js';
 
 export type WindowsOcrHelper = CapabilityBackend;

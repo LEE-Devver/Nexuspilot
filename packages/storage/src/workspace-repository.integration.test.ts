@@ -2,7 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { Workspace } from '@lnwjud/workspace';
+import type { Workspace } from '@nexuspilot/workspace';
 import { SqliteDatabase } from './database.js';
 import { SqliteWorkspaceRepository } from './workspace-repository.js';
 

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
-import { appError, err, ok, type Result } from '@lnwjud/domain';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
 
 export interface SandboxExecutionPlanInput {
   readonly workspaceId: string;

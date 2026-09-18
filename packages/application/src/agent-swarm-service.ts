@@ -1,14 +1,14 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { Redactor } from '@lnwjud/audit';
-import { appError, err, isApplicationAuthorized, ok, type InvocationAuthorization, type Result } from '@lnwjud/domain';
-import type { ManagedProcess, ProcessLogResult } from '@lnwjud/process';
+import { Redactor } from '@nexuspilot/audit';
+import { appError, err, isApplicationAuthorized, ok, type InvocationAuthorization, type Result } from '@nexuspilot/domain';
+import type { ManagedProcess, ProcessLogResult } from '@nexuspilot/process';
 import {
   SqliteAgentSwarmRepository,
   type StoredAgentSwarm,
   type StoredAgentSwarmState,
   type StoredAgentSwarmTask,
   type StoredAgentSwarmTaskState,
-} from '@lnwjud/storage';
+} from '@nexuspilot/storage';
 import type { FileActor } from './file-service.js';
 import type {
   AgentSwarmListPage,

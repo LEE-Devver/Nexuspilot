@@ -2,7 +2,7 @@ import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ok } from '@lnwjud/domain';
+import { ok } from '@nexuspilot/domain';
 import { LspRuntimeService } from './lsp-runtime.js';
 import type { McpApplicationServices } from './tools/tool-types.js';
 

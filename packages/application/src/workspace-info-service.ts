@@ -1,4 +1,4 @@
-import { appError, err, ok, type Result } from '@lnwjud/domain';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
 import {
   hostPathApi,
   isAbsoluteHostPath,
@@ -8,7 +8,7 @@ import {
   type Workspace,
   type WorkspaceRepository,
   type WorkspaceService,
-} from '@lnwjud/workspace';
+} from '@nexuspilot/workspace';
 import type { FileActor } from './file-service.js';
 
 export type WorkspaceKind = 'machine_root' | 'project';

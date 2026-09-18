@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ok } from '@lnwjud/domain';
+import { ok } from '@nexuspilot/domain';
 import { ContextEconomyRuntime } from '../context-economy.js';
 import { ActivityTracker, type ActivitySinkEvent } from '../activity-tracker.js';
 import { ToolRegistry } from '../tool-registry.js';

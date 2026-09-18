@@ -13,14 +13,14 @@ import {
   SearchService,
   WorkspaceInfoService,
   WorkspaceQueryService,
-} from '@lnwjud/application';
-import { AuditService } from '@lnwjud/audit';
-import { CodexAdapter, type CodexDiscoveryPort, type CodexInvocationBuilderPort } from '@lnwjud/codex';
-import { ok, type Result } from '@lnwjud/domain';
-import { ProcessManager } from '@lnwjud/process';
-import { ToolRegistry, type McpApplicationServices } from '@lnwjud/mcp-server';
-import { SqliteAuditRepository, SqliteDatabase, SqliteWorkspaceRepository } from '@lnwjud/storage';
-import { WorkspaceService } from '@lnwjud/workspace';
+} from '@nexuspilot/application';
+import { AuditService } from '@nexuspilot/audit';
+import { CodexAdapter, type CodexDiscoveryPort, type CodexInvocationBuilderPort } from '@nexuspilot/codex';
+import { ok, type Result } from '@nexuspilot/domain';
+import { ProcessManager } from '@nexuspilot/process';
+import { ToolRegistry, type McpApplicationServices } from '@nexuspilot/mcp-server';
+import { SqliteAuditRepository, SqliteDatabase, SqliteWorkspaceRepository } from '@nexuspilot/storage';
+import { WorkspaceService } from '@nexuspilot/workspace';
 
 const execFileAsync = promisify(execFile);
 const temporaryRoots: string[] = [];

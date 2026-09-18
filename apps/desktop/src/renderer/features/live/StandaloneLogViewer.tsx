@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
-import { workspaceScopeMatches, type DashboardSnapshot, type LiveLogExportReference, type LogLine, type LogSource, type TunnelAuthStatus, type UiLocale, type WorkspaceSummary } from '@lnwjud/ipc-contracts';
+import { workspaceScopeMatches, type DashboardSnapshot, type LiveLogExportReference, type LogLine, type LogSource, type TunnelAuthStatus, type UiLocale, type WorkspaceSummary } from '@nexuspilot/ipc-contracts';
 import { createTranslator } from '../../i18n/index.js';
 import { tunnelAuthPresentation } from '../../tunnel-auth-presentation.js';
 import { appendLogBatch, applyLogSnapshot, rememberLogId } from './log-buffer.js';

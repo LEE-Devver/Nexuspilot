@@ -1,5 +1,5 @@
 import { realpath, stat } from 'node:fs/promises';
-import { isHostPathWithin, isPosixMountRoot, resolveHostPath, type Workspace, type WorkspaceRepository } from '@lnwjud/workspace';
+import { isHostPathWithin, isPosixMountRoot, resolveHostPath, type Workspace, type WorkspaceRepository } from '@nexuspilot/workspace';
 
 export class StrictWorkspaceRepository implements WorkspaceRepository {
   private readonly allowed = new Set<string>();

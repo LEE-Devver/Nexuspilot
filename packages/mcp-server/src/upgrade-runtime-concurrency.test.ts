@@ -2,8 +2,8 @@
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ok } from '@lnwjud/domain';
-import type { FileActor } from '@lnwjud/application';
+import { ok } from '@nexuspilot/domain';
+import type { FileActor } from '@nexuspilot/application';
 import { UpgradeRuntimeService } from './upgrade-runtime.js';
 import { UpgradeRuntimeStateStore } from './upgrade-runtime-state-store.js';
 

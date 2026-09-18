@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { WorkspaceInfoService } from './workspace-info-service.js';
-import { WorkspaceService, type Workspace, type WorkspaceRepository } from '@lnwjud/workspace';
+import { WorkspaceService, type Workspace, type WorkspaceRepository } from '@nexuspilot/workspace';
 
 const temporaryRoots: string[] = [];
 

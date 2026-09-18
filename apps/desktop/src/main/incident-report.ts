@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { rename, unlink, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { LogLine, TunnelLifecycleCategory, TunnelStatus } from '@lnwjud/ipc-contracts';
-import { DEFAULT_DISPLAY_TIME_ZONE, formatOffsetIsoTimestamp } from '@lnwjud/shared/date-time-display';
+import type { LogLine, TunnelLifecycleCategory, TunnelStatus } from '@nexuspilot/ipc-contracts';
+import { DEFAULT_DISPLAY_TIME_ZONE, formatOffsetIsoTimestamp } from '@nexuspilot/shared/date-time-display';
 import type { CrashEventHistoryRecord } from './crash-recovery.js';
 import type { TunnelIncidentRuntimeDiagnostics } from './tunnel-controller.js';
 

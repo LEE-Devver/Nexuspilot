@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { err, type Result } from '@lnwjud/domain';
+import { err, type Result } from '@nexuspilot/domain';
 import { UPGRADE_TOOL_CATALOG } from './upgrade-catalog.js';
 import { ToolRegistry } from './tool-registry.js';
 import { withNativeDiagnosticFixture } from './native-diagnostic-test-fixture.js';

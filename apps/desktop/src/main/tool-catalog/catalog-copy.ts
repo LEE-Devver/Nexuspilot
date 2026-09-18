@@ -1,4 +1,4 @@
-import type { UiLocale } from '@lnwjud/ipc-contracts';
+import type { UiLocale } from '@nexuspilot/ipc-contracts';
 import { catalogDefinitions, catalogSourceDescriptions } from './catalog-definitions.js';
 
 interface ToolCopy {

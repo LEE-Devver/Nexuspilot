@@ -11,8 +11,8 @@ import {
   type GoalTaskCancellationObservation,
   type InvocationAuthorization,
   type Result,
-} from '@lnwjud/domain';
-import { createProcessTreeTerminator, PathExecutableResolver, toSpawnInvocation, type ExecutableResolver, type ProcessTreeTerminator } from '@lnwjud/process';
+} from '@nexuspilot/domain';
+import { createProcessTreeTerminator, PathExecutableResolver, toSpawnInvocation, type ExecutableResolver, type ProcessTreeTerminator } from '@nexuspilot/process';
 import type { CapabilityBackend } from './local-capability-service.js';
 import { prohibitedAgentCommandReason, riskyAgentCommandReason } from './agent-command-policy.js';
 import { DurableShellTaskStore } from './durable-shell-task-store.js';

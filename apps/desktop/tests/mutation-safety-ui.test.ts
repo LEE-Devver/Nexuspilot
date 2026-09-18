@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { APP_VERSION, type DashboardSnapshot } from '@lnwjud/ipc-contracts';
+import { APP_VERSION, type DashboardSnapshot } from '@nexuspilot/ipc-contracts';
 import { AppShell } from '../src/renderer/features/shell/AppShell.js';
 import { SettingsPage } from '../src/renderer/features/settings/SettingsPage.js';
 

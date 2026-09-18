@@ -2,7 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { Checkpoint } from '@lnwjud/workspace';
+import type { Checkpoint } from '@nexuspilot/workspace';
 import { AesGcmCheckpointCipher } from './checkpoint-cipher.js';
 import { SqliteCheckpointRepository } from './checkpoint-repository.js';
 import { SqliteDatabase } from './database.js';

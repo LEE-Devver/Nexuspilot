@@ -2,7 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { ScheduledContinuationWorkerLivenessPort } from '@lnwjud/domain';
+import type { ScheduledContinuationWorkerLivenessPort } from '@nexuspilot/domain';
 import type { FileActor } from './file-service.js';
 import { GoalContinuationService, type RunGoalResult } from './goal-continuation-service.js';
 import { ScheduledContinuationService, type PrepareScheduledContinuationRequest } from './scheduled-continuation-service.js';

@@ -1,7 +1,7 @@
-import { appError, err, ok, type Result } from '@lnwjud/domain';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
 import { McpConfigLoader } from './mcp-config-loader.js';
 import { fingerprintExternalMcpValue, McpSessionManager, type McpClientFactory } from './mcp-session-manager.js';
-import type { ProcessTreeTerminator } from '@lnwjud/process';
+import type { ProcessTreeTerminator } from '@nexuspilot/process';
 import { SkillCatalog } from './skill-catalog.js';
 import type {
   ExtensionsService,

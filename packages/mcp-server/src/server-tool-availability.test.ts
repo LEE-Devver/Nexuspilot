@@ -1,7 +1,7 @@
 import { Client, InMemoryTransport } from '@modelcontextprotocol/client';
 import { describe, expect, it, vi } from 'vitest';
-import type { FileActor } from '@lnwjud/application';
-import type { ToolAvailabilitySnapshot } from '@lnwjud/shared';
+import type { FileActor } from '@nexuspilot/application';
+import type { ToolAvailabilitySnapshot } from '@nexuspilot/shared';
 import { createMcpServer } from './server.js';
 import type { McpApplicationServices } from './tool-registry.js';
 

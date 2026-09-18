@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { appError, err, ok } from '@lnwjud/domain';
-import { permissionProfiles } from '@lnwjud/permissions';
+import { appError, err, ok } from '@nexuspilot/domain';
+import { permissionProfiles } from '@nexuspilot/permissions';
 import { ToolRegistry, type McpApplicationServices } from './tool-registry.js';
 import { BUNDLED_PONYTAIL_REVIEW_SKILL_ID, BUNDLED_PONYTAIL_SKILL_ID, PonytailActivationLedger } from './ponytail-runtime.js';
 

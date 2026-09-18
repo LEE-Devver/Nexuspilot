@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type ReactElement, type UIEvent } from 'react';
-import { canonicalWorkspaceScopeId, workspaceScopeMatches, type ActivityTargetDetail, type LiveLogExportReference, type LogLevel, type LogLine, type LogSource, type UiLocale, type WorkspaceSummary } from '@lnwjud/ipc-contracts';
-import { formatDisplayTimestampItem } from '@lnwjud/shared/date-time-display';
+import { canonicalWorkspaceScopeId, workspaceScopeMatches, type ActivityTargetDetail, type LiveLogExportReference, type LogLevel, type LogLine, type LogSource, type UiLocale, type WorkspaceSummary } from '@nexuspilot/ipc-contracts';
+import { formatDisplayTimestampItem } from '@nexuspilot/shared/date-time-display';
 import { copyTextToClipboard } from '../../clipboard.js';
 import type { MessageKey } from '../../i18n/messages.js';
 import { formatLogExportDateTime, formatLogUiTime } from '../../log-timestamp.js';

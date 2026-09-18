@@ -2,9 +2,9 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { activityTargetReference, AuditService, redactActivityTargetDetail } from '@lnwjud/audit';
-import { ActivityTracker, type ActivitySinkEvent } from '@lnwjud/mcp-server';
-import { SqliteAuditRepository, SqliteDatabase } from '@lnwjud/storage';
+import { activityTargetReference, AuditService, redactActivityTargetDetail } from '@nexuspilot/audit';
+import { ActivityTracker, type ActivitySinkEvent } from '@nexuspilot/mcp-server';
+import { SqliteAuditRepository, SqliteDatabase } from '@nexuspilot/storage';
 import { LogHub } from '../src/main/log-hub.js';
 
 const temporaryRoots: string[] = [];

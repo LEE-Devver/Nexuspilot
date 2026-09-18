@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
-import type { HostMutationApprovalRequest } from '@lnwjud/mcp-server';
-import type { UiLocale } from '@lnwjud/ipc-contracts';
+import type { HostMutationApprovalRequest } from '@nexuspilot/mcp-server';
+import type { UiLocale } from '@nexuspilot/ipc-contracts';
 
 export interface MutationApprovalDialogOptions {
   readonly type: 'warning';

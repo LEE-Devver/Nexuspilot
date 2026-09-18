@@ -1,5 +1,5 @@
-import type { ToolCatalogDefinition, ToolCategory, ToolRiskMode } from '@lnwjud/ipc-contracts';
-import { ToolRegistry, upgradeCatalogEntry, type McpToolDefinition } from '@lnwjud/mcp-server';
+import type { ToolCatalogDefinition, ToolCategory, ToolRiskMode } from '@nexuspilot/ipc-contracts';
+import { ToolRegistry, upgradeCatalogEntry, type McpToolDefinition } from '@nexuspilot/mcp-server';
 
 export const KNOWN_TOOL_REQUIREMENT_IDS = Object.freeze([
   'platform_windows',

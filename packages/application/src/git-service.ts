@@ -8,7 +8,7 @@ import {
   ok,
   type InvocationAuthorization,
   type Result,
-} from '@lnwjud/domain';
+} from '@nexuspilot/domain';
 import {
   GitAdapter,
   type GitCommandResult,
@@ -17,9 +17,9 @@ import {
   type GitLogRequest,
   type GitLogResult,
   type GitStatusResult,
-} from '@lnwjud/git';
-import { WorkspacePathGuard, type Workspace, type WorkspaceRepository } from '@lnwjud/workspace';
-import { isProvablyReadOnlyGitInvocation, prohibitedAgentGitInvocationReason } from '@lnwjud/shared';
+} from '@nexuspilot/git';
+import { WorkspacePathGuard, type Workspace, type WorkspaceRepository } from '@nexuspilot/workspace';
+import { isProvablyReadOnlyGitInvocation, prohibitedAgentGitInvocationReason } from '@nexuspilot/shared';
 import type { FileActor } from './file-service.js';
 import { isAbsoluteFsPath, resolveWorkspaceForPath } from './workspace-locator.js';
 

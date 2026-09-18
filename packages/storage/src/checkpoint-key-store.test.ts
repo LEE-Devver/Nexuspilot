@@ -2,7 +2,7 @@ import { readFile, readdir, rm, mkdtemp, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { createExplicitKeySecretProtector, type SecretProtector } from '@lnwjud/shared';
+import { createExplicitKeySecretProtector, type SecretProtector } from '@nexuspilot/shared';
 import { CheckpointKeyStore } from './checkpoint-key-store.js';
 
 describe('CheckpointKeyStore', () => {

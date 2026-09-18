@@ -1,4 +1,4 @@
-import type { RemediationAction, ResolvedRemediation, UiLocale } from '@lnwjud/ipc-contracts';
+import type { RemediationAction, ResolvedRemediation, UiLocale } from '@nexuspilot/ipc-contracts';
 import { KNOWN_TOOL_REQUIREMENT_IDS } from './catalog-definitions.js';
 
 interface RemediationDefinition {

@@ -97,4 +97,4 @@ At the start of a new Claude Code session:
 6. Prefer tests and incremental commits over large mechanical rewrites.
 
 ## Immediate next task
-The rebrand inventory is complete in `docs/NEXUSPILOT_REBRAND_INVENTORY.md`. Follow its staged migration order. Start with Stage 1 visible branding only; do not rename package namespaces, environment variables, persisted paths, IPC identifiers, executable/installer names, MCP runtime identity, native-host names, tunnel compatibility names, or historical upstream documents yet.
+Rebrand Stages 1–2 are complete: visible product branding is NexusPilot and the monorepo package namespace is `@nexuspilot/*` (root package `nexuspilot`). Follow `docs/NEXUSPILOT_REBRAND_INVENTORY.md` and begin Stage 3 compatibility/persistence scaffolding next. Add explicit migration/fallback support for inherited external state before renaming environment variables, persisted paths, IPC identifiers, executable/installer names, MCP runtime identity, native-host names, or tunnel compatibility names.

@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import type { DashboardSnapshot } from '@lnwjud/ipc-contracts';
+import type { DashboardSnapshot } from '@nexuspilot/ipc-contracts';
 import { ControlCenterPage } from '../src/renderer/features/home/ControlCenterPage.js';
 import { LiveLogsPage } from '../src/renderer/features/live/LiveLogsPage.js';
 

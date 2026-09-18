@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
-import { workspaceScopeMatches } from '@lnwjud/ipc-contracts';
+import { workspaceScopeMatches } from '@nexuspilot/ipc-contracts';
 import type {
   DashboardSnapshot,
   DestructiveDeletePolicy,
@@ -21,7 +21,7 @@ import type {
   TunnelStatus,
   TunnelOAuthLoginStatus,
   WorkspaceSummary,
-} from '@lnwjud/ipc-contracts';
+} from '@nexuspilot/ipc-contracts';
 import { AppShell, type Screen } from './features/shell/AppShell.js';
 import { ControlCenterPage } from './features/home/ControlCenterPage.js';
 import { ProjectsPage } from './features/projects/ProjectsPage.js';

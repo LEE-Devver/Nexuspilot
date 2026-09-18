@@ -1,5 +1,5 @@
-import type { Result } from '@lnwjud/domain';
-import type { Workspace, WorkspaceService } from '@lnwjud/workspace';
+import type { Result } from '@nexuspilot/domain';
+import type { Workspace, WorkspaceService } from '@nexuspilot/workspace';
 import { describe, expect, it } from 'vitest';
 import { syncMachineRoots, syncPreferredMachineRoot } from './machine-root-sync.js';
 

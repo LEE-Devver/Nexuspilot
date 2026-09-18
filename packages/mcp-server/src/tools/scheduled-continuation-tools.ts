@@ -2,7 +2,7 @@ import { z } from 'zod';
 import {
   MAX_SUCCESSOR_DELAY_MINUTES,
   MIN_SUCCESSOR_DELAY_MINUTES,
-} from '@lnwjud/application';
+} from '@nexuspilot/application';
 import { defineTool, missingService, type McpToolContext, type McpToolDefinition } from './tool-types.js';
 
 const continuationId = z.string().min(1).max(128);

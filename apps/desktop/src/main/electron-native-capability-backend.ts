@@ -1,9 +1,9 @@
 import os from 'node:os';
 import path from 'node:path';
 import { realpath, stat } from 'node:fs/promises';
-import { appError, err, isApplicationAuthorized, isFullBypassAuthorization, ok, type InvocationAuthorization, type Result } from '@lnwjud/domain';
-import type { CapabilityBackend } from '@lnwjud/capabilities';
-import { readCapabilityActiveWorkspaceRoot } from '@lnwjud/capabilities';
+import { appError, err, isApplicationAuthorized, isFullBypassAuthorization, ok, type InvocationAuthorization, type Result } from '@nexuspilot/domain';
+import type { CapabilityBackend } from '@nexuspilot/capabilities';
+import { readCapabilityActiveWorkspaceRoot } from '@nexuspilot/capabilities';
 
 export type ElectronNativeCapabilityName = 'system_info' | 'notification' | 'file_dialog' | 'clipboard' | 'vision';
 

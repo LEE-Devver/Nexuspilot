@@ -5,7 +5,7 @@ import {
   Redactor,
   type ActivityTargetDetail,
   type ActivityTargetReference,
-} from '@lnwjud/audit';
+} from '@nexuspilot/audit';
 
 export interface ActivitySinkEvent {
   readonly callId: string;

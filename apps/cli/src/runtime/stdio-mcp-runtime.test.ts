@@ -2,12 +2,12 @@ import { mkdtemp, readFile, readdir, realpath, rm, writeFile } from 'node:fs/pro
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { SqliteDatabase, SqliteSettingsRepository, SqliteWorkspaceRepository } from '@lnwjud/storage';
-import { permissionProfiles } from '@lnwjud/permissions';
-import { CAPABILITY_TASK_OWNER_METADATA_KEY } from '@lnwjud/capabilities';
-import { USER_SETTING_KEYS, serializeToolAvailabilitySnapshot } from '@lnwjud/shared';
+import { SqliteDatabase, SqliteSettingsRepository, SqliteWorkspaceRepository } from '@nexuspilot/storage';
+import { permissionProfiles } from '@nexuspilot/permissions';
+import { CAPABILITY_TASK_OWNER_METADATA_KEY } from '@nexuspilot/capabilities';
+import { USER_SETTING_KEYS, serializeToolAvailabilitySnapshot } from '@nexuspilot/shared';
 import { createStdioMcpRuntime } from './stdio-mcp-runtime.js';
-import { sharedActivityLeaseDirectoryPath } from '@lnwjud/mcp-server';
+import { sharedActivityLeaseDirectoryPath } from '@nexuspilot/mcp-server';
 
 const temporaryRoots: string[] = [];
 const TEST_CHECKPOINT_KEY = Buffer.alloc(32, 0x46).toString('base64');

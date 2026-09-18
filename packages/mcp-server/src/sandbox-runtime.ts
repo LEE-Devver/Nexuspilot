@@ -2,8 +2,8 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { appError, err, isApplicationAuthorized, ok, type InvocationAuthorization, type Result } from '@lnwjud/domain';
-import type { FileActor } from '@lnwjud/application';
+import { appError, err, isApplicationAuthorized, ok, type InvocationAuthorization, type Result } from '@nexuspilot/domain';
+import type { FileActor } from '@nexuspilot/application';
 import type { McpApplicationServices } from './tools/tool-types.js';
 import { buildSandboxExecutionPlan } from './sandbox-contract.js';
 

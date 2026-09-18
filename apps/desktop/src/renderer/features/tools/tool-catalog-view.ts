@@ -1,4 +1,4 @@
-import type { ToolCatalogItem, ToolCategory, ToolDeclaredPermission, ToolOrigin, ToolProfileDecision, ToolReadinessStatus } from '@lnwjud/ipc-contracts';
+import type { ToolCatalogItem, ToolCategory, ToolDeclaredPermission, ToolOrigin, ToolProfileDecision, ToolReadinessStatus } from '@nexuspilot/ipc-contracts';
 
 export interface ToolCatalogFilters {
   readonly origin: ToolOrigin;

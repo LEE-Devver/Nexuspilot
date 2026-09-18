@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import type { DashboardSnapshot } from '@lnwjud/ipc-contracts';
+import type { DashboardSnapshot } from '@nexuspilot/ipc-contracts';
 
 interface CapabilityPanelProps {
   readonly capabilities: DashboardSnapshot['capabilities'];

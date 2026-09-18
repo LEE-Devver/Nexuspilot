@@ -10,9 +10,9 @@ import type {
   ToolReadinessReason,
   ToolReadinessStatus,
   UiLocale,
-} from '@lnwjud/ipc-contracts';
-import { ToolRegistry, isAdvertisedDeliveryState, isCodexDelegationTool, upgradeCatalogEntry } from '@lnwjud/mcp-server';
-import { DEFAULT_TOOL_AVAILABILITY_SNAPSHOT, resolveEffectiveToolAvailability, type ToolAvailabilitySnapshot } from '@lnwjud/shared';
+} from '@nexuspilot/ipc-contracts';
+import { ToolRegistry, isAdvertisedDeliveryState, isCodexDelegationTool, upgradeCatalogEntry } from '@nexuspilot/mcp-server';
+import { DEFAULT_TOOL_AVAILABILITY_SNAPSHOT, resolveEffectiveToolAvailability, type ToolAvailabilitySnapshot } from '@nexuspilot/shared';
 import { catalogDefinitions } from './catalog-definitions.js';
 import { resolveCatalogCopy } from './catalog-copy.js';
 import { RequirementRegistry, type RequirementSnapshot } from './requirement-registry.js';

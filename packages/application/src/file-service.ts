@@ -11,7 +11,7 @@ import {
   ok,
   type InvocationAuthorization,
   type Result,
-} from '@lnwjud/domain';
+} from '@nexuspilot/domain';
 import {
   AtomicFileWriter,
   MAX_FILE_WRITE_BYTES,
@@ -23,10 +23,10 @@ import {
   nodeErrorCode,
   type FilePatch,
   type LineRange,
-} from '@lnwjud/filesystem';
-import { DefaultPermissionEngine, permissionProfiles, type PermissionEngine, type PermissionProfile } from '@lnwjud/permissions';
-import { isProtectedCriticalPath } from '@lnwjud/shared';
-import { isFilesystemRoot, isWithin, WorkspacePathGuard, type ResolvedWorkspacePath, type Workspace, type WorkspaceRepository } from '@lnwjud/workspace';
+} from '@nexuspilot/filesystem';
+import { DefaultPermissionEngine, permissionProfiles, type PermissionEngine, type PermissionProfile } from '@nexuspilot/permissions';
+import { isProtectedCriticalPath } from '@nexuspilot/shared';
+import { isFilesystemRoot, isWithin, WorkspacePathGuard, type ResolvedWorkspacePath, type Workspace, type WorkspaceRepository } from '@nexuspilot/workspace';
 import type { CheckpointServicePort } from './checkpoint-service.js';
 import { resolveSharedWorkspace, resolveWorkspaceForPath } from './workspace-locator.js';
 

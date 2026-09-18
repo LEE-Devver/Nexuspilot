@@ -1,4 +1,4 @@
-import type { CommandSpec } from '@lnwjud/domain';
+import type { CommandSpec } from '@nexuspilot/domain';
 import { defineTool, missingService, type McpToolContext, type McpToolDefinition } from './tool-types.js';
 import { processHandleSchema, processLogsSchema, processStartSchema, processStopSchema, projectCommandSchema } from './schemas.js';
 

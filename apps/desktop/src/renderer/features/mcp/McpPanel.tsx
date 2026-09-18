@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import type { DashboardSnapshot, WorkspaceSummary } from '@lnwjud/ipc-contracts';
+import type { DashboardSnapshot, WorkspaceSummary } from '@nexuspilot/ipc-contracts';
 
 interface McpPanelProps {
   readonly status: DashboardSnapshot['mcp'];

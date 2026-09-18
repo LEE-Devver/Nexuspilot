@@ -1,11 +1,11 @@
 import { createHash } from 'node:crypto';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
-import { appError, err, ok, type Result } from '@lnwjud/domain';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
 import {
   createProcessTreeTerminator,
   type ProcessTreeTerminator,
-} from '@lnwjud/process';
+} from '@nexuspilot/process';
 import type { ExternalMcpContractDrift, McpResourceSummary, McpServerLaunchConfig, McpSessionLifecycle, McpToolSummary } from './types.js';
 
 export interface McpClientSession {

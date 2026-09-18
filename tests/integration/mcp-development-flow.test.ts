@@ -4,11 +4,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { afterEach, describe, expect, it } from 'vitest';
-import { CheckpointService, FileService, GitService, ProcessService, ProjectService, ProjectSnapshotService, SearchService, WorkspaceInfoService, WorkspaceQueryService } from '@lnwjud/application';
-import { ok, type CommandSpec, type Result } from '@lnwjud/domain';
-import { ToolRegistry, type McpApplicationServices } from '@lnwjud/mcp-server';
-import { SqliteCheckpointRepository, SqliteDatabase, SqliteWorkspaceRepository } from '@lnwjud/storage';
-import { WorkspaceService } from '@lnwjud/workspace';
+import { CheckpointService, FileService, GitService, ProcessService, ProjectService, ProjectSnapshotService, SearchService, WorkspaceInfoService, WorkspaceQueryService } from '@nexuspilot/application';
+import { ok, type CommandSpec, type Result } from '@nexuspilot/domain';
+import { ToolRegistry, type McpApplicationServices } from '@nexuspilot/mcp-server';
+import { SqliteCheckpointRepository, SqliteDatabase, SqliteWorkspaceRepository } from '@nexuspilot/storage';
+import { WorkspaceService } from '@nexuspilot/workspace';
 
 const execFileAsync = promisify(execFile);
 const temporaryRoots: string[] = [];

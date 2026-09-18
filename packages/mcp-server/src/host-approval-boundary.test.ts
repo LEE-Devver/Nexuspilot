@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
-import { ok } from '@lnwjud/domain';
-import { permissionProfiles, type PermissionProfile } from '@lnwjud/permissions';
-import { DEFAULT_DESTRUCTIVE_AUTO_APPROVAL_POLICY, type DestructiveAutoApprovalPolicy } from '@lnwjud/shared';
+import { ok } from '@nexuspilot/domain';
+import { permissionProfiles, type PermissionProfile } from '@nexuspilot/permissions';
+import { DEFAULT_DESTRUCTIVE_AUTO_APPROVAL_POLICY, type DestructiveAutoApprovalPolicy } from '@nexuspilot/shared';
 import { ToolRegistry, type McpApplicationServices, type WorkspaceScope } from './tool-registry.js';
 
 const actor = { clientId: 'host-approval', clientName: 'host-approval-test' };

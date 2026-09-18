@@ -1,5 +1,5 @@
 import { useState, type ReactElement } from 'react';
-import type { DashboardSnapshot, GitStatusEntrySummary, UiLocale, WorkspaceSummary } from '@lnwjud/ipc-contracts';
+import type { DashboardSnapshot, GitStatusEntrySummary, UiLocale, WorkspaceSummary } from '@nexuspilot/ipc-contracts';
 import { createTranslator } from '../../i18n/index.js';
 import { SplitDiffViewer } from './SplitDiffViewer.js';
 

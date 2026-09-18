@@ -23,7 +23,7 @@ import {
   type ScheduledContinuationSnapshot,
   type ScheduledContinuationWorkerLivenessPort,
   type ScheduledTaskCancellationInstruction,
-} from '@lnwjud/domain';
+} from '@nexuspilot/domain';
 import type { FileActor } from './file-service.js';
 import type { GoalSnapshot, RunGoalResult } from './goal-continuation-service.js';
 

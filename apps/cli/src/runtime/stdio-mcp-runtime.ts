@@ -22,8 +22,8 @@ import {
   WorkspaceQueryService,
   ToolAvailabilityService,
   type FileActor,
-} from '@lnwjud/application';
-import { AuditService, decodeActivityTargetReference } from '@lnwjud/audit';
+} from '@nexuspilot/application';
+import { AuditService, decodeActivityTargetReference } from '@nexuspilot/audit';
 import {
   createPlatformCapabilitySet,
   type LocalCapabilityService,
@@ -31,15 +31,15 @@ import {
   type ShellCapabilityBackend,
   WINDOWS_CAPABILITY_BRIDGE_SHA256,
   WINDOWS_CAPABILITY_BRIDGE_SIZE_BYTES,
-} from '@lnwjud/capabilities';
-import { ALLOW_AI_DELETE_SETTING_KEY, DESTRUCTIVE_AUTO_APPROVAL_SETTING_KEY, DEFAULT_CODEX_TOOLS_ENABLED, DEFAULT_MCP_CALL_TIMEOUT_MS, DEFAULT_MCP_IDLE_TIMEOUT_MS, DEFAULT_PROCESS_TIMEOUT_MS, DEFAULT_MCP_POLL_WAIT_SECONDS, DEFAULT_PONYTAIL_MODE, DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS, USER_SETTING_KEYS, parseBooleanSetting, parseCustomPermissionSettings, parseDestructiveAutoApprovalPolicy, parseIntegerSetting, parsePathList, parsePonytailMode, parseStringRecordSetting, type DestructiveAutoApprovalPolicy, type PonytailMode } from '@lnwjud/shared';
+} from '@nexuspilot/capabilities';
+import { ALLOW_AI_DELETE_SETTING_KEY, DESTRUCTIVE_AUTO_APPROVAL_SETTING_KEY, DEFAULT_CODEX_TOOLS_ENABLED, DEFAULT_MCP_CALL_TIMEOUT_MS, DEFAULT_MCP_IDLE_TIMEOUT_MS, DEFAULT_PROCESS_TIMEOUT_MS, DEFAULT_MCP_POLL_WAIT_SECONDS, DEFAULT_PONYTAIL_MODE, DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS, USER_SETTING_KEYS, parseBooleanSetting, parseCustomPermissionSettings, parseDestructiveAutoApprovalPolicy, parseIntegerSetting, parsePathList, parsePonytailMode, parseStringRecordSetting, type DestructiveAutoApprovalPolicy, type PonytailMode } from '@nexuspilot/shared';
 import {
   EXTENSIONS_SETTINGS_KEY,
   createLocalExtensionsService,
   type ExtensionsService,
-} from '@lnwjud/extensions';
-import { ActivityTracker, RuntimeGoalManagedTaskStateReader, SharedActivitySnapshotLease, composeActivitySinks, createFileActivitySink, currentSharedActivityOwner, mcpActivityLogPath, type ActivitySink, type ActivitySinkEvent, type McpApplicationServices, type WorkspaceScope } from '@lnwjud/mcp-server';
-import { permissionProfiles, type PermissionProfile, type PermissionProfileName } from '@lnwjud/permissions';
+} from '@nexuspilot/extensions';
+import { ActivityTracker, RuntimeGoalManagedTaskStateReader, SharedActivitySnapshotLease, composeActivitySinks, createFileActivitySink, currentSharedActivityOwner, mcpActivityLogPath, type ActivitySink, type ActivitySinkEvent, type McpApplicationServices, type WorkspaceScope } from '@nexuspilot/mcp-server';
+import { permissionProfiles, type PermissionProfile, type PermissionProfileName } from '@nexuspilot/permissions';
 import {
   AesGcmCheckpointCipher,
   SqliteAgentSwarmRepository,
@@ -49,8 +49,8 @@ import {
   SqliteGoalRepository,
   SqliteSettingsRepository,
   SqliteWorkspaceRepository,
-} from '@lnwjud/storage';
-import { isMachineRootPath, SecretPolicy, WorkspacePathGuard, WorkspaceService, type Workspace } from '@lnwjud/workspace';
+} from '@nexuspilot/storage';
+import { isMachineRootPath, SecretPolicy, WorkspacePathGuard, WorkspaceService, type Workspace } from '@nexuspilot/workspace';
 import { StrictWorkspaceRepository } from './strict-workspace-repository.js';
 
 export interface StdioMcpRuntime {

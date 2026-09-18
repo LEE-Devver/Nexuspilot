@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { HostMutationApprovalRequest } from '@lnwjud/mcp-server';
+import type { HostMutationApprovalRequest } from '@nexuspilot/mcp-server';
 import { createDesktopRuntime } from '../src/main/desktop-services.js';
 
 const temporaryRoots: string[] = [];

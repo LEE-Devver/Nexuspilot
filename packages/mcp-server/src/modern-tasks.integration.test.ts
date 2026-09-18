@@ -9,7 +9,7 @@ import {
   type JSONRPCResponse,
   type Transport,
 } from '@modelcontextprotocol/client';
-import { ok } from '@lnwjud/domain';
+import { ok } from '@nexuspilot/domain';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { startMcpHttp, type McpHttpServerHandle } from './http.js';
 import { MODERN_TASKS_EXTENSION_ID } from './modern-tasks-protocol.js';

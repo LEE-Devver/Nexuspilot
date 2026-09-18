@@ -1,4 +1,4 @@
-import type { DoctorReport } from '@lnwjud/ipc-contracts';
+import type { DoctorReport } from '@nexuspilot/ipc-contracts';
 import type { Screen } from '../shell/AppShell.js';
 
 export const STARTUP_DOCTOR_STORAGE_KEY = 'lnwjud.startup-doctor.passed-version.v1';

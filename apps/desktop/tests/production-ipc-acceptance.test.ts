@@ -3,7 +3,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { APP_VERSION, ipcChannels, type TunnelStatus } from '@lnwjud/ipc-contracts';
+import { APP_VERSION, ipcChannels, type TunnelStatus } from '@nexuspilot/ipc-contracts';
 
 const electronHarness = vi.hoisted(() => ({
   handlers: new Map<string, (event: unknown, payload?: unknown) => Promise<unknown>>(),

@@ -14,28 +14,28 @@ importers:
       '@eslint/js':
         specifier: 9.33.0
         version: 9.33.0
-      '@lnwjud/application':
+      '@nexuspilot/application':
         specifier: workspace:*
         version: link:packages/application
-      '@lnwjud/audit':
+      '@nexuspilot/audit':
         specifier: workspace:*
         version: link:packages/audit
-      '@lnwjud/codex':
+      '@nexuspilot/codex':
         specifier: workspace:*
         version: link:packages/codex
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:packages/domain
-      '@lnwjud/mcp-server':
+      '@nexuspilot/mcp-server':
         specifier: workspace:*
         version: link:packages/mcp-server
-      '@lnwjud/process':
+      '@nexuspilot/process':
         specifier: workspace:*
         version: link:packages/process
-      '@lnwjud/storage':
+      '@nexuspilot/storage':
         specifier: workspace:*
         version: link:packages/storage
-      '@lnwjud/workspace':
+      '@nexuspilot/workspace':
         specifier: workspace:*
         version: link:packages/workspace
       '@types/node':
@@ -56,82 +56,82 @@ importers:
 
   apps/cli:
     dependencies:
-      '@lnwjud/application':
+      '@nexuspilot/application':
         specifier: workspace:*
         version: link:../../packages/application
-      '@lnwjud/audit':
+      '@nexuspilot/audit':
         specifier: workspace:*
         version: link:../../packages/audit
-      '@lnwjud/capabilities':
+      '@nexuspilot/capabilities':
         specifier: workspace:*
         version: link:../../packages/capabilities
-      '@lnwjud/codex':
+      '@nexuspilot/codex':
         specifier: workspace:*
         version: link:../../packages/codex
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../../packages/domain
-      '@lnwjud/extensions':
+      '@nexuspilot/extensions':
         specifier: workspace:*
         version: link:../../packages/extensions
-      '@lnwjud/mcp-server':
+      '@nexuspilot/mcp-server':
         specifier: workspace:*
         version: link:../../packages/mcp-server
-      '@lnwjud/permissions':
+      '@nexuspilot/permissions':
         specifier: workspace:*
         version: link:../../packages/permissions
-      '@lnwjud/shared':
+      '@nexuspilot/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      '@lnwjud/storage':
+      '@nexuspilot/storage':
         specifier: workspace:*
         version: link:../../packages/storage
-      '@lnwjud/workspace':
+      '@nexuspilot/workspace':
         specifier: workspace:*
         version: link:../../packages/workspace
 
   apps/desktop:
     dependencies:
-      '@lnwjud/application':
+      '@nexuspilot/application':
         specifier: workspace:*
         version: link:../../packages/application
-      '@lnwjud/audit':
+      '@nexuspilot/audit':
         specifier: workspace:*
         version: link:../../packages/audit
-      '@lnwjud/capabilities':
+      '@nexuspilot/capabilities':
         specifier: workspace:*
         version: link:../../packages/capabilities
-      '@lnwjud/codex':
+      '@nexuspilot/codex':
         specifier: workspace:*
         version: link:../../packages/codex
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../../packages/domain
-      '@lnwjud/extensions':
+      '@nexuspilot/extensions':
         specifier: workspace:*
         version: link:../../packages/extensions
-      '@lnwjud/ipc-contracts':
+      '@nexuspilot/ipc-contracts':
         specifier: workspace:*
         version: link:../../packages/ipc-contracts
-      '@lnwjud/mcp-server':
+      '@nexuspilot/mcp-server':
         specifier: workspace:*
         version: link:../../packages/mcp-server
-      '@lnwjud/permissions':
+      '@nexuspilot/permissions':
         specifier: workspace:*
         version: link:../../packages/permissions
-      '@lnwjud/process':
+      '@nexuspilot/process':
         specifier: workspace:*
         version: link:../../packages/process
-      '@lnwjud/search':
+      '@nexuspilot/search':
         specifier: workspace:*
         version: link:../../packages/search
-      '@lnwjud/shared':
+      '@nexuspilot/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      '@lnwjud/storage':
+      '@nexuspilot/storage':
         specifier: workspace:*
         version: link:../../packages/storage
-      '@lnwjud/workspace':
+      '@nexuspilot/workspace':
         specifier: workspace:*
         version: link:../../packages/workspace
       ecc-agentshield:
@@ -186,40 +186,40 @@ importers:
 
   packages/application:
     dependencies:
-      '@lnwjud/audit':
+      '@nexuspilot/audit':
         specifier: workspace:*
         version: link:../audit
-      '@lnwjud/codex':
+      '@nexuspilot/codex':
         specifier: workspace:*
         version: link:../codex
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
-      '@lnwjud/filesystem':
+      '@nexuspilot/filesystem':
         specifier: workspace:*
         version: link:../filesystem
-      '@lnwjud/git':
+      '@nexuspilot/git':
         specifier: workspace:*
         version: link:../git
-      '@lnwjud/permissions':
+      '@nexuspilot/permissions':
         specifier: workspace:*
         version: link:../permissions
-      '@lnwjud/process':
+      '@nexuspilot/process':
         specifier: workspace:*
         version: link:../process
-      '@lnwjud/project':
+      '@nexuspilot/project':
         specifier: workspace:*
         version: link:../project
-      '@lnwjud/search':
+      '@nexuspilot/search':
         specifier: workspace:*
         version: link:../search
-      '@lnwjud/shared':
+      '@nexuspilot/shared':
         specifier: workspace:*
         version: link:../shared
-      '@lnwjud/storage':
+      '@nexuspilot/storage':
         specifier: workspace:*
         version: link:../storage
-      '@lnwjud/workspace':
+      '@nexuspilot/workspace':
         specifier: workspace:*
         version: link:../workspace
 
@@ -227,22 +227,22 @@ importers:
 
   packages/capabilities:
     dependencies:
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
-      '@lnwjud/process':
+      '@nexuspilot/process':
         specifier: workspace:*
         version: link:../process
-      '@lnwjud/shared':
+      '@nexuspilot/shared':
         specifier: workspace:*
         version: link:../shared
 
   packages/codex:
     dependencies:
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
-      '@lnwjud/process':
+      '@nexuspilot/process':
         specifier: workspace:*
         version: link:../process
 
@@ -250,31 +250,31 @@ importers:
 
   packages/extensions:
     dependencies:
-      '@lnwjud/domain':
-        specifier: workspace:*
-        version: link:../domain
-      '@lnwjud/process':
-        specifier: workspace:*
-        version: link:../process
       '@modelcontextprotocol/client':
         specifier: 2.0.0
         version: 2.0.0
+      '@nexuspilot/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@nexuspilot/process':
+        specifier: workspace:*
+        version: link:../process
 
   packages/filesystem:
     dependencies:
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
-      '@lnwjud/workspace':
+      '@nexuspilot/workspace':
         specifier: workspace:*
         version: link:../workspace
 
   packages/git:
     dependencies:
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
-      '@lnwjud/process':
+      '@nexuspilot/process':
         specifier: workspace:*
         version: link:../process
 
@@ -282,36 +282,36 @@ importers:
 
   packages/mcp-server:
     dependencies:
-      '@lnwjud/application':
-        specifier: workspace:*
-        version: link:../application
-      '@lnwjud/audit':
-        specifier: workspace:*
-        version: link:../audit
-      '@lnwjud/capabilities':
-        specifier: workspace:*
-        version: link:../capabilities
-      '@lnwjud/domain':
-        specifier: workspace:*
-        version: link:../domain
-      '@lnwjud/extensions':
-        specifier: workspace:*
-        version: link:../extensions
-      '@lnwjud/permissions':
-        specifier: workspace:*
-        version: link:../permissions
-      '@lnwjud/process':
-        specifier: workspace:*
-        version: link:../process
-      '@lnwjud/search':
-        specifier: workspace:*
-        version: link:../search
-      '@lnwjud/shared':
-        specifier: workspace:*
-        version: link:../shared
       '@modelcontextprotocol/server':
         specifier: 2.0.0
         version: 2.0.0
+      '@nexuspilot/application':
+        specifier: workspace:*
+        version: link:../application
+      '@nexuspilot/audit':
+        specifier: workspace:*
+        version: link:../audit
+      '@nexuspilot/capabilities':
+        specifier: workspace:*
+        version: link:../capabilities
+      '@nexuspilot/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@nexuspilot/extensions':
+        specifier: workspace:*
+        version: link:../extensions
+      '@nexuspilot/permissions':
+        specifier: workspace:*
+        version: link:../permissions
+      '@nexuspilot/process':
+        specifier: workspace:*
+        version: link:../process
+      '@nexuspilot/search':
+        specifier: workspace:*
+        version: link:../search
+      '@nexuspilot/shared':
+        specifier: workspace:*
+        version: link:../shared
       zod:
         specifier: 4.2.0
         version: 4.2.0
@@ -322,31 +322,31 @@ importers:
 
   packages/permissions:
     dependencies:
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
-      '@lnwjud/shared':
+      '@nexuspilot/shared':
         specifier: workspace:*
         version: link:../shared
 
   packages/process:
     dependencies:
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
 
   packages/project:
     dependencies:
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
 
   packages/search:
     dependencies:
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
-      '@lnwjud/process':
+      '@nexuspilot/process':
         specifier: workspace:*
         version: link:../process
 
@@ -354,25 +354,25 @@ importers:
 
   packages/storage:
     dependencies:
-      '@lnwjud/audit':
+      '@nexuspilot/audit':
         specifier: workspace:*
         version: link:../audit
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
-      '@lnwjud/shared':
+      '@nexuspilot/shared':
         specifier: workspace:*
         version: link:../shared
-      '@lnwjud/workspace':
+      '@nexuspilot/workspace':
         specifier: workspace:*
         version: link:../workspace
 
   packages/workspace:
     dependencies:
-      '@lnwjud/domain':
+      '@nexuspilot/domain':
         specifier: workspace:*
         version: link:../domain
-      '@lnwjud/shared':
+      '@nexuspilot/shared':
         specifier: workspace:*
         version: link:../shared
 

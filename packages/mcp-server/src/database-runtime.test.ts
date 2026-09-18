@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
-import { ok } from '@lnwjud/domain';
+import { ok } from '@nexuspilot/domain';
 import { DatabaseRuntimeService } from './database-runtime.js';
 import type { McpApplicationServices } from './tools/tool-types.js';
 

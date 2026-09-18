@@ -3,8 +3,8 @@ import {
   DEFAULT_GOAL_LEASE_SECONDS,
   MAX_GOAL_LEASE_SECONDS,
   MIN_GOAL_LEASE_SECONDS,
-} from '@lnwjud/application';
-import { ok } from '@lnwjud/domain';
+} from '@nexuspilot/application';
+import { ok } from '@nexuspilot/domain';
 import { defineTool, missingService, type McpToolContext, type McpToolDefinition } from './tool-types.js';
 
 const goalKey = z.string().min(1).max(128).regex(/^[A-Za-z0-9][A-Za-z0-9._:-]*$/);

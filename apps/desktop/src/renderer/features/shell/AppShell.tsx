@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import type { DashboardSnapshot, UiLocale, UpdateStatus } from '@lnwjud/ipc-contracts';
+import type { DashboardSnapshot, UiLocale, UpdateStatus } from '@nexuspilot/ipc-contracts';
 import { createTranslator } from '../../i18n/index.js';
 import type { MessageKey } from '../../i18n/messages.js';
 

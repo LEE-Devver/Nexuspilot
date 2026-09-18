@@ -180,10 +180,10 @@ const nativeCiScenarios: readonly Scenario[] = [
   ['096 native platform contract runs the release-scenario suite', () => expectWorkflowContains('tests/integration/cross-platform-release-scenarios.test.ts')],
   ['097 native contract keeps non-desktop packages and shards the desktop suite', async () => {
     const workflow = await workflowSource();
-    expect(workflow).toContain("run: corepack pnpm@10.15.0 -r --filter '!@lnwjud/desktop' --if-present test");
+    expect(workflow).toContain("run: corepack pnpm@10.15.0 -r --filter '!@nexuspilot/desktop' --if-present test");
     expect(workflow).toContain('desktop-test-shards:');
     expect(workflow).toContain('--shard=${{ matrix.shard_index }}/${{ matrix.shard_total }}');
-    expect(workflow).toContain("--filter '@lnwjud/mcp-server...' build");
+    expect(workflow).toContain("--filter '@nexuspilot/mcp-server...' build");
     expect(workflow).not.toContain("if: matrix.name != 'Windows'");
   }],
   ['098 packaged Electron E2E exercises a real MCP client', () => expectWorkflowContains('desktop-mcp-client.e2e.ts')],

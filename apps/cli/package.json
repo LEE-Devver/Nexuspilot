@@ -1,20 +1,20 @@
 {
-  "name": "@lnwjud/cli",
+  "name": "@nexuspilot/cli",
   "version": "5.2.2",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@lnwjud/application": "workspace:*",
-    "@lnwjud/audit": "workspace:*",
-    "@lnwjud/capabilities": "workspace:*",
-    "@lnwjud/codex": "workspace:*",
-    "@lnwjud/domain": "workspace:*",
-    "@lnwjud/extensions": "workspace:*",
-    "@lnwjud/mcp-server": "workspace:*",
-    "@lnwjud/permissions": "workspace:*",
-    "@lnwjud/shared": "workspace:*",
-    "@lnwjud/storage": "workspace:*",
-    "@lnwjud/workspace": "workspace:*"
+    "@nexuspilot/application": "workspace:*",
+    "@nexuspilot/audit": "workspace:*",
+    "@nexuspilot/capabilities": "workspace:*",
+    "@nexuspilot/codex": "workspace:*",
+    "@nexuspilot/domain": "workspace:*",
+    "@nexuspilot/extensions": "workspace:*",
+    "@nexuspilot/mcp-server": "workspace:*",
+    "@nexuspilot/permissions": "workspace:*",
+    "@nexuspilot/shared": "workspace:*",
+    "@nexuspilot/storage": "workspace:*",
+    "@nexuspilot/workspace": "workspace:*"
   },
   "scripts": {
     "test": "vitest run",

@@ -2,7 +2,7 @@ import { mkdtemp, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ok } from '@lnwjud/domain';
+import { ok } from '@nexuspilot/domain';
 import { WindowsNativeCapabilityBackend, type WindowsCapabilityBridge } from './windows-native-backend.js';
 
 describe('WindowsNativeCapabilityBackend', () => {

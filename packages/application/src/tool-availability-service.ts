@@ -5,7 +5,7 @@ import {
   serializeToolAvailabilitySnapshot,
   type ToolAvailabilityOverride,
   type ToolAvailabilitySnapshot,
-} from '@lnwjud/shared';
+} from '@nexuspilot/shared';
 
 export interface ToolAvailabilitySettingsPort {
   get(key: string): string | null;

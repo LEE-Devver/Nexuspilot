@@ -3,9 +3,9 @@ import { watch, type FSWatcher } from 'node:fs';
 import { mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { appError, err, ok, type Result } from '@lnwjud/domain';
-import { classifyContextPath, type ContextDiscoveryMode } from '@lnwjud/search';
-import { hostPathApi, isHostPathWithin, resolveHostPath, type Workspace, type WorkspaceRepository } from '@lnwjud/workspace';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
+import { classifyContextPath, type ContextDiscoveryMode } from '@nexuspilot/search';
+import { hostPathApi, isHostPathWithin, resolveHostPath, type Workspace, type WorkspaceRepository } from '@nexuspilot/workspace';
 import { WorkspaceIndexQueue, type WorkspaceIndexQueueOptions, type WorkspaceIndexQueueStatus } from './workspace-index-queue.js';
 
 export interface WorkspaceIndexEntry {

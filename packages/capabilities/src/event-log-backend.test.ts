@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ok, type Result } from '@lnwjud/domain';
+import { ok, type Result } from '@nexuspilot/domain';
 import { EventLogCapabilityBackend } from './event-log-backend.js';
 
 function backendWithRunner(runner: (script: string, environment: Record<string, string>) => Promise<Result<string>>): EventLogCapabilityBackend {

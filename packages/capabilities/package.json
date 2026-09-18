@@ -1,5 +1,5 @@
 {
-  "name": "@lnwjud/capabilities",
+  "name": "@nexuspilot/capabilities",
   "version": "5.2.2",
   "private": true,
   "type": "module",
@@ -13,9 +13,9 @@
     }
   },
   "dependencies": {
-    "@lnwjud/domain": "workspace:*",
-    "@lnwjud/process": "workspace:*",
-    "@lnwjud/shared": "workspace:*"
+    "@nexuspilot/domain": "workspace:*",
+    "@nexuspilot/process": "workspace:*",
+    "@nexuspilot/shared": "workspace:*"
   },
   "scripts": {
     "test": "vitest run --fileParallelism=false",

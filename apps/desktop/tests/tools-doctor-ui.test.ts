@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import type { DoctorReport, ResolvedRemediation, ToolCatalogItem } from '@lnwjud/ipc-contracts';
+import type { DoctorReport, ResolvedRemediation, ToolCatalogItem } from '@nexuspilot/ipc-contracts';
 import { formatDateTime } from '../src/renderer/date-time.js';
 import { DoctorPanel } from '../src/renderer/features/doctor/DoctorPanel.js';
 import { ToolDetailModal } from '../src/renderer/features/tools/ToolDetailModal.js';

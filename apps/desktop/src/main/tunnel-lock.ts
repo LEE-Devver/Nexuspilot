@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { link, mkdir, open, readFile, rename, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { probeProcessStart, type ProcessProbeResult } from '@lnwjud/mcp-server';
+import { probeProcessStart, type ProcessProbeResult } from '@nexuspilot/mcp-server';
 
 const LOCK_FILE = 'lnwjud.tunnel.lock';
 const POSIX_MUTEX_FILE = 'lnwjud.tunnel.mutex';

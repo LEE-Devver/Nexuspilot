@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { ipcChannels, type LnwjudApi, type ToolCatalogItem, type ToolCatalogSnapshot, type UserSettings } from '@lnwjud/ipc-contracts';
+import { ipcChannels, type LnwjudApi, type ToolCatalogItem, type ToolCatalogSnapshot, type UserSettings } from '@nexuspilot/ipc-contracts';
 
 const electron = vi.hoisted(() => ({
   exposed: undefined as LnwjudApi | undefined,

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MAX_SEARCH_RESULTS, MAX_TREE_DEPTH, MAX_TREE_ENTRIES, MAX_MULTI_FILE_BYTES } from '@lnwjud/domain';
+import { MAX_SEARCH_RESULTS, MAX_TREE_DEPTH, MAX_TREE_ENTRIES, MAX_MULTI_FILE_BYTES } from '@nexuspilot/domain';
 
 const MAX_PATH_LENGTH = 4096;
 const MAX_WORKSPACE_ID_LENGTH = 128;

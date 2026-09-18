@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import type { DashboardSnapshot, PermissionProfileName, ProcessSummary, WorkspaceSummary } from '@lnwjud/ipc-contracts';
+import type { DashboardSnapshot, PermissionProfileName, ProcessSummary, WorkspaceSummary } from '@nexuspilot/ipc-contracts';
 import { PermissionPanel } from '../permissions/PermissionPanel.js';
 import { ProcessPanel } from '../processes/ProcessPanel.js';
 import { McpPanel } from '../mcp/McpPanel.js';

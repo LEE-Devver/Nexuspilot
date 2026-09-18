@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import type { UpdateStatus } from '@lnwjud/ipc-contracts';
+import type { UpdateStatus } from '@nexuspilot/ipc-contracts';
 import { describe, expect, it, vi } from 'vitest';
 import { nativeMessages } from '../src/main/native-i18n.js';
 import {

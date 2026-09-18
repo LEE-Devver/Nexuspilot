@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { appError, err, ok } from '@lnwjud/domain';
+import { appError, err, ok } from '@nexuspilot/domain';
 import { ContextEconomyRuntime } from '../context-economy.js';
 import { ToolRegistry } from '../tool-registry.js';
 import { scheduledContinuationTools } from './scheduled-continuation-tools.js';

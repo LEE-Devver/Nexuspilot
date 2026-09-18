@@ -1,5 +1,5 @@
 {
-  "name": "@lnwjud/storage",
+  "name": "@nexuspilot/storage",
   "version": "5.2.2",
   "private": true,
   "type": "module",
@@ -13,10 +13,10 @@
     }
   },
   "dependencies": {
-    "@lnwjud/audit": "workspace:*",
-    "@lnwjud/domain": "workspace:*",
-    "@lnwjud/shared": "workspace:*",
-    "@lnwjud/workspace": "workspace:*"
+    "@nexuspilot/audit": "workspace:*",
+    "@nexuspilot/domain": "workspace:*",
+    "@nexuspilot/shared": "workspace:*",
+    "@nexuspilot/workspace": "workspace:*"
   },
   "scripts": {
     "test": "vitest run --fileParallelism=false",

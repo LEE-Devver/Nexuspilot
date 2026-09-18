@@ -1,6 +1,6 @@
 import { mkdir, appendFile } from 'node:fs/promises';
 import path from 'node:path';
-import { decodeActivityTargetReference, Redactor } from '@lnwjud/audit';
+import { decodeActivityTargetReference, Redactor } from '@nexuspilot/audit';
 import type { ActivitySink, ActivitySinkEvent } from './activity-tracker.js';
 
 export function mcpActivityLogPath(dataPath: string): string {

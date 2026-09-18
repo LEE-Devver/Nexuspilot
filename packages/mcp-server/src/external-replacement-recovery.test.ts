@@ -2,7 +2,7 @@ import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { appError, err, ok } from '@lnwjud/domain';
+import { appError, err, ok } from '@nexuspilot/domain';
 import { ContextEconomyRuntime } from './context-economy.js';
 import { DocumentRuntimeService } from './document-runtime.js';
 import { UpgradeRuntimeService } from './upgrade-runtime.js';

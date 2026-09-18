@@ -1,5 +1,5 @@
 {
-  "name": "@lnwjud/workspace",
+  "name": "@nexuspilot/workspace",
   "version": "5.2.2",
   "private": true,
   "type": "module",
@@ -13,8 +13,8 @@
     }
   },
   "dependencies": {
-    "@lnwjud/domain": "workspace:*",
-    "@lnwjud/shared": "workspace:*"
+    "@nexuspilot/domain": "workspace:*",
+    "@nexuspilot/shared": "workspace:*"
   },
   "scripts": {
     "test": "vitest run",

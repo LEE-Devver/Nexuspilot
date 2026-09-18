@@ -97,9 +97,9 @@ async function runBenchmark(options) {
   try {
     const [{ createStdioMcpRuntime }, { startMcpHttp }, { SqliteDatabase, SqliteWorkspaceRepository }, { WorkspaceService }] = await Promise.all([
       import(pathToFileURL(path.join(repositoryRoot, 'apps', 'cli', 'dist', 'runtime', 'stdio-mcp-runtime.js')).href),
-      import('@lnwjud/mcp-server'),
-      import('@lnwjud/storage'),
-      import('@lnwjud/workspace'),
+      import('@nexuspilot/mcp-server'),
+      import('@nexuspilot/storage'),
+      import('@nexuspilot/workspace'),
     ]);
 
     const database = new SqliteDatabase(path.join(fixture.dataPath, 'lnwjud.sqlite'));

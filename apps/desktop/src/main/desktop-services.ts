@@ -26,17 +26,17 @@ import {
   ToolAvailabilityService,
   type FileActor,
   type DoctorProbeResult,
-} from '@lnwjud/application';
-import { AuditService, decodeActivityTargetReference, type ActivityAuditEvent, type ActivityTargetDetail, type AuditEventRepository, type AuditEventSummaryProjection } from '@lnwjud/audit';
-import { CodexDiscovery, formatCodexDiscoveryError } from '@lnwjud/codex';
-import type { Result } from '@lnwjud/domain';
+} from '@nexuspilot/application';
+import { AuditService, decodeActivityTargetReference, type ActivityAuditEvent, type ActivityTargetDetail, type AuditEventRepository, type AuditEventSummaryProjection } from '@nexuspilot/audit';
+import { CodexDiscovery, formatCodexDiscoveryError } from '@nexuspilot/codex';
+import type { Result } from '@nexuspilot/domain';
 import {
   EXTENSIONS_SETTINGS_KEY,
   createLocalExtensionsService,
   parseExtensionsSettings,
   type ExtensionsService,
   type ExtensionsSettings,
-} from '@lnwjud/extensions';
+} from '@nexuspilot/extensions';
 import {
   ActivityTracker,
   LNWJUD_MCP_IDENTITY_PATH,
@@ -49,10 +49,10 @@ import {
   type McpApplicationServices,
   type McpHttpServerOptions,
   type WorkspaceScope,
-} from '@lnwjud/mcp-server';
-import { permissionProfiles, type PermissionProfile, type PermissionProfileName } from '@lnwjud/permissions';
-import type { ManagedProcess } from '@lnwjud/process';
-import { PathExecutableResolver } from '@lnwjud/search';
+} from '@nexuspilot/mcp-server';
+import { permissionProfiles, type PermissionProfile, type PermissionProfileName } from '@nexuspilot/permissions';
+import type { ManagedProcess } from '@nexuspilot/process';
+import { PathExecutableResolver } from '@nexuspilot/search';
 import {
   ALLOW_AI_DELETE_SETTING_KEY,
   DESTRUCTIVE_AUTO_APPROVAL_SETTING_KEY,
@@ -100,11 +100,11 @@ import {
   formatDisplayTimestampItem,
   type SecretProtector,
   type DestructiveAutoApprovalPolicy,
-} from '@lnwjud/shared';
-import { AesGcmCheckpointCipher, BACKUP_RESTORE_NOTICE_SETTING_KEY, parseBackupRestoreNotice, SqliteAgentSwarmRepository, SqliteAuditRepository, SqliteBackupService, SqliteCheckpointRepository, SqliteDatabase, SqliteSettingsRepository, SqliteWorkspaceRepository, type BackupReason, type BackupRestoreNotice as StorageBackupRestoreNotice, type BackupSummary } from '@lnwjud/storage';
-import { SqliteGoalRepository } from '@lnwjud/storage';
-import type { Workspace } from '@lnwjud/workspace';
-import { comparableHostPath, isDriveRoot, isMachineRootPath, resolveHostPath, SecretPolicy, WorkspacePathGuard, WorkspaceService } from '@lnwjud/workspace';
+} from '@nexuspilot/shared';
+import { AesGcmCheckpointCipher, BACKUP_RESTORE_NOTICE_SETTING_KEY, parseBackupRestoreNotice, SqliteAgentSwarmRepository, SqliteAuditRepository, SqliteBackupService, SqliteCheckpointRepository, SqliteDatabase, SqliteSettingsRepository, SqliteWorkspaceRepository, type BackupReason, type BackupRestoreNotice as StorageBackupRestoreNotice, type BackupSummary } from '@nexuspilot/storage';
+import { SqliteGoalRepository } from '@nexuspilot/storage';
+import type { Workspace } from '@nexuspilot/workspace';
+import { comparableHostPath, isDriveRoot, isMachineRootPath, resolveHostPath, SecretPolicy, WorkspacePathGuard, WorkspaceService } from '@nexuspilot/workspace';
 import {
   type AddWorkspaceRequest,
   type BackupRestoreNotice as IpcBackupRestoreNotice,
@@ -164,7 +164,7 @@ import {
   type UiLocale,
   type WorkLogEntry,
   type WorkspaceSummary,
-} from '@lnwjud/ipc-contracts';
+} from '@nexuspilot/ipc-contracts';
 import type { DesktopIpcServices } from './main.js';
 import { buildCapabilitySummary, createLocalCapabilityRuntime } from './capability-runtime.js';
 import { AsyncTtlCache } from './async-ttl-cache.js';

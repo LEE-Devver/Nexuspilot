@@ -1,6 +1,6 @@
-import { appError, err, type Result } from '@lnwjud/domain';
-import { startMcpStdio, type McpServerOptions } from '@lnwjud/mcp-server';
-import type { Workspace } from '@lnwjud/workspace';
+import { appError, err, type Result } from '@nexuspilot/domain';
+import { startMcpStdio, type McpServerOptions } from '@nexuspilot/mcp-server';
+import type { Workspace } from '@nexuspilot/workspace';
 
 export interface ConfiguredWorkspaceResolver {
   resolve(reference: string): Promise<Result<Workspace>>;

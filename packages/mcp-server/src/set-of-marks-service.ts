@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { appError, err, isApplicationAuthorized, ok, type InvocationAuthorization, type Result } from '@lnwjud/domain';
-import type { CapabilityService } from '@lnwjud/capabilities';
+import { appError, err, isApplicationAuthorized, ok, type InvocationAuthorization, type Result } from '@nexuspilot/domain';
+import type { CapabilityService } from '@nexuspilot/capabilities';
 
 interface Bounds {
   readonly x: number;

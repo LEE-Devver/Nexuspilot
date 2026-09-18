@@ -3,7 +3,7 @@ import { mkdir, open, readFile, readdir, rename, rm, writeFile } from 'node:fs/p
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { promisify } from 'node:util';
-import { appError, err, ok, type GoalTaskCancellationObservation, type Result } from '@lnwjud/domain';
+import { appError, err, ok, type GoalTaskCancellationObservation, type Result } from '@nexuspilot/domain';
 import { capabilityTaskOwnerMatches, legacyCapabilityTaskOwner, type CapabilityTaskOwner } from './task-ownership.js';
 
 export type DurableShellTaskState = 'running' | 'completed' | 'failed' | 'timed_out' | 'cancelled' | 'termination_unverified';

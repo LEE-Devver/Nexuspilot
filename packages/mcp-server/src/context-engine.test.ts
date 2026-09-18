@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ok } from '@lnwjud/domain';
+import { ok } from '@nexuspilot/domain';
 import type { McpApplicationServices } from './tools/tool-types.js';
 import { ContextEngine, type WorkspaceContextRequest } from './context-engine.js';
 

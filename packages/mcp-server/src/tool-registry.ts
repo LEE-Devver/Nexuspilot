@@ -8,11 +8,11 @@ import {
   type InvocationAuthorization,
   type InvocationAuthorizationMode,
   type InvocationAuthorizationSource,
-} from '@lnwjud/domain';
+} from '@nexuspilot/domain';
 import { z } from 'zod';
-import { sanitizeException, type DiagnosticLogger, type FileActor } from '@lnwjud/application';
-import { CAPABILITY_ACTIVE_WORKSPACE_ROOT_METADATA_KEY } from '@lnwjud/capabilities';
-import { DefaultPermissionEngine, permissionProfiles, type PermissionProfile } from '@lnwjud/permissions';
+import { sanitizeException, type DiagnosticLogger, type FileActor } from '@nexuspilot/application';
+import { CAPABILITY_ACTIVE_WORKSPACE_ROOT_METADATA_KEY } from '@nexuspilot/capabilities';
+import { DefaultPermissionEngine, permissionProfiles, type PermissionProfile } from '@nexuspilot/permissions';
 import {
   DEFAULT_DESTRUCTIVE_AUTO_APPROVAL_POLICY,
   DEFAULT_PONYTAIL_MODE,
@@ -28,7 +28,7 @@ import {
   type PonytailMode,
   type ResolvedPonytailPolicy,
   type ToolAvailabilitySnapshot,
-} from '@lnwjud/shared';
+} from '@nexuspilot/shared';
 import { ActivityTracker, describeStructuredResultDetail, summarizeStructuredResultTarget, summarizeToolTarget, type ActivitySink, type TraceContext } from './activity-tracker.js';
 import { ContextEngine } from './context-engine.js';
 import { ContextEconomyRuntime } from './context-economy.js';

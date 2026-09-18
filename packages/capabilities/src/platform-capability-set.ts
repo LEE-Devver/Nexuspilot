@@ -72,7 +72,7 @@ export function createPlatformCapabilitySet(options: PlatformCapabilitySetOption
   const browserProtocol = new NodeBrowserCdpProtocol({ platform, profileDir: path.join(options.dataPath, 'browser-profile') });
   const browser = new BrowserCdpBackend({
     protocol: browserProtocol,
-    launcher: (url: string | undefined, signal?: AbortSignal): Promise<import('@lnwjud/domain').Result<unknown>> => browserProtocol.launch(url, signal),
+    launcher: (url: string | undefined, signal?: AbortSignal): Promise<import('@nexuspilot/domain').Result<unknown>> => browserProtocol.launch(url, signal),
   });
   const webFetch = new WebFetchCapabilityBackend();
 
@@ -121,8 +121,8 @@ export function createPlatformCapabilitySet(options: PlatformCapabilitySetOption
     screenRecord = new WindowsNativeCapabilityBackend('screen_record', bridge, platform, nativeOptions);
     office = new WindowsNativeCapabilityBackend('office', bridge, platform, nativeOptions);
     scheduler = new SchedulerCapabilityBackend({ platform });
-    const wslAvailabilityCache = new AsyncTtlCache<import('@lnwjud/domain').Result<unknown>>(15_000);
-    const wslAvailabilityProbe = (): Promise<import('@lnwjud/domain').Result<unknown>> => wslAvailabilityCache.get(async () => {
+    const wslAvailabilityCache = new AsyncTtlCache<import('@nexuspilot/domain').Result<unknown>>(15_000);
+    const wslAvailabilityProbe = (): Promise<import('@nexuspilot/domain').Result<unknown>> => wslAvailabilityCache.get(async () => {
       const result = await shell.execute({ operation: 'run', executable: 'wsl.exe', arguments: ['--status'], cwd: options.dataPath, execution: 'foreground', timeout_seconds: 5, max_output_bytes: 32 * 1024, userConfirmed: false });
       if (!result.ok) return { ok: true, value: { available: false, ready: false, local: true, reason: 'wsl_executable_unavailable' } };
       const value = isRecord(result.value) ? result.value : {};
@@ -215,7 +215,7 @@ export function createPlatformCapabilitySet(options: PlatformCapabilitySetOption
 
 function withCaptureFallback(primary: CapabilityBackend, fallback: CapabilityBackend): CapabilityBackend {
   return {
-    execute: async (input, signal, authorization): Promise<import('@lnwjud/domain').Result<unknown>> => {
+    execute: async (input, signal, authorization): Promise<import('@nexuspilot/domain').Result<unknown>> => {
       const action = isRecord(input) && typeof input.action === 'string' ? input.action : 'status';
       const result = await primary.execute(input, signal, authorization);
       if (action === 'status') {

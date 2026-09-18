@@ -2,9 +2,9 @@ import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promi
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ok, type Result } from '@lnwjud/domain';
-import { permissionProfiles } from '@lnwjud/permissions';
-import { WorkspacePathGuard, type Checkpoint, type Workspace, type WorkspaceRepository } from '@lnwjud/workspace';
+import { ok, type Result } from '@nexuspilot/domain';
+import { permissionProfiles } from '@nexuspilot/permissions';
+import { WorkspacePathGuard, type Checkpoint, type Workspace, type WorkspaceRepository } from '@nexuspilot/workspace';
 import { FileService, type CheckpointServicePort } from './file-service.js';
 
 const temporaryRoots: string[] = [];

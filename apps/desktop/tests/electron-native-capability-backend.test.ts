@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { CAPABILITY_ACTIVE_WORKSPACE_ROOT_METADATA_KEY } from '@lnwjud/capabilities';
+import { CAPABILITY_ACTIVE_WORKSPACE_ROOT_METADATA_KEY } from '@nexuspilot/capabilities';
 import { ElectronNativeCapabilityBackend, type ElectronNativeCapabilityApi } from '../src/main/electron-native-capability-backend.js';
 
 const approved = { mode: 'standard', applicationApproved: true, bypassApplicationAuthorization: false, source: 'host_approval' } as const;

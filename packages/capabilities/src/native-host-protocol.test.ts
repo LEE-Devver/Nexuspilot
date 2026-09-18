@@ -6,7 +6,7 @@ import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import { afterEach, describe, expect, it } from 'vitest';
 import { NativeHostProcessBridge } from './native-host-protocol.js';
-import type { ProcessTreeTerminator } from '@lnwjud/process';
+import type { ProcessTreeTerminator } from '@nexuspilot/process';
 
 class FakeChild extends EventEmitter {
   public readonly stdin = new PassThrough();

@@ -1,5 +1,5 @@
 {
-  "name": "@lnwjud/process",
+  "name": "@nexuspilot/process",
   "version": "5.2.2",
   "private": true,
   "type": "module",
@@ -13,7 +13,7 @@
     }
   },
   "dependencies": {
-    "@lnwjud/domain": "workspace:*"
+    "@nexuspilot/domain": "workspace:*"
   },
   "scripts": {
     "test": "vitest run --fileParallelism=false",

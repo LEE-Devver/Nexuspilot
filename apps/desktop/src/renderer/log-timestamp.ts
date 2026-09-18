@@ -1,4 +1,4 @@
-import type { UiLocale } from '@lnwjud/ipc-contracts';
+import type { UiLocale } from '@nexuspilot/ipc-contracts';
 import { formatDateTime } from './date-time.js';
 
 export function formatLogUiTime(value: string, locale: UiLocale = 'th'): string {

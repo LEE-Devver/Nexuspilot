@@ -1,7 +1,7 @@
-import { appError, err, ok, type Result } from '@lnwjud/domain';
-import { formatCodexDiscoveryError, type CodexDiscoveryResult } from '@lnwjud/codex';
-import type { DoctorReport } from '@lnwjud/application';
-import type { Workspace } from '@lnwjud/workspace';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
+import { formatCodexDiscoveryError, type CodexDiscoveryResult } from '@nexuspilot/codex';
+import type { DoctorReport } from '@nexuspilot/application';
+import type { Workspace } from '@nexuspilot/workspace';
 import { formatDoctorReport } from './commands/doctor.js';
 
 export { formatDoctorReport } from './commands/doctor.js';

@@ -67,7 +67,7 @@ jobs:
         shell: bash
         # The desktop suite runs in isolated shards below. Keep the remaining
         # workspace packages on pnpm's normal bounded recursive pool.
-        run: corepack pnpm@10.15.0 -r --filter '!@lnwjud/desktop' --if-present test
+        run: corepack pnpm@10.15.0 -r --filter '!@nexuspilot/desktop' --if-present test
 
       - name: Test macOS native host protocol
         timeout-minutes: 10
@@ -140,15 +140,15 @@ jobs:
 
       - name: Build workspace packages used by desktop acceptance tests
         shell: bash
-        run: corepack pnpm@10.15.0 --filter '@lnwjud/mcp-server...' build
+        run: corepack pnpm@10.15.0 --filter '@nexuspilot/mcp-server...' build
 
       - name: Run isolated desktop test shard
         shell: bash
-        run: corepack pnpm@10.15.0 --filter @lnwjud/desktop exec vitest run --config vitest.config.ts --passWithNoTests --shard=${{ matrix.shard_index }}/${{ matrix.shard_total }}
+        run: corepack pnpm@10.15.0 --filter @nexuspilot/desktop exec vitest run --config vitest.config.ts --passWithNoTests --shard=${{ matrix.shard_index }}/${{ matrix.shard_total }}
 
       - name: Run process-tree and external MCP lifecycle tests
         shell: bash
-        run: corepack pnpm@10.15.0 --filter @lnwjud/process --filter @lnwjud/extensions test
+        run: corepack pnpm@10.15.0 --filter @nexuspilot/process --filter @nexuspilot/extensions test
 
   native-package-verification:
     name: Native Package Verification (${{ matrix.name }})
@@ -400,7 +400,7 @@ jobs:
 
       - name: Build packaged-smoke workspace dependencies
         shell: bash
-        run: corepack pnpm@10.15.0 --filter @lnwjud/storage... --if-present build
+        run: corepack pnpm@10.15.0 --filter @nexuspilot/storage... --if-present build
 
       - name: Record exact v4.62.1 macOS signing-policy regression
         if: matrix.arch == 'arm64'
@@ -685,7 +685,7 @@ jobs:
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         env:
           LNWJUD_PACKAGED_EXECUTABLE: ${{ github.workspace }}/apps/desktop/dist/installers/win-unpacked/lnwjud.exe
-        run: corepack pnpm@10.15.0 --filter @lnwjud/desktop exec playwright test --config playwright.config.ts --grep "Windows upgrade opens"
+        run: corepack pnpm@10.15.0 --filter @nexuspilot/desktop exec playwright test --config playwright.config.ts --grep "Windows upgrade opens"
 
       - name: Upload Windows E2E diagnostics
         if: failure()

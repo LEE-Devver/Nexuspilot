@@ -2,8 +2,8 @@ import { mkdtemp, realpath, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { GitAdapter } from '@lnwjud/git';
-import type { Workspace, WorkspaceRepository } from '@lnwjud/workspace';
+import type { GitAdapter } from '@nexuspilot/git';
+import type { Workspace, WorkspaceRepository } from '@nexuspilot/workspace';
 import { GitService } from './git-service.js';
 
 const temporaryRoots: string[] = [];

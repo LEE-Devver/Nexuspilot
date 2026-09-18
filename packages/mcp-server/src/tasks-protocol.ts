@@ -1,7 +1,7 @@
 import { ProtocolError, ProtocolErrorCode, RELATED_TASK_META_KEY, type McpServer } from '@modelcontextprotocol/server';
-import type { AppError, Result } from '@lnwjud/domain';
-import type { FileActor } from '@lnwjud/application';
-import { DEFAULT_MCP_POLL_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS } from '@lnwjud/shared';
+import type { AppError, Result } from '@nexuspilot/domain';
+import type { FileActor } from '@nexuspilot/application';
+import { DEFAULT_MCP_POLL_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS } from '@nexuspilot/shared';
 import { z } from 'zod';
 import type { McpApplicationServices } from './tool-registry.js';
 import { withCapabilityOwnerMetadata } from './request-scope.js';

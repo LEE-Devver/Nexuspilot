@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { electronExecutablePath, terminateProcessTree } from './electron-runtime.js';
 import { settleFirstRunAndOpenHome } from './first-run-helpers.js';
 import { chromium, expect, test, type Page } from '@playwright/test';
-import { AuditService, redactActivityTargetDetail } from '@lnwjud/audit';
-import { SqliteAuditRepository, SqliteDatabase } from '@lnwjud/storage';
+import { AuditService, redactActivityTargetDetail } from '@nexuspilot/audit';
+import { SqliteAuditRepository, SqliteDatabase } from '@nexuspilot/storage';
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mainEntry = path.join(desktopRoot, 'dist', 'main', 'main.js');

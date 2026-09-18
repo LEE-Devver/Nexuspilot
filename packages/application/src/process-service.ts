@@ -9,12 +9,12 @@ import {
   type CommandSpec,
   type InvocationAuthorization,
   type Result,
-} from '@lnwjud/domain';
-import { CommandPolicy, DefaultPermissionEngine, permissionProfiles, type PermissionEngine, type PermissionProfile } from '@lnwjud/permissions';
-import { ProcessManager, type LogQuery, type ManagedProcess, type ManagedProcessStart, type ProcessLogResult } from '@lnwjud/process';
-import { JsCommandDetector, ProjectDetector, type ProjectCommandKind } from '@lnwjud/project';
-import { prohibitedAgentCommandReason, riskyAgentCommandReason } from '@lnwjud/shared';
-import { isAbsoluteHostPath, isHostPathWithin, resolveHostPath, WorkspacePathGuard, type Workspace, type WorkspaceRepository } from '@lnwjud/workspace';
+} from '@nexuspilot/domain';
+import { CommandPolicy, DefaultPermissionEngine, permissionProfiles, type PermissionEngine, type PermissionProfile } from '@nexuspilot/permissions';
+import { ProcessManager, type LogQuery, type ManagedProcess, type ManagedProcessStart, type ProcessLogResult } from '@nexuspilot/process';
+import { JsCommandDetector, ProjectDetector, type ProjectCommandKind } from '@nexuspilot/project';
+import { prohibitedAgentCommandReason, riskyAgentCommandReason } from '@nexuspilot/shared';
+import { isAbsoluteHostPath, isHostPathWithin, resolveHostPath, WorkspacePathGuard, type Workspace, type WorkspaceRepository } from '@nexuspilot/workspace';
 import type { FileActor } from './file-service.js';
 import { ProjectService } from './project-service.js';
 

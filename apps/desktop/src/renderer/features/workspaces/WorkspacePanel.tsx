@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactElement } from 'react';
-import type { WorkspaceSummary } from '@lnwjud/ipc-contracts';
+import type { WorkspaceSummary } from '@nexuspilot/ipc-contracts';
 import { settleWorkspaceAdd, type AddWorkspaceAction } from './workspace-add.js';
 
 interface WorkspacePanelProps {

@@ -1,5 +1,5 @@
 import { spawn, type ChildProcess } from 'node:child_process';
-import { createProcessTreeTerminator, type ProcessTreeTerminator } from '@lnwjud/process';
+import { createProcessTreeTerminator, type ProcessTreeTerminator } from '@nexuspilot/process';
 
 export interface GitRunResult {
   readonly exitCode: number;

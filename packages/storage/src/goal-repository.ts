@@ -50,7 +50,7 @@ import {
   type ScheduledContinuationStatus,
   type CancelScheduledContinuationRecordRequest,
   type CancelScheduledContinuationRecordResult,
-} from '@lnwjud/domain';
+} from '@nexuspilot/domain';
 import type { SqliteDatabase } from './database.js';
 
 const MAX_TRACKED_TASKS = 50;

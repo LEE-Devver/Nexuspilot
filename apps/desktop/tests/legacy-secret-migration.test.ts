@@ -5,7 +5,7 @@ import { existsSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
-import { createExplicitKeySecretProtector } from '@lnwjud/shared';
+import { createExplicitKeySecretProtector } from '@nexuspilot/shared';
 import { migrateLegacyWindowsSecrets, type LegacySecretHelperRequest } from '../src/main/legacy-secret-migration.js';
 import { RemoteMcpController } from '../src/main/remote-mcp-controller.js';
 import { TunnelOAuthSessionStore } from '../src/main/tunnel-oauth-store.js';

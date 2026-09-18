@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { appError, err, ok, type Result } from '@lnwjud/domain';
-import type { CapabilityService, CapabilityToolName } from '@lnwjud/capabilities';
+import { appError, err, ok, type Result } from '@nexuspilot/domain';
+import type { CapabilityService, CapabilityToolName } from '@nexuspilot/capabilities';
 import { SetOfMarksObservationStore, SetOfMarksService } from './set-of-marks-service.js';
 
 const image = {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { createPortal } from 'react-dom';
-import type { ResolvedRemediation, ToolCatalogItem, UiLocale } from '@lnwjud/ipc-contracts';
+import type { ResolvedRemediation, ToolCatalogItem, UiLocale } from '@nexuspilot/ipc-contracts';
 import { formatDateTime } from '../../date-time.js';
 import { toolReadinessLabel } from './tool-readiness-copy.js';
 import { effectiveExposureLabel, toolAvailabilityLabel } from './tool-availability-copy.js';

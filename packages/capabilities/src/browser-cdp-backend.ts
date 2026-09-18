@@ -1,4 +1,4 @@
-import { appError, err, isApplicationAuthorized, ok, type InvocationAuthorization, type Result } from '@lnwjud/domain';
+import { appError, err, isApplicationAuthorized, ok, type InvocationAuthorization, type Result } from '@nexuspilot/domain';
 import type { CapabilityBackend } from './local-capability-service.js';
 import { NodeBrowserCdpProtocol } from './browser-cdp-protocol.js';
 

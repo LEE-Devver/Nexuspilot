@@ -1,5 +1,5 @@
 import type { McpPermissionLevel } from './tools/tool-types.js';
-import { isProvablyReadOnlyGitInvocation, riskyAgentCommandReason, type DestructiveApprovalKey } from '@lnwjud/shared';
+import { isProvablyReadOnlyGitInvocation, riskyAgentCommandReason, type DestructiveApprovalKey } from '@nexuspilot/shared';
 
 export type MutationKind = 'read' | 'execute' | 'bounded_write' | 'replace' | 'delete' | 'opaque_mutation';
 

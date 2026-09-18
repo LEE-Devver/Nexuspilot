@@ -2,8 +2,8 @@ import { createHash, randomUUID } from 'node:crypto';
 import { lstat, readFile, realpath } from 'node:fs/promises';
 import { spawn, type ChildProcess, type SpawnOptions } from 'node:child_process';
 import path from 'node:path';
-import { appError, err, ok, type AppErrorCode, type InvocationAuthorization, type Result } from '@lnwjud/domain';
-import type { ProcessTreeTerminator } from '@lnwjud/process';
+import { appError, err, ok, type AppErrorCode, type InvocationAuthorization, type Result } from '@nexuspilot/domain';
+import type { ProcessTreeTerminator } from '@nexuspilot/process';
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const MAX_TIMEOUT_MS = 10 * 60_000;

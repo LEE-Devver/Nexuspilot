@@ -1,8 +1,8 @@
 import { mkdir } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import type { TunnelAuthStatus } from '@lnwjud/ipc-contracts';
-import type { SecretProtector } from '@lnwjud/shared';
+import type { TunnelAuthStatus } from '@nexuspilot/ipc-contracts';
+import type { SecretProtector } from '@nexuspilot/shared';
 import { readRegularSecret, writeSecretAtomically } from './secret-file.js';
 
 export const LEGACY_TUNNEL_SECRET_FILE = 'lnwjud.runtime.secret';
