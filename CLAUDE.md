@@ -97,4 +97,4 @@ At the start of a new Claude Code session:
 6. Prefer tests and incremental commits over large mechanical rewrites.
 
 ## Immediate next task
-Baseline verification is green under Node 24. The next foundation task is to produce a complete inventory of rename/rebrand surfaces before modifying product identity. Classify occurrences by branding, package namespace, runtime compatibility, persisted data/config, environment variables, installer/release artifacts, tunnel integration, tests, and historical documentation.
+The rebrand inventory is complete in `docs/NEXUSPILOT_REBRAND_INVENTORY.md`. Follow its staged migration order. Start with Stage 1 visible branding only; do not rename package namespaces, environment variables, persisted paths, IPC identifiers, executable/installer names, MCP runtime identity, native-host names, tunnel compatibility names, or historical upstream documents yet.
