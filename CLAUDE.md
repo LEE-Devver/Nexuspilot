@@ -65,8 +65,7 @@ Node.js >=24.0.0 <25
 pnpm 10.15.0
 ```
 
-The machine previously had Node.js `v23.9.0`.
-Do not claim baseline verification passed until Node 24 is active and the required checks actually succeed.
+Baseline verification has now passed with Homebrew Node.js `v24.21.0` by prepending `/opt/homebrew/opt/node@24/bin` to PATH. The machine's globally linked Node version was intentionally left unchanged.
 ## NexusPilot product direction
 NexusPilot is not intended to be only a renamed fork.
 
@@ -98,14 +97,4 @@ At the start of a new Claude Code session:
 6. Prefer tests and incremental commits over large mechanical rewrites.
 
 ## Immediate next task
-The next foundation task is baseline verification under Node 24:
-
-```bash
-corepack pnpm@10.15.0 install --frozen-lockfile
-corepack pnpm@10.15.0 lint
-corepack pnpm@10.15.0 typecheck
-corepack pnpm@10.15.0 test
-corepack pnpm@10.15.0 build
-```
-
-After the baseline is green, produce an inventory of rename/rebrand surfaces before modifying them.
+Baseline verification is green under Node 24. The next foundation task is to produce a complete inventory of rename/rebrand surfaces before modifying product identity. Classify occurrences by branding, package namespace, runtime compatibility, persisted data/config, environment variables, installer/release artifacts, tunnel integration, tests, and historical documentation.

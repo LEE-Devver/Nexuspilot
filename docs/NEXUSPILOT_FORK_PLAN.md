@@ -47,7 +47,7 @@ corepack pnpm@10.15.0 test
 corepack pnpm@10.15.0 build
 ```
 
-Current development machine has Node.js `v23.9.0`, so baseline execution is intentionally blocked until Node 24 is available.
+Baseline verified on macOS with Node.js `v24.21.0` using Homebrew `node@24`. Install, lint, typecheck, test, and build all pass. The system-wide linked Node version remains unchanged; NexusPilot commands prepend `/opt/homebrew/opt/node@24/bin` to PATH.
 ## Rebranding scope
 Expected rename surfaces include:
 - root package and workspace package namespaces
