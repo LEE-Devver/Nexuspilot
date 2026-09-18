@@ -62,6 +62,7 @@ scripts/audit_*.py
 docs/
 !docs/
 docs/*
+!docs/NEXUSPILOT_FORK_PLAN.md
 !docs/CHATGPT_LONG_SESSION.md
 !docs/USAGE_TH.md
 !docs/mcp/
