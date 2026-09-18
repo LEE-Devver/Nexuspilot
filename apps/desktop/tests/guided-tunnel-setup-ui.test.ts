@@ -42,11 +42,11 @@ describe('guided tunnel onboarding UI', () => {
     const th = renderToStaticMarkup(createElement(FirstRunTunnelTip, { locale: 'th', permissionProfile: 'balanced', onPermissionProfileChange: noop, onStart: noop, onLater: noop }));
     const en = renderToStaticMarkup(createElement(FirstRunTunnelTip, { locale: 'en', permissionProfile: 'balanced', onPermissionProfileChange: noop, onStart: noop, onLater: noop }));
 
-    expect(th).toContain('ตั้งค่า ChatGPT ให้ใช้ lnwjud');
+    expect(th).toContain('ตั้งค่า ChatGPT ให้ใช้ NexusPilot');
     expect(th).toContain('secure storage');
     expect(th).toContain('เริ่มตั้งค่า');
     expect(th).toContain('ไว้ทีหลัง');
-    expect(en).toContain('Connect ChatGPT to lnwjud');
+    expect(en).toContain('Connect ChatGPT to NexusPilot');
     expect(en).toContain('Start setup');
     expect(en).toContain('Set up later');
     expect(en).toContain('AI permissions for Desktop / Secure Tunnel');

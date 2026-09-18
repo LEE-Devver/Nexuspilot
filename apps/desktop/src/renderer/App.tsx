@@ -819,7 +819,7 @@ export function App(): ReactElement {
       <div className="boot-screen">
         {bootError === null ? t('app.loading') : (
           <div className="boot-recovery" role="alert">
-            <strong>{locale === 'th' ? 'เปิด lnwjud ไม่สำเร็จ' : 'lnwjud could not finish starting'}</strong>
+            <strong>{locale === 'th' ? 'เปิด NexusPilot ไม่สำเร็จ' : 'NexusPilot could not finish starting'}</strong>
             <p>{bootError}</p>
             <div className="inline-actions">
               <button type="button" onClick={() => { void refresh(); }}>{locale === 'th' ? 'ลองใหม่' : 'Retry'}</button>

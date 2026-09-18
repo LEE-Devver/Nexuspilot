@@ -1,13 +1,15 @@
 <p align="center">
-  <img src="assets/logo/logo-256x256.png" width="160" alt="lnwjud logo" />
+  <img src="assets/logo/logo-256x256.png" width="160" alt="NexusPilot inherited logo" />
 </p>
 
-<h1 align="center">lnwjud</h1>
+<h1 align="center">NexusPilot</h1>
 
 <p align="center">
   <strong>Cross-platform local AI-agent runtime and MCP gateway</strong><br />
-  <em>253 total tool definitions for local files, Git, processes, Windows automation, WSL, browser control, durable goal continuation, context capsules, indexing, observability, ECC integration, and extensibility; 241 are advertised by default and all 253 when Codex delegation plus Agent Swarm is enabled.</em>
+  <em>NexusPilot is being developed from the MIT-licensed lnwjud foundation, preserving its mature local tooling while evolving the product identity, compatibility layer, observability, and multi-agent direction.</em>
 </p>
+
+> **Migration status:** NexusPilot currently inherits the lnwjud v5.2.2 runtime and many internal compatibility identifiers. Package names, environment variables, data paths, IPC identifiers, executables, installers, tunnel profiles, and native-host names remain unchanged until their staged migrations are completed.
 
 <p align="center">
   <em>อ่านที่เหลือใน Readme ได้เลยครับ ติดปัญหาทักมาได้ใน <a href="https://url.in.th/rEZiG"><strong>Line</strong></a> ได้ตลอดครับ / กำลังพัฒนาให้เรื่อยๆครับ ท่านที่ถามหาช่องสนับสนุนค่ากาแฟ แปะลิงก์ไว้ให้แล้วครับ ขอบคุณครับ — <a href="https://easydonate.app/abcz"><strong>Donate</strong></a></em>
@@ -21,8 +23,8 @@
   <img alt="MCP" src="https://img.shields.io/badge/MCP-253%20tools-6f42c1" />
 </p>
 
-<h2 align="center">Download lnwjud</h2>
-<p align="center">Choose your platform and download the current v5.2.2 release directly.</p>
+<h2 align="center">Upstream baseline downloads</h2>
+<p align="center">NexusPilot does not publish its own installer yet. These links point to the inherited lnwjud v5.2.2 upstream release used as the current baseline.</p>
 
 <table align="center">
   <tr>
@@ -51,7 +53,7 @@
 
 ---
 
-## Current published version: v5.2.2
+## Upstream baseline version: lnwjud v5.2.2
 
 ### What's new in v5.2.2
 
@@ -99,9 +101,9 @@ See [Install lnwjud on Linux](docs/INSTALL_LINUX.md) for AppImage/DEB installati
 
 Installed lnwjud keeps per-user runtime data outside your source repository: `%APPDATA%\lnwjud` on Windows, `~/Library/Application Support/lnwjud` on macOS, and `$XDG_DATA_HOME/lnwjud` (or `~/.local/share/lnwjud`) on Linux unless `LNWJUD_DATA_PATH` is explicitly set. A workspace may contain `.lnwjud/project-profile.json` for project-scoped policy such as Ponytail mode; `.lnwjud/` is local metadata and is ignored by this repository.
 
-## What can lnwjud do?
+## What can NexusPilot do?
 
-lnwjud exposes **253 tool definitions** through one local runtime and MCP gateway. The default advertised set is 241; all 253 are available when Codex delegation plus Agent Swarm is enabled.
+The current NexusPilot baseline inherits **253 tool definitions** through one local runtime and MCP gateway. The default advertised set is 241; all 253 are available when Codex delegation plus Agent Swarm is enabled.
 
 | Area | Examples |
 | --- | --- |
@@ -120,7 +122,7 @@ For the complete generated catalog, see [MCP Tool Catalog](docs/mcp/MCP_TOOL_CAT
 
 ## Platform compatibility
 
-lnwjud composes providers for the detected host instead of instantiating a Windows provider everywhere and hoping for the best.
+NexusPilot currently inherits a cross-platform provider model that composes providers for the detected host instead of instantiating a Windows provider everywhere and hoping for the best.
 
 | Feature | Windows | macOS | Linux |
 | --- | --- | --- | --- |

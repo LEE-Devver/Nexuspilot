@@ -15,7 +15,7 @@ describe('native main-process i18n', () => {
     expect(localizedUpdateStatusMessage(ready, 'th')).toContain('พร้อมติดตั้ง');
     expect(localizedUpdateStatusMessage(ready, 'en')).toContain('is ready');
     expect(nativeMessages('th').shutdownBlockedTitle).toContain('ยังทำงานอยู่');
-    expect(nativeMessages('en').shutdownBlockedTitle).toBe('lnwjud is still running');
+    expect(nativeMessages('en').shutdownBlockedTitle).toBe('NexusPilot is still running');
     expect(nativeMessages('th').updaterTunnelStopConfirm).toContain('ติดตั้งต่อ');
     expect(nativeMessages('en').updaterTunnelStopConfirm).toBe('Stop Tunnel and Install');
     expect(nativeMessages('th').updaterTunnelStopDetail).toContain('Tunnel ID และ Key เดิม');

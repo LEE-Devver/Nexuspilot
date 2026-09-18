@@ -424,7 +424,7 @@ export function registerIpcHandlers(
     choosePath: async (): Promise<string | null> => {
       const window = getMainWindow();
       if (window === null) return null;
-      const result = await dialog.showSaveDialog(window, { title: 'Capture lnwjud incident evidence', defaultPath: 'lnwjud-incident.json', filters: [{ name: 'JSON', extensions: ['json'] }] });
+      const result = await dialog.showSaveDialog(window, { title: 'Capture NexusPilot incident evidence', defaultPath: 'lnwjud-incident.json', filters: [{ name: 'JSON', extensions: ['json'] }] });
       return result.canceled || result.filePath === undefined || result.filePath.length === 0 ? null : result.filePath;
     },
     write: atomicWrite,
@@ -982,7 +982,7 @@ async function exportLogsToFile(
   const lineById = new Map(snapshot.lines.filter((line) => line.source === request.source).map((line) => [line.id, line] as const));
   const capturedRows = request.lines.map((reference) => ({ reference, line: lineById.get(reference.lineId) ?? null }));
   const result = await dialog.showSaveDialog(window, {
-    title: 'Export lnwjud logs',
+    title: 'Export NexusPilot logs',
     defaultPath: `lnwjud-${request.source}-logs.log`,
     filters: [{ name: 'Log file', extensions: ['log'] }, { name: 'Text file', extensions: ['txt'] }],
   });
@@ -1046,7 +1046,7 @@ async function exportWorkLogToFile(window: BrowserWindow | null, services: Deskt
   const locale = request.locale ?? desktopLocale;
   const messages = nativeMessages(locale);
   const result = await dialog.showSaveDialog(window, {
-    title: 'Export lnwjud work log',
+    title: 'Export NexusPilot work log',
     defaultPath: 'lnwjud-work-log.log',
     filters: [{ name: 'Log file', extensions: ['log'] }, { name: 'Text file', extensions: ['txt'] }],
   });
@@ -2284,7 +2284,7 @@ function handleDesktopStartupFailure(scope: string, error: unknown): void {
   recordDesktopStartup(`${scope}:failed`, error);
   console.error('[Startup] ' + scope + ' failed: ' + message);
   try {
-    dialog.showErrorBox('lnwjud failed to start', scope + ' startup failed.\n\n' + message);
+    dialog.showErrorBox('NexusPilot failed to start', scope + ' startup failed.\n\n' + message);
   } catch {
     // Console/crash diagnostics remain available if native dialogs cannot be shown.
   }
@@ -2324,8 +2324,8 @@ function configureDesktopShutdown(runtime: DesktopRuntime): void {
       });
       void dialog.showMessageBox({
         type: 'error',
-        title: 'lnwjud is still running',
-        message: 'The owned tunnel could not be confirmed stopped. lnwjud will remain open; retry Quit after checking the tunnel status.',
+        title: 'NexusPilot is still running',
+        message: 'The owned tunnel could not be confirmed stopped. NexusPilot will remain open; retry Quit after checking the tunnel status.',
         detail: error.message,
         buttons: ['OK'],
       });

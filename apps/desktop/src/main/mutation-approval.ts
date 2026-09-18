@@ -62,8 +62,8 @@ export function mutationApprovalDialogOptions(
     type: 'warning',
     title: thai ? 'ยืนยันคำสั่งที่มีความเสี่ยง' : 'Confirm high-risk action',
     message: thai
-      ? 'lnwjud กำลังจะรันคำสั่งที่อาจลบหรือแทนที่ข้อมูล'
-      : 'lnwjud is about to run an action that may delete or replace data',
+      ? 'NexusPilot กำลังจะรันคำสั่งที่อาจลบหรือแทนที่ข้อมูล'
+      : 'NexusPilot is about to run an action that may delete or replace data',
     detail,
     buttons: thai ? ['ยกเลิก', 'อนุญาตครั้งนี้'] : ['Cancel', 'Approve once'],
     defaultId: 0,

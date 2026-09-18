@@ -52,8 +52,8 @@ export function platformCompatibilityProfile(
     profile.family === 'windows'
       ? !windowsSupported
         ? architecture === 'x64'
-          ? 'lnwjud requires Windows 10 or Windows 11.'
-          : 'lnwjud Windows packages require 64-bit x64 Windows.'
+          ? 'NexusPilot requires Windows 10 or Windows 11.'
+          : 'NexusPilot Windows packages require 64-bit x64 Windows.'
         : generation === 'windows-10'
           ? 'Windows 10 compatibility profile: software rendering is preferred for older GPU-driver stability.'
           : 'Windows 11 compatibility profile: hardware acceleration remains enabled.'

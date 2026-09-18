@@ -183,13 +183,13 @@ export function UserConfigPanel({ locale, hostPlatform, hostArch, permissionProf
               <label className="field-label" htmlFor="close-behavior">{locale === 'th' ? 'เมื่อกด X ปิดหน้าต่าง' : 'When closing the window'}</label>
               <select id="close-behavior" className="settings-select" value={draft.closeBehavior} onChange={(event) => patch({ closeBehavior: event.target.value === 'quit' ? 'quit' : 'tray' })}>
                 <option value="tray">{locale === 'th' ? 'ซ่อนไปที่ System Tray' : 'Hide to system tray'}</option>
-                <option value="quit">{locale === 'th' ? 'ออกจาก lnwjud' : 'Quit lnwjud'}</option>
+                <option value="quit">{locale === 'th' ? 'ออกจาก NexusPilot' : 'Quit NexusPilot'}</option>
               </select>
             </div>
             <NumberField label={locale === 'th' ? 'ช่วงตรวจอัปเดต (นาที)' : 'Update interval (minutes)'} value={draft.updateIntervalMinutes} min={5} max={1440} onChange={(value) => patch({ updateIntervalMinutes: value })} />
           </div>
           <div className="switch-grid">
-            <SettingSwitch checked={draft.launchAtStartup} label={locale === 'th' ? 'เปิดพร้อมเครื่อง' : 'Start with the host'} description={locale === 'th' ? 'เปิด lnwjud อัตโนมัติหลัง Sign in' : 'Launch lnwjud automatically after sign in'} onChange={(value) => patch({ launchAtStartup: value })} />
+            <SettingSwitch checked={draft.launchAtStartup} label={locale === 'th' ? 'เปิดพร้อมเครื่อง' : 'Start with the host'} description={locale === 'th' ? 'เปิด NexusPilot อัตโนมัติหลัง Sign in' : 'Launch NexusPilot automatically after sign in'} onChange={(value) => patch({ launchAtStartup: value })} />
             <SettingSwitch checked={draft.startMinimized} label={locale === 'th' ? 'เริ่มแบบซ่อนใน Tray' : 'Start minimized'} description={locale === 'th' ? 'ไม่แสดงหน้าต่างหลักตอนเปิดอัตโนมัติ' : 'Keep the main window hidden on startup'} onChange={(value) => patch({ startMinimized: value })} />
             <SettingSwitch checked={draft.updateAutoCheck} label={locale === 'th' ? 'ตรวจอัปเดตอัตโนมัติ' : 'Automatic update checks'} description={locale === 'th' ? 'ตรวจตามช่วงเวลาที่กำหนด' : 'Check periodically using the interval above'} onChange={(value) => patch({ updateAutoCheck: value })} />
             <SettingSwitch checked={draft.updateCheckOnStartup} label={locale === 'th' ? 'ตรวจเมื่อเปิดโปรแกรม' : 'Check on startup'} description={locale === 'th' ? 'ตรวจหลังเปิดโปรแกรมไม่นาน' : 'Check shortly after the app starts'} onChange={(value) => patch({ updateCheckOnStartup: value })} />
@@ -204,7 +204,7 @@ export function UserConfigPanel({ locale, hostPlatform, hostArch, permissionProf
             <CardHeading
               icon="⚡"
               title={locale === 'th' ? 'โหมดเต็มสิทธิ์ (Unrestricted)' : 'Full Access (Unrestricted)'}
-              subtitle={locale === 'th' ? 'สิทธิ์ระดับเครื่องและตัวเลือกข้ามการอนุมัติของ lnwjud' : 'Machine-wide access and explicit lnwjud approval bypass controls'}
+              subtitle={locale === 'th' ? 'สิทธิ์ระดับเครื่องและตัวเลือกข้ามการอนุมัติของ lnwjud' : 'Machine-wide access and explicit NexusPilot approval bypass controls'}
               badge={(draft.desktopFullBypassAll || draft.stdioFullBypassAll) ? 'FULL BYPASS ON' : unrestricted ? 'UNRESTRICTED' : 'OFF'}
             />
             <SettingSwitch
@@ -219,7 +219,7 @@ export function UserConfigPanel({ locale, hostPlatform, hostArch, permissionProf
                 <strong>{draft.desktopFullBypassAll ? 'DESKTOP FULL BYPASS ON' : (locale === 'th' ? 'Desktop Full Bypass — ปิด' : 'Desktop Full Bypass — Off')}</strong>
                 <SettingSwitch
                   checked={draft.desktopFullBypassAll}
-                  label={locale === 'th' ? 'ข้าม tool ที่ต้องยืนยันเสมอและทุกขอบเขตของ lnwjud' : 'Bypass always-confirm tools and every lnwjud scope check'}
+                  label={locale === 'th' ? 'ข้าม tool ที่ต้องยืนยันเสมอและทุกขอบเขตของ lnwjud' : 'Bypass always-confirm tools and every NexusPilot scope check'}
                   description={locale === 'th' ? 'Desktop HTTP และ Secure Tunnel จะผ่านทันที รวมคำสั่งเสี่ยง, path นอก Active Project และ goalLease โดยไม่ถาม' : 'Desktop HTTP and Secure Tunnel proceed without prompts, including risky commands, paths outside the Active Project, and goalLease.'}
                   onChange={(value) => changeFullBypass('desktop', value)}
                 />
@@ -239,7 +239,7 @@ export function UserConfigPanel({ locale, hostPlatform, hostArch, permissionProf
             <p className="hint">{locale === 'th'
               ? 'เครื่องมือไฟล์แบบมีโครงสร้างใช้ Active Project แบบ canonical และ Recovery Trash / checkpoint. เมื่อ Full Bypass ปิด งานปกติของ Full Access จะไม่ถาม แต่ tool ที่ต้องยืนยันเสมอ งานลบ/ทำข้อมูลหาย และงานนอกขอบเขตยังถาม ส่วนคำสั่งระดับเครื่องอันตรายยังถูกบล็อก'
               : 'Structured file tools use canonical Active Project paths and Recovery Trash / checkpoints. With Full Bypass OFF, ordinary Full Access work does not prompt; always-confirm, destructive, and out-of-scope actions still ask, while dangerous machine-level commands remain blocked.'}</p>
-            <p className="hint">{locale === 'th' ? 'FULL BYPASS ข้ามเฉพาะ authorization/policy ของ lnwjud การตรวจ input, path ที่ต้องมีอยู่, สิทธิ์/การยกระดับของระบบปฏิบัติการ และสิทธิ์บริการภายนอกยังทำงานตามจริง' : 'FULL BYPASS skips lnwjud authorization policy only. Input validation, required path existence, OS permissions/elevation, and remote-service authorization still apply.'}</p>
+            <p className="hint">{locale === 'th' ? 'FULL BYPASS ข้ามเฉพาะ authorization/policy ของ lnwjud การตรวจ input, path ที่ต้องมีอยู่, สิทธิ์/การยกระดับของระบบปฏิบัติการ และสิทธิ์บริการภายนอกยังทำงานตามจริง' : 'FULL BYPASS skips NexusPilot authorization policy only. Input validation, required path existence, OS permissions/elevation, and remote-service authorization still apply.'}</p>
           </section>
 
           <section className="panel settings-card settings-card-polished custom-permission-card" aria-label="Custom Permission Profile">

@@ -48,7 +48,7 @@ export function DoctorPanel({
           <div className="doctor-remediation doctor-remediation-fallback" role="note">
             <div className="doctor-remediation-copy">
               <strong>{locale === 'th' ? 'รายการนี้ไม่มีการตั้งค่าอัตโนมัติที่ปลอดภัย' : 'No safe automatic remediation is available'}</strong>
-              <p>{locale === 'th' ? 'ใช้รายละเอียดด้านบนเป็นข้อมูลอ้างอิง รายการนี้อาจขึ้นกับ Windows, hardware, runtime input หรือ capability ที่ยังไม่สามารถแก้ด้วยสวิตช์ใน lnwjud ได้ จึงจะไม่พาไปหน้า Settings ที่ไม่เกี่ยวข้อง' : 'Use the detail above as the source of truth. This check may depend on Windows, hardware, runtime input, or a capability that cannot be repaired by an lnwjud toggle, so the app will not send you to an unrelated Settings page.'}</p>
+              <p>{locale === 'th' ? 'ใช้รายละเอียดด้านบนเป็นข้อมูลอ้างอิง รายการนี้อาจขึ้นกับ Windows, hardware, runtime input หรือ capability ที่ยังไม่สามารถแก้ด้วยสวิตช์ใน NexusPilot ได้ จึงจะไม่พาไปหน้า Settings ที่ไม่เกี่ยวข้อง' : 'Use the detail above as the source of truth. This check may depend on Windows, hardware, runtime input, or a capability that cannot be repaired by a NexusPilot toggle, so the app will not send you to an unrelated Settings page.'}</p>
             </div>
           </div>
         )) : (

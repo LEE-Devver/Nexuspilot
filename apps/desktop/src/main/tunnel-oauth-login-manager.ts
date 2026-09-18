@@ -124,7 +124,7 @@ export class TunnelOAuthLoginManager {
       this.state = 'completed';
       this.message = 'OAuth tunnel authentication activated';
       response.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
-      response.end('<!doctype html><meta charset="utf-8"><title>lnwjud</title><p>Authentication completed. You can return to lnwjud.</p>');
+      response.end('<!doctype html><meta charset="utf-8"><title>NexusPilot</title><p>Authentication completed. You can return to NexusPilot.</p>');
       this.closeInFlight();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'OAuth login failed';

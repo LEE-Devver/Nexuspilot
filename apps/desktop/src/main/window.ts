@@ -92,7 +92,7 @@ export function createLogViewerWindow(): BrowserWindow {
     height: 680,
     show: true,
     autoHideMenuBar: true,
-    title: 'lnwjud — Live Logs',
+    title: 'NexusPilot — Live Logs',
     ...windowChromeOptions(),
     ...(iconPath !== undefined ? { icon: iconPath } : {}),
     webPreferences: {

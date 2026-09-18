@@ -64,7 +64,7 @@ export function ToolDetailModal({ locale, item, remediations, onClose, onRemedia
       <section ref={dialogRef} className="tool-modal" role="dialog" aria-modal="true" aria-labelledby="tool-detail-title">
         <header className="tool-modal-header">
           <div className="tool-modal-title-copy">
-            <p className="eyebrow">{item.origin === 'external_mcp' ? `MCP · ${item.serverName ?? ''}` : 'lnwjud'}</p>
+            <p className="eyebrow">{item.origin === 'external_mcp' ? `MCP · ${item.serverName ?? ''}` : 'NexusPilot'}</p>
             <div className="tool-modal-title-line">
               <h2 ref={titleRef} tabIndex={-1} id="tool-detail-title">{item.title}</h2>
               <span className={`tool-readiness-badge tool-readiness-${item.readiness}`}>{toolReadinessLabel(locale, item)}</span>
@@ -97,7 +97,7 @@ export function ToolDetailModal({ locale, item, remediations, onClose, onRemedia
           {item.inputSchema !== null ? <details className="tool-schema-details"><summary>{locale === 'th' ? 'Input schema' : 'Input schema'}</summary><pre>{JSON.stringify(item.inputSchema, null, 2)}</pre></details> : null}
           {actionError === null ? null : <p className="tool-action-error" role="alert">{actionError}</p>}
           {relevantRemediations.map((remediation) => <section key={remediation.id} className="tool-remediation"><h3>{remediation.title}</h3><p>{remediation.explanation}</p><ol>{remediation.steps.map((step) => <li key={step}>{step}</li>)}</ol><div className="tool-action-row">{remediation.actions.map((action, index) => { const key = `${remediation.id}-${index}`; return <button type="button" key={key} disabled={busyActionKey !== null} onClick={() => { void runRemediation(action, key); }}>{busyActionKey === key ? busyActionLabel(locale, action) : actionLabel(locale, action)}</button>; })}</div></section>)}
-          {item.readiness !== 'ready' && relevantRemediations.length === 0 ? <section className="tool-remediation tool-remediation-fallback" role="note"><h3>{locale === 'th' ? 'รายการนี้ยังไม่มีปุ่มแก้อัตโนมัติ' : 'No automatic repair is available for this item'}</h3><p>{locale === 'th' ? 'ดูรายละเอียดในข้อกำหนดด้านบน สถานะนี้ไม่ได้หมายความว่ามีสวิตช์ซ่อนอยู่ใน Settings หาก runtime ยังไม่มี remediation ที่ปลอดภัย lnwjud จะไม่พาไปตั้งค่าที่ไม่เกี่ยวข้อง' : 'Use the requirement details above. This status does not imply there is a hidden Settings switch; when no safe remediation exists, lnwjud will not send you to an unrelated setting.'}</p></section> : null}
+          {item.readiness !== 'ready' && relevantRemediations.length === 0 ? <section className="tool-remediation tool-remediation-fallback" role="note"><h3>{locale === 'th' ? 'รายการนี้ยังไม่มีปุ่มแก้อัตโนมัติ' : 'No automatic repair is available for this item'}</h3><p>{locale === 'th' ? 'ดูรายละเอียดในข้อกำหนดด้านบน สถานะนี้ไม่ได้หมายความว่ามีสวิตช์ซ่อนอยู่ใน Settings หาก runtime ยังไม่มี remediation ที่ปลอดภัย NexusPilot จะไม่พาไปตั้งค่าที่ไม่เกี่ยวข้อง' : 'Use the requirement details above. This status does not imply there is a hidden Settings switch; when no safe remediation exists, NexusPilot will not send you to an unrelated setting.'}</p></section> : null}
         </div>
       </section>
     </div>
@@ -121,7 +121,7 @@ function declaredPermissionLabel(locale: UiLocale, item: ToolCatalogItem): strin
 }
 
 function profileDecisionLabel(locale: UiLocale, item: ToolCatalogItem): string {
-  if (item.origin === 'external_mcp' && item.profileDecision === 'UNKNOWN') return locale === 'th' ? 'lnwjud ไม่ได้จัดประเภท' : 'Not classified by lnwjud';
+  if (item.origin === 'external_mcp' && item.profileDecision === 'UNKNOWN') return locale === 'th' ? 'NexusPilot ไม่ได้จัดประเภท' : 'Not classified by NexusPilot';
   return item.profileDecision;
 }
 

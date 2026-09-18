@@ -73,7 +73,7 @@ export function ToolsPage({ locale, snapshot, loading, hostSyncNotice = null, on
     <section className="panel tools-page" aria-labelledby="tools-heading">
       <div className="section-heading tools-heading"><div><h1 id="tools-heading">{locale === 'th' ? 'เครื่องมือ' : 'Tools'}</h1><p className="page-subtitle">{locale === 'th' ? 'ดู readiness จาก runtime แยกจากสถานะเปิด/ปิดที่ผู้ใช้กำหนด' : 'See runtime readiness separately from user-controlled tool availability.'}</p></div><button type="button" disabled={loading} onClick={() => { void onRefresh(); }}>{loading ? (locale === 'th' ? 'กำลังตรวจ…' : 'Checking…') : (locale === 'th' ? 'ตรวจใหม่ทั้งหมด' : 'Recheck all')}</button></div>
       <div className="tool-origin-tabs" role="tablist" aria-label={locale === 'th' ? 'แหล่งเครื่องมือ' : 'Tool origin'}>
-        <button type="button" role="tab" aria-selected={origin === 'lnwjud'} className={origin === 'lnwjud' ? 'active' : undefined} onClick={() => setOrigin('lnwjud')}>lnwjud ({items.filter((item) => item.origin === 'lnwjud').length})</button>
+        <button type="button" role="tab" aria-selected={origin === 'lnwjud'} className={origin === 'lnwjud' ? 'active' : undefined} onClick={() => setOrigin('lnwjud')}>NexusPilot ({items.filter((item) => item.origin === 'lnwjud').length})</button>
         <button type="button" role="tab" aria-selected={origin === 'external_mcp'} className={origin === 'external_mcp' ? 'active' : undefined} onClick={() => { setOrigin('external_mcp'); setAvailability('all'); }}>External MCP ({items.filter((item) => item.origin === 'external_mcp').length})</button>
       </div>
       <div className="tool-status-strip" aria-label={locale === 'th' ? 'จำนวนตามสถานะ' : 'Status counts'}>{statuses.map((status) => <button type="button" key={status} aria-pressed={readiness === status} className={readiness === status ? 'active' : undefined} onClick={() => setReadiness(readiness === status ? 'all' : status)}><strong>{counts[status]}</strong><span>{coarseReadinessLabel(locale, status)}</span></button>)}</div>
@@ -108,7 +108,7 @@ function permissionLabel(locale: UiLocale, item: ToolCatalogItem): string {
 
 function profileDecisionLabel(locale: UiLocale, item: ToolCatalogItem): string {
   if (item.origin !== 'external_mcp' || item.profileDecision !== 'UNKNOWN') return item.profileDecision;
-  return locale === 'th' ? 'lnwjud ไม่ได้จัดประเภท' : 'Not classified by lnwjud';
+  return locale === 'th' ? 'NexusPilot ไม่ได้จัดประเภท' : 'Not classified by NexusPilot';
 }
 
 function remediationHint(locale: UiLocale, item: ToolCatalogItem, remediations: ReadonlyMap<string, ResolvedRemediation>): string {
