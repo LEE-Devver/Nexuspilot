@@ -1,7 +1,11 @@
 import os from 'node:os';
 import path from 'node:path';
 
+import { readCompatEnv } from './compat-env.js';
+
 export interface DataPathEnvironment {
+  readonly [key: string]: string | undefined;
+  readonly NEXUSPILOT_DATA_PATH?: string;
   readonly LNWJUD_DATA_PATH?: string;
   readonly APPDATA?: string;
   readonly USERPROFILE?: string;
@@ -16,7 +20,7 @@ export function resolveLnwjudDataPath(
   platform: NodeJS.Platform = process.platform,
 ): string {
   const pathApi = platform === 'win32' ? path.win32 : path.posix;
-  const configured = absolutePathOrUndefined(environment.LNWJUD_DATA_PATH, pathApi);
+  const configured = absolutePathOrUndefined(readCompatEnv('DATA_PATH', environment).value, pathApi);
   if (configured !== undefined) return configured;
 
   const home = absolutePathOrUndefined(environment.HOME, pathApi)

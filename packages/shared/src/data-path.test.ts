@@ -3,8 +3,16 @@ import { describe, expect, it } from 'vitest';
 import { resolveLnwjudDataPath } from './data-path.js';
 
 describe('resolveLnwjudDataPath', () => {
-  it('uses the same explicit override for Desktop and MCP', () => {
-    expect(resolveLnwjudDataPath({ LNWJUD_DATA_PATH: 'D:\\agent-data', APPDATA: 'C:\\Users\\u\\AppData\\Roaming' }, undefined, 'win32')).toBe(path.win32.resolve('D:\\agent-data'));
+  it('uses the NexusPilot data-path override when configured', () => {
+    expect(resolveLnwjudDataPath({ NEXUSPILOT_DATA_PATH: 'D:\\agent-data', APPDATA: 'C:\\Users\\u\\AppData\\Roaming' }, undefined, 'win32')).toBe(path.win32.resolve('D:\\agent-data'));
+  });
+
+  it('falls back to the inherited lnwjud data-path override', () => {
+    expect(resolveLnwjudDataPath({ LNWJUD_DATA_PATH: 'D:\\legacy-data', APPDATA: 'C:\\Users\\u\\AppData\\Roaming' }, undefined, 'win32')).toBe(path.win32.resolve('D:\\legacy-data'));
+  });
+
+  it('prefers NexusPilot when both data-path variables are set', () => {
+    expect(resolveLnwjudDataPath({ NEXUSPILOT_DATA_PATH: 'D:\\new-data', LNWJUD_DATA_PATH: 'D:\\legacy-data' }, undefined, 'win32')).toBe(path.win32.resolve('D:\\new-data'));
   });
 
   it('defaults to the per-user roaming AppData lnwjud directory', () => {

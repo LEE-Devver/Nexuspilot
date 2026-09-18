@@ -20,11 +20,16 @@ describe('unrestrictedFromSetting', () => {
 });
 
 describe('unrestrictedFromEnv', () => {
-  it('reads LNWJUD_UNRESTRICTED', () => {
-    expect(unrestrictedFromEnv({ LNWJUD_UNRESTRICTED: '1' })).toBe(true);
-    expect(unrestrictedFromEnv({ LNWJUD_UNRESTRICTED: 'true' })).toBe(true);
-    expect(unrestrictedFromEnv({ LNWJUD_UNRESTRICTED: '0' })).toBe(false);
+  it('reads the NexusPilot environment variable', () => {
+    expect(unrestrictedFromEnv({ NEXUSPILOT_UNRESTRICTED: '1' })).toBe(true);
+    expect(unrestrictedFromEnv({ NEXUSPILOT_UNRESTRICTED: 'true' })).toBe(true);
+    expect(unrestrictedFromEnv({ NEXUSPILOT_UNRESTRICTED: '0' })).toBe(false);
     expect(unrestrictedFromEnv({})).toBe(false);
+  });
+
+  it('falls back to the inherited lnwjud variable and prefers NexusPilot', () => {
+    expect(unrestrictedFromEnv({ LNWJUD_UNRESTRICTED: '1' })).toBe(true);
+    expect(unrestrictedFromEnv({ NEXUSPILOT_UNRESTRICTED: '0', LNWJUD_UNRESTRICTED: '1' })).toBe(false);
   });
 });
 

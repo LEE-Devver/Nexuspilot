@@ -263,7 +263,7 @@ Legacy aliases should be documented, tested, and eventually removable rather tha
 ## Migration status
 - Stage 1 — visible branding: complete
 - Stage 2 — internal package namespace: complete (`@nexuspilot/*`, root package `nexuspilot`)
-- Stage 3 — compatibility and persistence scaffolding: next
+- Stage 3 — compatibility and persistence scaffolding: in progress (shared env precedence + DATA_PATH + UNRESTRICTED migrated)
 
 ## Immediate next implementation step
 Start Stage 3 compatibility/persistence scaffolding. Before changing canonical external runtime identifiers, add migration helpers and tests for legacy environment/config/data discovery.

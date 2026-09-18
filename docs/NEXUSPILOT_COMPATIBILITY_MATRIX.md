@@ -1,0 +1,105 @@
+# NexusPilot Compatibility Matrix
+
+## Goal
+Stage 3 adds compatibility scaffolding before any external identity cutover.
+
+Canonical future identity:
+- environment prefix: `NEXUSPILOT_`
+- product name: NexusPilot
+
+Inherited compatibility identity:
+- environment prefix: `LNWJUD_`
+- persisted/default data directory: `lnwjud`
+- workspace metadata directory: `.lnwjud`
+- desktop IPC API: `window.lnwjud`
+- IPC channels: `lnwjud:*`
+
+During Stage 3, inherited persisted/runtime names remain authoritative unless a specific compatibility adapter is introduced and tested.
+## Environment precedence
+
+For migrated environment variables:
+
+```text
+NEXUSPILOT_<NAME>
+        ↓ preferred
+LNWJUD_<NAME>
+        ↓ legacy fallback
+unset/default
+```
+
+If both variables are present, NexusPilot wins.
+
+The shared helper implementing this rule is:
+
+```text
+packages/shared/src/compat-env.ts
+```
+## Implemented in this checkpoint
+
+### DATA_PATH
+Supported:
+- `NEXUSPILOT_DATA_PATH`
+- `LNWJUD_DATA_PATH`
+
+Precedence:
+1. `NEXUSPILOT_DATA_PATH`
+2. `LNWJUD_DATA_PATH`
+3. existing platform default
+
+Important: the platform default directory is still named `lnwjud`. This checkpoint does not move existing data.
+
+### UNRESTRICTED
+Supported:
+- `NEXUSPILOT_UNRESTRICTED`
+- `LNWJUD_UNRESTRICTED`
+
+Precedence:
+1. `NEXUSPILOT_UNRESTRICTED`
+2. `LNWJUD_UNRESTRICTED`
+3. existing persisted setting/default behavior
+## Not migrated yet
+
+The following groups still read inherited names directly and must move through the compatibility helper in later Stage 3 checkpoints:
+
+- workspace selection and reset flags
+- MCP port and stdio policy variables
+- capability roots and helper paths
+- checkpoint encryption key variables
+- browser/CDP configuration
+- tunnel client/profile configuration
+- native runtime/build/release variables
+- E2E-only variables
+
+Do not mechanically rename them. Migrate one group at a time with precedence tests.
+## Persisted paths
+
+These stay unchanged in Stage 3:
+
+```text
+<platform app data>/lnwjud
+<workspace>/.lnwjud/
+lnwjud tunnel/profile/log names
+legacy secret/checkpoint locations
+```
+
+Reason: changing them before migration readers exist can silently split state between old and new installations.
+
+Before changing any default path:
+1. detect existing legacy state,
+2. define copy/import/dual-read behavior,
+3. define conflict precedence,
+4. add tests for existing-user upgrades,
+5. only then switch the canonical write location.
+## Compatibility removal policy
+
+Legacy `LNWJUD_*` fallback is temporary compatibility surface.
+
+When a runtime uses only a legacy variable, user-facing diagnostics should emit a bounded deprecation notice. The low-level environment helper must not log directly, so libraries/tests remain deterministic and callers can choose the correct UI/logging channel.
+
+A legacy alias may be removed only after:
+- the NexusPilot replacement has shipped,
+- migration behavior is documented,
+- telemetry/support evidence shows the old name is no longer required, or a major-version policy explicitly removes it,
+- tests for legacy import are updated accordingly.
+
+Historical upstream documentation may continue to contain lnwjud identifiers permanently.

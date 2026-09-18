@@ -2,6 +2,7 @@ export const APP_NAME = 'lnwjud';
 export const APP_VERSION = '5.2.2';
 export { isUnrestricted, unrestrictedFromEnv, unrestrictedFromSetting, UNRESTRICTED_SETTING_KEY, type ProcessEnvLike } from './unrestricted.js';
 
+export { readCompatEnv, type CompatEnvLike, type CompatEnvValue } from './compat-env.js';
 export { resolveLnwjudDataPath, type DataPathEnvironment } from './data-path.js';
 export {
   createPlatformProfile,
