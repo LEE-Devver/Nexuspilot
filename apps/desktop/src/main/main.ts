@@ -71,7 +71,7 @@ import {
   type WorkspaceSummary,
 } from '@nexuspilot/ipc-contracts';
 import { readSharedActivitySnapshot, startMcpStdio, type EccRuntimeOptions, type HostMutationApprovalRequest } from '@nexuspilot/mcp-server';
-import { createExplicitKeySecretProtector, DEFAULT_DISPLAY_TIME_ZONE, DEFAULT_MCP_POLL_WAIT_SECONDS, DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS, formatDisplayDateTime, formatOffsetIsoTimestamp, resolveLnwjudDataPath, type SecretProtector } from '@nexuspilot/shared';
+import { createExplicitKeySecretProtector, DEFAULT_DISPLAY_TIME_ZONE, DEFAULT_MCP_POLL_WAIT_SECONDS, DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS, formatDisplayDateTime, formatOffsetIsoTimestamp, readCompatEnv, resolveLnwjudDataPath, type SecretProtector } from '@nexuspilot/shared';
 import { applyPendingSqliteRestoreSync, CheckpointKeyStore } from '@nexuspilot/storage';
 import { createDesktopRuntime, formatCompleteTargetDetail, formatIncompleteLegacyHistory, writeSerializedLogRows, type DesktopRuntime } from './desktop-services.js';
 import { resolveTunnelProfileDirectory, TUNNEL_SECRET_FILE_NAME } from './tunnel-controller.js';
@@ -1639,7 +1639,7 @@ function bootstrapMcpStdio(): void {
     });
     desktopRuntime = runtime;
     const workspacePath = readArgValue('--workspace')
-      ?? process.env.LNWJUD_WORKSPACE
+      ?? readCompatEnv('WORKSPACE').value
       ?? process.cwd();
     try {
       const workspaceId = await runtime.ensureDefaultWorkspace(workspacePath);

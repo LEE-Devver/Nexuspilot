@@ -10,7 +10,7 @@ const temporaryRoots: string[] = [];
 beforeEach(() => {
   vi.stubEnv('LNWJUD_UNRESTRICTED', '1');
   vi.stubEnv('LNWJUD_E2E_FIXTURE', '1');
-  vi.stubEnv('LNWJUD_MCP_PORT', '0');
+  vi.stubEnv('NEXUSPILOT_MCP_PORT', '0');
 });
 
 afterEach(async () => {

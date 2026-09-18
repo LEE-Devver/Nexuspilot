@@ -61,8 +61,8 @@ describe('session resilience acceptance', () => {
       env: {
         ...process.env,
         LNWJUD_DATA_PATH: dataPath,
-        LNWJUD_RESET_WORKSPACES: '1',
-        LNWJUD_CONFIRM_RESET_WORKSPACES: 'DELETE-REGISTERED-WORKSPACES',
+        NEXUSPILOT_RESET_WORKSPACES: '1',
+        NEXUSPILOT_CONFIRM_RESET_WORKSPACES: 'DELETE-REGISTERED-WORKSPACES',
         LNWJUD_UNRESTRICTED: '0',
       },
       stderr: 'pipe',

@@ -11,6 +11,7 @@ import {
   parseAllowedRoots,
   parseBooleanSetting,
   parseStdioPermissionProfile,
+  readCompatEnv,
   resolveLnwjudDataPath,
 } from '@nexuspilot/shared';
 import { applyPendingSqliteRestoreSync, SqliteBackupService, SqliteDatabase, SqliteSettingsRepository, SqliteWorkspaceRepository } from '@nexuspilot/storage';
@@ -62,22 +63,22 @@ async function main(): Promise<void> {
 
   const profileName = parseStdioPermissionProfile(
     readArg('--profile')
-      ?? process.env.LNWJUD_STDIO_PROFILE
+      ?? readCompatEnv('STDIO_PROFILE').value
       ?? settingsRepository.get(STDIO_PERMISSION_PROFILE_SETTING_KEY),
     'full',
   );
   const stdioFullBypassAll = profileName === 'full' && (
     hasFlag('--full-bypass-all')
-    || (process.env.LNWJUD_STDIO_FULL_BYPASS_ALL !== undefined
-      ? parseBooleanSetting(process.env.LNWJUD_STDIO_FULL_BYPASS_ALL, false)
+    || (readCompatEnv('STDIO_FULL_BYPASS_ALL').value !== undefined
+      ? parseBooleanSetting(readCompatEnv('STDIO_FULL_BYPASS_ALL').value, false)
       : parseBooleanSetting(settingsRepository.get(USER_SETTING_KEYS.stdioFullBypassAll), false))
   );
   const strictRootsEnabled = !stdioFullBypassAll && (hasFlag('--strict-roots')
-    || (process.env.LNWJUD_STRICT_ROOTS !== undefined
-      ? parseBooleanSetting(process.env.LNWJUD_STRICT_ROOTS, false)
+    || (readCompatEnv('STRICT_ROOTS').value !== undefined
+      ? parseBooleanSetting(readCompatEnv('STRICT_ROOTS').value, false)
       : parseBooleanSetting(settingsRepository.get(STDIO_STRICT_ROOTS_SETTING_KEY), false)));
   const cliAllowedRoots = readArgs('--allowed-root');
-  const envAllowedRoots = parseAllowedRoots(process.env.LNWJUD_ALLOWED_ROOTS);
+  const envAllowedRoots = parseAllowedRoots(readCompatEnv('ALLOWED_ROOTS').value);
   const storedAllowedRoots = parseAllowedRoots(settingsRepository.get(STDIO_ALLOWED_ROOTS_SETTING_KEY));
   const configuredAllowedRoots = cliAllowedRoots.length > 0
     ? cliAllowedRoots
@@ -87,9 +88,10 @@ async function main(): Promise<void> {
   const strictAllowedRoots = strictRootsEnabled ? await canonicalizeAllowedRoots(configuredAllowedRoots) : undefined;
 
   const rawWorkspaceService = new WorkspaceService(rawWorkspaceRepository);
+  const resetWorkspaces = readCompatEnv('RESET_WORKSPACES').value;
   const reset = hasFlag('--reset-workspaces')
-    || process.env.LNWJUD_RESET_WORKSPACES === '1'
-    || process.env.LNWJUD_RESET_WORKSPACES === 'true';
+    || resetWorkspaces === '1'
+    || resetWorkspaces === 'true';
   if (reset) {
     const backupService = new SqliteBackupService(database, {
       databaseFilename: path.join(dataPath, 'lnwjud.sqlite'),
@@ -100,7 +102,7 @@ async function main(): Promise<void> {
     const result = await resetWorkspaceRegistrations(
       rawWorkspaceService,
       backupService,
-      readArg('--confirm-reset-workspaces') ?? process.env.LNWJUD_CONFIRM_RESET_WORKSPACES,
+      readArg('--confirm-reset-workspaces') ?? readCompatEnv('CONFIRM_RESET_WORKSPACES').value,
     );
     process.stderr.write(
       `lnwjud MCP stdio: cleared ${result.deleted} previous workspace registration(s)`
@@ -116,7 +118,7 @@ async function main(): Promise<void> {
     ? isUnrestricted(process.env, settingsRepository.get(UNRESTRICTED_SETTING_KEY))
     : false);
 
-  const requestedRaw = readArg('--workspace') ?? process.env.LNWJUD_WORKSPACE;
+  const requestedRaw = readArg('--workspace') ?? readCompatEnv('WORKSPACE').value;
   const registeredProjects = (await workspaceService.list())
     .filter((entry) => !isMachineRootPath(entry.realRootPath) && !isMachineRootPath(entry.rootPath));
   const requestedPath = resolveRequestedWorkspacePath({

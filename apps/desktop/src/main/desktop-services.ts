@@ -96,6 +96,7 @@ import {
   serializePathList,
   serializeStringRecordSetting,
   currentPlatformProfile,
+  readCompatEnv,
   formatDisplayDateTime,
   formatDisplayTimestampItem,
   type SecretProtector,
@@ -550,7 +551,7 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
       },
     },
   );
-  const mcpPort = readMcpPort(process.env.LNWJUD_MCP_PORT ?? settingsRepository.get(USER_SETTING_KEYS.mcpHttpPort) ?? undefined);
+  const mcpPort = readMcpPort(readCompatEnv('MCP_PORT').value ?? settingsRepository.get(USER_SETTING_KEYS.mcpHttpPort) ?? undefined);
   const mcpLifecycle = new DesktopMcpLifecycle({
     createServerOptions: (): McpHttpServerOptions => ({
       port: mcpPort,
@@ -1605,10 +1606,10 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
       throw new Error('No project workspace is available');
     },
     autoStartMcp: async (): Promise<McpConnectionStatus> => {
-      const envWorkspacePath = process.env.LNWJUD_WORKSPACE?.trim();
+      const envWorkspacePath = readCompatEnv('WORKSPACE').value?.trim();
       if (envWorkspacePath !== undefined && envWorkspacePath.length > 0) {
         const resolvedPath = resolveHostPath(envWorkspacePath, process.platform);
-        if (resolvedPath === null) throw new Error('LNWJUD_WORKSPACE uses a foreign host path syntax');
+        if (resolvedPath === null) throw new Error('NEXUSPILOT_WORKSPACE uses a foreign host path syntax (legacy LNWJUD_WORKSPACE is also supported)');
         const existing = await workspaceService.list();
         const comparablePath = comparableHostPath(resolvedPath, process.platform);
         const matched = comparablePath === null ? undefined : existing.find((workspace) => comparableHostPath(workspace.realRootPath, process.platform) === comparablePath);
@@ -2062,7 +2063,7 @@ function readUserSettings(settingsRepository: SqliteSettingsRepository, env: Nod
     capabilityRoots: parsePathList(settingsRepository.get(USER_SETTING_KEYS.capabilityRoots)),
     pdfProviderPath: settingsRepository.get(USER_SETTING_KEYS.pdfProviderPath)?.trim() ?? '',
     lspCommands: parseStringRecordSetting(settingsRepository.get(USER_SETTING_KEYS.lspCommands)),
-    mcpHttpPort: readMcpPort(env.LNWJUD_MCP_PORT ?? settingsRepository.get(USER_SETTING_KEYS.mcpHttpPort) ?? undefined),
+    mcpHttpPort: readMcpPort(readCompatEnv('MCP_PORT', env).value ?? settingsRepository.get(USER_SETTING_KEYS.mcpHttpPort) ?? undefined),
     codexToolsEnabled: parseBooleanSetting(settingsRepository.get(USER_SETTING_KEYS.codexToolsEnabled), DEFAULT_CODEX_TOOLS_ENABLED),
     eccEnabled: parseBooleanSetting(settingsRepository.get(USER_SETTING_KEYS.eccEnabled), DEFAULT_ECC_ENABLED),
     ponytailMode: parsePonytailMode(settingsRepository.get(USER_SETTING_KEYS.ponytailMode), DEFAULT_PONYTAIL_MODE),
@@ -2176,7 +2177,7 @@ export const DEFAULT_MCP_HTTP_PORT = 18_765;
 function readMcpPort(value: string | undefined): number {
   if (value === undefined || value.trim().length === 0) return DEFAULT_MCP_HTTP_PORT;
   const port = Number(value);
-  if (!Number.isInteger(port) || port < 0 || port > 65_535) throw new Error('LNWJUD_MCP_PORT must be an integer from 0 to 65535');
+  if (!Number.isInteger(port) || port < 0 || port > 65_535) throw new Error('NEXUSPILOT_MCP_PORT must be an integer from 0 to 65535 (legacy LNWJUD_MCP_PORT is also supported)');
   if (port === 5_000) return DEFAULT_MCP_HTTP_PORT;
   return port;
 }

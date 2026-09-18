@@ -57,12 +57,14 @@ Precedence:
 1. `NEXUSPILOT_UNRESTRICTED`
 2. `LNWJUD_UNRESTRICTED`
 3. existing persisted setting/default behavior
-## Not migrated yet
+## Additional Stage 3 migrations
+
+The following groups now use NexusPilot-first compatibility reads:
+- workspace selection and reset flags
+- MCP port and stdio policy variables
 
 The following groups still read inherited names directly and must move through the compatibility helper in later Stage 3 checkpoints:
 
-- workspace selection and reset flags
-- MCP port and stdio policy variables
 - capability roots and helper paths
 - checkpoint encryption key variables
 - browser/CDP configuration
