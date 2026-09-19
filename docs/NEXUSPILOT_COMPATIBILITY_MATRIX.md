@@ -70,9 +70,15 @@ The following groups now also use NexusPilot-first compatibility reads:
 
 `CAPABILITY_ROOTS` is temporarily dual-written to both `NEXUSPILOT_CAPABILITY_ROOTS` and `LNWJUD_CAPABILITY_ROOTS` so inherited host/native consumers continue to work during migration.
 
+Tunnel launcher compatibility now prefers:
+- `NEXUSPILOT_PATH` over `LNWJUD_PATH`
+- `NEXUSPILOT_TUNNEL_CLIENT_PATH` over `LNWJUD_TUNNEL_CLIENT_PATH`
+- `NEXUSPILOT_TUNNEL_STOP` over `LNWJUD_TUNNEL_STOP`
+
+Tunnel profile names, runtime aliases, secret filenames, and persisted tunnel state intentionally remain on the inherited lnwjud identity until the later runtime/persistence cutover.
+
 The following groups still read inherited names directly and must move through the compatibility helper in later Stage 3 checkpoints:
 
-- tunnel client/profile configuration
 - native runtime/build/release variables
 - E2E-only variables
 

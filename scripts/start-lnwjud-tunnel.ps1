@@ -71,10 +71,12 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
 if ([string]::IsNullOrWhiteSpace($LnwjudPath)) {
-  $LnwjudPath = if ($env:LNWJUD_PATH) { $env:LNWJUD_PATH } else { Join-Path $env:LOCALAPPDATA 'Programs\lnwjud\lnwjud.exe' }
+  $LnwjudPath = if ($env:NEXUSPILOT_PATH) { $env:NEXUSPILOT_PATH } elseif ($env:LNWJUD_PATH) { $env:LNWJUD_PATH } else { Join-Path $env:LOCALAPPDATA 'Programs\lnwjud\lnwjud.exe' }
 }
 if ([string]::IsNullOrWhiteSpace($TunnelClientPath)) {
-  $TunnelClientPath = if ($env:LNWJUD_TUNNEL_CLIENT_PATH) {
+  $TunnelClientPath = if ($env:NEXUSPILOT_TUNNEL_CLIENT_PATH) {
+    $env:NEXUSPILOT_TUNNEL_CLIENT_PATH
+  } elseif ($env:LNWJUD_TUNNEL_CLIENT_PATH) {
     $env:LNWJUD_TUNNEL_CLIENT_PATH
   } else {
     Join-Path (Split-Path -Parent $LnwjudPath) 'resources\tunnel-client\tunnel-client.exe'
@@ -99,7 +101,8 @@ function Test-LnwjudTunnelRunning {
 }
 
 function Test-LnwjudTunnelStopRequested {
-  if ($env:LNWJUD_TUNNEL_STOP -eq '1' -or $env:LNWJUD_TUNNEL_STOP -eq 'true') { return $true }
+  $stopValue = if ($env:NEXUSPILOT_TUNNEL_STOP) { $env:NEXUSPILOT_TUNNEL_STOP } else { $env:LNWJUD_TUNNEL_STOP }
+  if ($stopValue -eq '1' -or $stopValue -eq 'true') { return $true }
   return Test-Path -LiteralPath $stopFile
 }
 
@@ -176,7 +179,7 @@ try {
 
   Write-Host "lnwjud tunnel: starting (TTL $mcpTtl, log: $logPath)"
   Write-Host 'lnwjud tunnel: MCP target = Desktop loopback HTTP; Desktop Settings own Active Project and approvals.'
-  Write-Host 'lnwjud tunnel: auto-restart is ON (TTL/exit 0 still restarts). Ctrl+C or LNWJUD_TUNNEL_STOP=1 to stop.'
+  Write-Host 'lnwjud tunnel: auto-restart is ON (TTL/exit 0 still restarts). Ctrl+C or NEXUSPILOT_TUNNEL_STOP=1 to stop (legacy LNWJUD_TUNNEL_STOP is also supported).'
 
   if (-not $desktopWasStarted -and -not $NoViewer -and (Test-Path $LnwjudPath)) {
     if ($OpenDashboard) {
