@@ -5,7 +5,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$previousSourceDirtyAtStart = $env:LNWJUD_SOURCE_DIRTY_AT_START
+$previousNexusPilotSourceDirtyAtStart = $env:NEXUSPILOT_SOURCE_DIRTY_AT_START
+$previousLnwjudSourceDirtyAtStart = $env:LNWJUD_SOURCE_DIRTY_AT_START
 
 function Invoke-ReleaseStage {
     param(
@@ -55,7 +56,9 @@ try {
         throw "Unable to inspect repository status before release verification"
     }
     $sourceDirtyAtStart = (($sourceStatusAtStart -join "`n").Trim().Length -gt 0)
-    $env:LNWJUD_SOURCE_DIRTY_AT_START = if ($sourceDirtyAtStart) { '1' } else { '0' }
+    $sourceDirtyValue = if ($sourceDirtyAtStart) { '1' } else { '0' }
+    $env:NEXUSPILOT_SOURCE_DIRTY_AT_START = $sourceDirtyValue
+    $env:LNWJUD_SOURCE_DIRTY_AT_START = $sourceDirtyValue
     if ($env:GITHUB_ACTIONS -eq 'true' -and $sourceDirtyAtStart) {
         throw "GitHub release verification requires a clean source tree before verification begins"
     }
@@ -106,11 +109,17 @@ try {
     Write-Host 'Release verification gate completed.'
 }
 finally {
-    if ($null -eq $previousSourceDirtyAtStart) {
+    if ($null -eq $previousNexusPilotSourceDirtyAtStart) {
+        Remove-Item Env:NEXUSPILOT_SOURCE_DIRTY_AT_START -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:NEXUSPILOT_SOURCE_DIRTY_AT_START = $previousNexusPilotSourceDirtyAtStart
+    }
+    if ($null -eq $previousLnwjudSourceDirtyAtStart) {
         Remove-Item Env:LNWJUD_SOURCE_DIRTY_AT_START -ErrorAction SilentlyContinue
     }
     else {
-        $env:LNWJUD_SOURCE_DIRTY_AT_START = $previousSourceDirtyAtStart
+        $env:LNWJUD_SOURCE_DIRTY_AT_START = $previousLnwjudSourceDirtyAtStart
     }
     Pop-Location
 }

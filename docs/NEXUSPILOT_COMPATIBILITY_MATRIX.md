@@ -77,10 +77,12 @@ Tunnel launcher compatibility now prefers:
 
 Tunnel profile names, runtime aliases, secret filenames, and persisted tunnel state intentionally remain on the inherited lnwjud identity until the later runtime/persistence cutover.
 
+Build/release scripts now use NexusPilot-first compatibility reads for runtime target/arch, tunnel target/arch, signing/notarization controls, release evidence/provenance settings, verification target/arch, and related release paths. Cross-process `SOURCE_DIRTY_AT_START` is temporarily dual-written under both prefixes for old/new release-script interoperability.
+
 The following groups still read inherited names directly and must move through the compatibility helper in later Stage 3 checkpoints:
 
-- native runtime/build/release variables
 - E2E-only variables
+- Windows-only runtime probe variables that are intentionally injected into child PowerShell processes
 
 Do not mechanically rename them. Migrate one group at a time with precedence tests.
 ## Persisted paths

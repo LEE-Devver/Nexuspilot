@@ -6,6 +6,7 @@ import process from 'node:process';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { validateMacosSigningPolicyEvidence } from './inspect-macos-signing-policy.mjs';
+import { readCompatEnv } from '../../../scripts/lib/compat-env.mjs';
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = path.resolve(desktopRoot, '..', '..');
@@ -21,7 +22,7 @@ if (githubSha && githubSha.toLowerCase() !== commit.toLowerCase()) {
   throw new Error(`GITHUB_SHA does not match checked-out commit: github=${githubSha} git=${commit}`);
 }
 const workingTreeStatusAtEvidence = git(['status', '--porcelain=v1', '--untracked-files=normal']).trim();
-const sourceDirtyAtStart = parseSourceDirtyAtStart(process.env.LNWJUD_SOURCE_DIRTY_AT_START);
+const sourceDirtyAtStart = parseSourceDirtyAtStart(readCompatEnv('SOURCE_DIRTY_AT_START'));
 const workingTreeDirtyAtEvidence = workingTreeStatusAtEvidence.length > 0;
 const dirty = sourceDirtyAtStart ?? workingTreeDirtyAtEvidence;
 
@@ -29,7 +30,7 @@ const runtimeEvidence = JSON.parse(await readFile(runtimeEvidencePath, 'utf8'));
 if (runtimeEvidence?.schemaVersion !== 1 || !Array.isArray(runtimeEvidence.files)) {
   throw new Error('Packaged runtime evidence is missing or invalid');
 }
-const platform = normalizePlatform(process.env.LNWJUD_RELEASE_PLATFORM ?? runtimeEvidence.platform);
+const platform = normalizePlatform(readCompatEnv('RELEASE_PLATFORM') ?? runtimeEvidence.platform);
 if (runtimeEvidence.platform !== platform) throw new Error(`Runtime evidence platform mismatch: ${String(runtimeEvidence.platform)} != ${platform}`);
 const capabilityBridge = platform === 'win32' ? validateCapabilityBridge(runtimeEvidence) : null;
 const macSigning = platform === 'darwin' ? validateMacSigning(runtimeEvidence) : null;

@@ -17,13 +17,16 @@ $capturedSourceDirtyAtStart = $false
 
 Push-Location $repositoryRoot
 try {
-    if ([string]::IsNullOrWhiteSpace($env:LNWJUD_SOURCE_DIRTY_AT_START)) {
+    $sourceDirtyOverride = if (-not [string]::IsNullOrWhiteSpace($env:NEXUSPILOT_SOURCE_DIRTY_AT_START)) { $env:NEXUSPILOT_SOURCE_DIRTY_AT_START } else { $env:LNWJUD_SOURCE_DIRTY_AT_START }
+    if ([string]::IsNullOrWhiteSpace($sourceDirtyOverride)) {
         $sourceStatusAtStart = @(git status --porcelain=v1 --untracked-files=normal)
         if ($LASTEXITCODE -ne 0) {
             throw "Unable to inspect repository status before Windows packaging"
         }
         $sourceDirtyAtStart = (($sourceStatusAtStart -join "`n").Trim().Length -gt 0)
-        $env:LNWJUD_SOURCE_DIRTY_AT_START = if ($sourceDirtyAtStart) { '1' } else { '0' }
+        $sourceDirtyValue = if ($sourceDirtyAtStart) { '1' } else { '0' }
+        $env:NEXUSPILOT_SOURCE_DIRTY_AT_START = $sourceDirtyValue
+        $env:LNWJUD_SOURCE_DIRTY_AT_START = $sourceDirtyValue
         $capturedSourceDirtyAtStart = $true
     }
     & corepack pnpm@10.15.0 --filter @nexuspilot/desktop package:windows
@@ -47,6 +50,7 @@ try {
 }
 finally {
     if ($capturedSourceDirtyAtStart) {
+        Remove-Item Env:NEXUSPILOT_SOURCE_DIRTY_AT_START -ErrorAction SilentlyContinue
         Remove-Item Env:LNWJUD_SOURCE_DIRTY_AT_START -ErrorAction SilentlyContinue
     }
     Pop-Location

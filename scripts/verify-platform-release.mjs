@@ -5,11 +5,12 @@ import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import { readCompatEnv } from './lib/compat-env.mjs';
 
 const execFileAsync = promisify(execFile);
 const repositoryRoot = process.cwd();
-const target = process.env.LNWJUD_VERIFY_PLATFORM?.trim() || process.platform;
-const architecture = process.env.LNWJUD_VERIFY_ARCH?.trim() || process.arch;
+const target = readCompatEnv('VERIFY_PLATFORM')?.trim() || process.platform;
+const architecture = readCompatEnv('VERIFY_ARCH')?.trim() || process.arch;
 const packageRequested = process.argv.includes('--package');
 
 if (!['win32', 'darwin', 'linux'].includes(target)) throw new Error(`Unsupported verification platform: ${target}`);
@@ -67,7 +68,9 @@ async function runCheck(name, command, args) {
         LNWJUD_SOURCE_DIRTY_AT_START: sourceDirtyAtStart ? '1' : '0',
         LNWJUD_RUNTIME_TARGET: target,
         LNWJUD_RUNTIME_ARCH: architecture,
+        NEXUSPILOT_TUNNEL_TARGET: target,
         LNWJUD_TUNNEL_TARGET: target,
+        NEXUSPILOT_TUNNEL_ARCH: architecture,
         LNWJUD_TUNNEL_ARCH: architecture,
       },
       shell: false,

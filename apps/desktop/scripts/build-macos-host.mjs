@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { readCompatEnv } from '../../../scripts/lib/compat-env.mjs';
 
 if (process.platform !== 'darwin') {
   process.stdout.write('Skipping macOS native host build on a non-macOS host.\n');
@@ -12,7 +13,7 @@ if (process.platform !== 'darwin') {
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const nativeRoot = path.resolve(desktopRoot, '..', '..', 'native', 'macos-host');
-const arch = process.env.LNWJUD_RUNTIME_ARCH ?? process.arch;
+const arch = readCompatEnv('RUNTIME_ARCH') ?? process.arch;
 if (arch !== 'x64' && arch !== 'arm64') throw new Error(`Unsupported macOS native host architecture: ${arch}`);
 execFileSync('swift', ['test', '--package-path', nativeRoot], { stdio: 'inherit' });
 const swiftArch = arch === 'x64' ? 'x86_64' : 'arm64';

@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { fetchWithRetry } from './fetch-with-retry.mjs';
+import { readCompatEnv } from '../../../scripts/lib/compat-env.mjs';
 
 const require = createRequire(import.meta.url);
 const extractZip = require('@electron-internal/extract-zip');
@@ -24,8 +25,8 @@ const vendorRoot = path.join(buildRoot, 'vendor', `runtime-tools-v${RIPGREP_VERS
 
 // Exact release archives are declared in one manifest. Linux intentionally
 // uses static musl builds. No platform or architecture fallback is allowed.
-const platform = process.env.LNWJUD_RUNTIME_TARGET ?? process.platform;
-const rawArch = process.env.LNWJUD_RUNTIME_ARCH ?? process.arch;
+const platform = readCompatEnv('RUNTIME_TARGET') ?? process.platform;
+const rawArch = readCompatEnv('RUNTIME_ARCH') ?? process.arch;
 const targetKey = `${platform}-${rawArch}`;
 const ripgrep = ripgrepDependency.targets?.[targetKey];
 if (ripgrep === undefined) throw new Error(`Runtime tools do not support ${platform}/${rawArch}`);

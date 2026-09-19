@@ -6,11 +6,12 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { verifyCapabilityBridgeArtifacts } from './verify-capability-bridge-artifacts.mjs';
 import { validateMacosSigningPolicyEvidence } from './inspect-macos-signing-policy.mjs';
+import { readCompatEnv } from '../../../scripts/lib/compat-env.mjs';
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const runtimeDependencies = JSON.parse(await readFile(path.join(desktopRoot, 'src', 'main', 'runtime-dependencies.json'), 'utf8'));
 const BUNDLED_TUNNEL_CLIENT_VERSION = runtimeDependencies.tunnelClient.version;
-const configuredInstallerDirectory = process.env.LNWJUD_RELEASE_INSTALLER_DIRECTORY?.trim();
+const configuredInstallerDirectory = readCompatEnv('RELEASE_INSTALLER_DIRECTORY')?.trim();
 const installerDirectory = configuredInstallerDirectory
   ? path.resolve(configuredInstallerDirectory)
   : path.join(desktopRoot, 'dist', 'installers');
@@ -32,23 +33,23 @@ if (provenance.platform === 'darwin') {
   if (!['ad-hoc', 'certificate'].includes(signing.mode)
     || signing.mode === 'certificate' && !/^[0-9a-f]{40}$/i.test(signing.certificateSha1 ?? '')
     || signing.mode !== 'certificate' && signing.certificateSha1 !== undefined) throw new Error('macOS signing evidence is invalid');
-  if ((process.env.LNWJUD_REQUIRE_CODESIGN === '1' || process.env.LNWJUD_REQUIRE_NOTARIZATION === '1')
+  if ((readCompatEnv('REQUIRE_CODESIGN') === '1' || readCompatEnv('REQUIRE_NOTARIZATION') === '1')
     && signing.mode !== 'certificate') throw new Error('Certificate-signed macOS release evidence is required');
   macSigning = signing;
 }
 if (typeof provenance.source?.commit !== 'string' || !/^[0-9a-f]{40}$/i.test(provenance.source.commit)) throw new Error('Provenance commit SHA is invalid');
 
-const expectedPlatform = process.env.LNWJUD_RELEASE_PLATFORM?.trim();
+const expectedPlatform = readCompatEnv('RELEASE_PLATFORM')?.trim();
 if (expectedPlatform && provenance.platform !== expectedPlatform) throw new Error(`Provenance platform mismatch: ${provenance.platform} != ${expectedPlatform}`);
-const expectedCommit = process.env.LNWJUD_EXPECTED_COMMIT_SHA?.trim();
+const expectedCommit = readCompatEnv('EXPECTED_COMMIT_SHA')?.trim();
 if (expectedCommit && provenance.source.commit.toLowerCase() !== expectedCommit.toLowerCase()) {
   throw new Error(`Provenance commit mismatch: ${provenance.source.commit} != ${expectedCommit}`);
 }
-if (process.env.LNWJUD_REQUIRE_CLEAN_PROVENANCE === '1' && provenance.source.dirty !== false) {
+if (readCompatEnv('REQUIRE_CLEAN_PROVENANCE') === '1' && provenance.source.dirty !== false) {
   throw new Error('Public release provenance must be built from a clean tracked source tree');
 }
 
-const releaseArtifactOnly = process.env.LNWJUD_RELEASE_ARTIFACT_ONLY === '1';
+const releaseArtifactOnly = readCompatEnv('RELEASE_ARTIFACT_ONLY') === '1';
 const packagedBridgePath = releaseArtifactOnly
   ? undefined
   : path.join(installerDirectory, 'win-unpacked', 'resources', 'windows-capability-bridge.ps1');

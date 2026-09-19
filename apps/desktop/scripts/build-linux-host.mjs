@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { readCompatEnv } from '../../../scripts/lib/compat-env.mjs';
 
 if (process.platform !== 'linux') {
   process.stdout.write('Skipping Linux native host build on a non-Linux host.\n');
@@ -12,7 +13,7 @@ if (process.platform !== 'linux') {
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const nativeRoot = path.resolve(desktopRoot, '..', '..', 'native', 'linux-host');
-const arch = process.env.LNWJUD_RUNTIME_ARCH ?? process.arch;
+const arch = readCompatEnv('RUNTIME_ARCH') ?? process.arch;
 if (arch !== 'x64' && arch !== 'arm64') throw new Error(`Unsupported Linux native host architecture: ${arch}`);
 // Resolve the output path from the requested artifact architecture, not the
 // host Node architecture. This keeps an explicit x64 cross-build from

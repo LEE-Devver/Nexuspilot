@@ -6,6 +6,7 @@ import process from 'node:process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { collectPackagedRuntimeEvidence, invalidatePackagedRuntimeEvidence } from './capture-packaged-runtime-evidence.mjs';
+import { readCompatEnv } from '../../../scripts/lib/compat-env.mjs';
 import {
   inspectMacosSigningPolicy,
   invalidateMacosSigningPolicyEvidence,
@@ -26,8 +27,8 @@ export default async function signMacosRuntime(configuration, packager) {
   await signPackagedMacosRuntime(configuration, {
     run: (args) => execFileAsync('/usr/bin/codesign', args, { encoding: 'utf8', timeout: 120_000, maxBuffer: 1024 * 1024 }),
     signApp: sign,
-    requireCertificate: packager?.forceCodeSigning === true || process.env.LNWJUD_REQUIRE_CODESIGN === '1'
-      || process.env.LNWJUD_REQUIRE_NOTARIZATION === '1'
+    requireCertificate: packager?.forceCodeSigning === true || readCompatEnv('REQUIRE_CODESIGN') === '1'
+      || readCompatEnv('REQUIRE_NOTARIZATION') === '1'
       || ['CSC_LINK', 'CSC_NAME', 'APPLE_ID', 'APPLE_API_KEY', 'APPLE_API_KEY_ID'].some((key) => Boolean(process.env[key]?.trim()))
       || Boolean(packager?.platformSpecificBuildOptions?.identity && packager.platformSpecificBuildOptions.identity !== '-'),
   });

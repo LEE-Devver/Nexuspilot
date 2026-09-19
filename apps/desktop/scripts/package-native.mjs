@@ -1,6 +1,7 @@
 /* global process */
 
 import { spawn } from 'node:child_process';
+import { readCompatEnv } from '../../../scripts/lib/compat-env.mjs';
 
 const target = process.argv[2];
 if (target !== 'macos' && target !== 'linux') throw new Error('Usage: node scripts/package-native.mjs <macos|linux>');
@@ -8,11 +9,13 @@ if ((target === 'macos' && process.platform !== 'darwin') || (target === 'linux'
   throw new Error(`The ${target} package must be built on its target operating system`);
 }
 
-const architecture = process.env.LNWJUD_RUNTIME_ARCH ?? process.arch;
+const architecture = readCompatEnv('RUNTIME_ARCH') ?? process.arch;
 if (architecture !== 'x64' && architecture !== 'arm64') throw new Error(`Unsupported ${target} architecture: ${architecture}`);
 const environment = {
   ...process.env,
+  NEXUSPILOT_RUNTIME_TARGET: target === 'macos' ? 'darwin' : 'linux',
   LNWJUD_RUNTIME_TARGET: target === 'macos' ? 'darwin' : 'linux',
+  NEXUSPILOT_RUNTIME_ARCH: architecture,
   LNWJUD_RUNTIME_ARCH: architecture,
 };
 const corepack = process.platform === 'win32' ? 'corepack.cmd' : 'corepack';
