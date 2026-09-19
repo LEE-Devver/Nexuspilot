@@ -187,6 +187,12 @@ describe('cross-platform desktop packaging', () => {
     expect(prepareOcr).toContain('Core installer/portable packaging will continue without OCR.');
     const registerOcr = await readFile(path.join(repositoryRoot, 'scripts', 'register-windows-ocr.ps1'), 'utf8');
     expect(registerOcr).toContain("GetEnvironmentVariable('ProgramFiles(x86)')");
+    const canonicalTunnelLauncher = await readFile(path.join(repositoryRoot, 'scripts', 'start-nexuspilot-tunnel.ps1'), 'utf8');
+    const canonicalTunnelBatch = await readFile(path.join(repositoryRoot, 'scripts', 'start-nexuspilot-tunnel.bat'), 'utf8');
+    await access(path.join(repositoryRoot, 'scripts', 'start-lnwjud-tunnel.ps1'));
+    await access(path.join(repositoryRoot, 'scripts', 'start-lnwjud-tunnel.bat'));
+    expect(canonicalTunnelLauncher).toContain("start-lnwjud-tunnel.ps1");
+    expect(canonicalTunnelBatch).toContain('NexusPilot Secure Tunnel');
     expect(registerOcr).not.toContain('C:\\Program Files (x86)\\Windows Kits');
     const stdioLauncher = await readFile(path.join(desktopRoot, 'build', 'nexuspilot-mcp-stdio.cmd'), 'utf8');
     expect(stdioLauncher).toContain('set "APP=%BASE%NexusPilot.exe"');

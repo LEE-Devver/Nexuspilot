@@ -184,7 +184,7 @@ describe('mutation safety UI contract', () => {
     expect(markup).toContain('ordinary Full Access work does not prompt');
     expect(markup).toContain('always-confirm, destructive, and out-of-scope');
     expect(markup).toContain('With Full Bypass ON');
-    expect(markup).toContain('all lnwjud application approvals and scope checks are skipped');
+    expect(markup).toContain('all NexusPilot application approvals and scope checks are skipped');
     expect(markup).toContain('not covered by Recovery Trash');
   });
 

@@ -33,7 +33,7 @@ describe('Remote MCP ngrok settings UI', () => {
   });
 
   it('explains Secure Tunnel multi-chat and multi-host topology without recommending one profile per chat', () => {
-    expect(settingsSource).toContain('หลาย ChatGPT chats บน lnwjud เครื่องนี้ใช้ Tunnel ID เดียวกันได้ ไม่ต้องแยก profile ต่อแชท');
+    expect(settingsSource).toContain('หลาย ChatGPT chats บน NexusPilot เครื่องนี้ใช้ Tunnel ID เดียวกันได้ ไม่ต้องแยก profile ต่อแชท');
     expect(settingsSource).toContain('use a distinct Tunnel ID per machine because replicas sharing one Tunnel ID receive work from whichever replica polls first');
   });
 

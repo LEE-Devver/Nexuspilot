@@ -94,7 +94,7 @@ describe('Security Overview', () => {
         persistent: null,
       },
     });
-    expect(markup).toContain('A tunnel process is still running, but lnwjud setup is incomplete.');
+    expect(markup).toContain('A tunnel process is still running, but NexusPilot setup is incomplete.');
     expect(markup).not.toContain('Tunnel connected (from script) — Start is disabled');
   });
 

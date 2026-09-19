@@ -240,7 +240,7 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
     try {
       await props.onUserSettingsChange({ ...props.dashboard.settings, eccEnabled: enabled });
       setEccMessage(enabled
-        ? (props.locale === 'th' ? 'เปิด ECC แล้ว — lnwjud จะโหลด ECC แบบเลือกใช้เฉพาะงานที่เกี่ยวข้อง' : 'ECC enabled — lnwjud will selectively load ECC only when relevant.')
+        ? (props.locale === 'th' ? 'เปิด ECC แล้ว — NexusPilot จะโหลด ECC แบบเลือกใช้เฉพาะงานที่เกี่ยวข้อง' : 'ECC enabled — NexusPilot will selectively load ECC only when relevant.')
         : (props.locale === 'th' ? 'ปิด ECC แล้ว — ECC agents, skills, memory และ action tools จะไม่ถูกใช้งาน' : 'ECC disabled — ECC agents, skills, memory, and action tools will not be used.'));
     } catch (cause: unknown) {
       setEccMessage(cause instanceof Error ? cause.message : (props.locale === 'th' ? 'บันทึกการตั้งค่า ECC ไม่สำเร็จ' : 'Could not save the ECC setting.'));
@@ -371,15 +371,15 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
 
   async function scheduleRestore(backupId: string): Promise<void> {
     const confirmed = window.confirm(props.locale === 'th'
-      ? 'กู้ฐานข้อมูลโปรแกรมจาก Backup ชุดนี้เมื่อเปิด lnwjud ครั้งถัดไป? ระบบจะสร้าง Backup ฉุกเฉินของฐานข้อมูลปัจจุบันก่อนแทนที่'
-      : 'Restore the application database from this backup on the next lnwjud start? An emergency backup of the current database will be created before replacement.');
+      ? 'กู้ฐานข้อมูลโปรแกรมจาก Backup ชุดนี้เมื่อเปิด NexusPilot ครั้งถัดไป? ระบบจะสร้าง Backup ฉุกเฉินของฐานข้อมูลปัจจุบันก่อนแทนที่'
+      : 'Restore the application database from this backup on the next NexusPilot start? An emergency backup of the current database will be created before replacement.');
     if (!confirmed) return;
     setBackupBusy(true);
     setBackupError(null);
     try {
       const restartRequired = await props.onScheduleRestoreBackup(backupId);
       setBackupMessage(restartRequired
-        ? (props.locale === 'th' ? 'เตรียม Restore แล้ว — ปิดและเปิด lnwjud ใหม่เพื่อใช้ข้อมูลชุดนี้' : 'Restore scheduled — restart lnwjud to apply it.')
+        ? (props.locale === 'th' ? 'เตรียม Restore แล้ว — ปิดและเปิด NexusPilot ใหม่เพื่อใช้ข้อมูลชุดนี้' : 'Restore scheduled — restart NexusPilot to apply it.')
         : (props.locale === 'th' ? 'เตรียม Restore แล้ว' : 'Restore scheduled.'));
     } catch (cause: unknown) {
       setBackupError(cause instanceof Error ? cause.message : 'Could not schedule restore');
@@ -538,7 +538,7 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
                 <div className="alert-box-warning" role="note">
                   ⚠️ {props.locale === 'th'
                     ? 'เมื่อ Full Bypass ปิด Full Access จะไม่ถามงานปกติ และ auto-approval ด้านล่างมีผลเฉพาะงานลบ/ทำข้อมูลหายที่พิสูจน์ target ได้ชัดใน Active Project; เมื่อเปิด Full Bypass จะข้ามการอนุมัติและขอบเขตระดับแอปทั้งหมด'
-                    : 'With Full Bypass OFF, Full Access does not prompt for ordinary work and the auto-approval controls below remain narrowly scoped to exact targets in the Active Project. With Full Bypass ON, all lnwjud application approvals and scope checks are skipped.'}
+                    : 'With Full Bypass OFF, Full Access does not prompt for ordinary work and the auto-approval controls below remain narrowly scoped to exact targets in the Active Project. With Full Bypass ON, all NexusPilot application approvals and scope checks are skipped.'}
                 </div>
                 <div className="setting-grid two-col align-center">
                   <SettingSwitch checked disabled label={props.locale === 'th' ? 'Protected Critical Files — บังคับเปิด' : 'Protected Critical Files — always on'} description={props.locale === 'th' ? 'critical path และ workspace root ไม่ถูก auto-approve แม้เปิด destructive family นั้นไว้' : 'Critical paths and workspace roots are never auto-approved even when a destructive family is enabled'} onChange={() => undefined} />
@@ -602,7 +602,7 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
               <SettingsCardHeading
                 icon="E"
                 title="ECC Integration"
-                subtitle={props.locale === 'th' ? 'Everything Claude Code ที่ติดมากับ lnwjud แต่เปิดใช้แบบ opt-in' : 'Everything Claude Code bundled with lnwjud as an opt-in provider'}
+                subtitle={props.locale === 'th' ? 'Everything Claude Code ที่ติดมากับ NexusPilot แต่เปิดใช้แบบ opt-in' : 'Everything Claude Code bundled with NexusPilot as an opt-in provider'}
                 badge={props.dashboard.settings.eccEnabled === true ? 'ENABLED' : 'DISABLED'}
               />
               <SettingSwitch
@@ -610,8 +610,8 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
                 disabled={eccBusy}
                 label={props.locale === 'th' ? 'เปิดใช้งาน ECC' : 'Enable ECC'}
                 description={props.locale === 'th'
-                  ? 'ค่าเริ่มต้นคือปิด เมื่อเปิด lnwjud จะอนุญาต ECC agents, skills, rules, workflows, Memory Vault และ AgentShield ผ่านขอบเขตสิทธิ์ของ lnwjud'
-                  : 'Off by default. When enabled, lnwjud allows ECC agents, skills, rules, workflows, Memory Vault, and AgentShield through lnwjud security boundaries.'}
+                  ? 'ค่าเริ่มต้นคือปิด เมื่อเปิด NexusPilot จะอนุญาต ECC agents, skills, rules, workflows, Memory Vault และ AgentShield ผ่านขอบเขตสิทธิ์ของ NexusPilot'
+                  : 'Off by default. When enabled, NexusPilot allows ECC agents, skills, rules, workflows, Memory Vault, and AgentShield through NexusPilot security boundaries.'}
                 onChange={(enabled) => { void setEccEnabled(enabled); }}
               />
               <div className={props.dashboard.settings.eccEnabled === true ? 'toast-success-banner' : 'empty-setting-state'} role="status">
@@ -621,7 +621,7 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
               </div>
               <p className="hint">{props.locale === 'th'
                 ? 'ถ้า ChatGPT ยังเห็นรายการ action เก่าหลังเปิด/ปิด ให้ใช้ Action Refresh / Scan Tools ของ ChatGPT; ไม่จำเป็นต้องเปิด ECC สำหรับผู้ใช้ทั่วไป'
-                : 'If ChatGPT still shows an old action snapshot after toggling ECC, use ChatGPT Action Refresh / Scan Tools. ECC is not required for normal lnwjud use.'}</p>
+                : 'If ChatGPT still shows an old action snapshot after toggling ECC, use ChatGPT Action Refresh / Scan Tools. ECC is not required for normal NexusPilot use.'}</p>
               {eccMessage === null ? null : <div className="toast-success-banner" role="status">{eccMessage}</div>}
             </section>
           ) : null}
@@ -735,7 +735,7 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
                 <SettingsCardHeading
                   icon="◎"
                   title={props.locale === 'th' ? 'Remote MCP — ngrok + OAuth' : 'Remote MCP — ngrok + OAuth'}
-                  subtitle={props.locale === 'th' ? 'แนะนำ: Admin Publish Custom App ครั้งเดียว จากนั้นสมาชิกกด Connect ใน ChatGPT ได้เลย; lnwjud จำ OAuth trust และ reconnect อัตโนมัติ' : 'Recommended: an admin publishes the Custom App once, then members simply press Connect in ChatGPT; lnwjud remembers OAuth trust and reconnects automatically.'}
+                  subtitle={props.locale === 'th' ? 'แนะนำ: Admin Publish Custom App ครั้งเดียว จากนั้นสมาชิกกด Connect ใน ChatGPT ได้เลย; NexusPilot จำ OAuth trust และ reconnect อัตโนมัติ' : 'Recommended: an admin publishes the Custom App once, then members simply press Connect in ChatGPT; NexusPilot remembers OAuth trust and reconnects automatically.'}
                   badge={remoteMcp.state === 'running' ? 'RUNNING' : remoteMcp.installed && remoteMcp.hasAuthtoken ? 'READY' : 'SETUP'}
                 />
                 <div className="setting-grid two-col">
@@ -747,12 +747,12 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
                   <div className="setting-field">
                     <span className="field-label">Public MCP URL</span>
                     <code className="settings-path-display">{remoteMcp.publicMcpUrl ?? '—'}</code>
-                    <p className="hint">{props.locale === 'th' ? 'URL นี้ลงท้าย /mcp และเป็น URL ที่นำไปใส่ใน ChatGPT; หากไม่กำหนด Static Domain, lnwjud จะให้ ngrok เลือก URL ตอนเริ่มแต่ละครั้งและจะไม่เอา URL ที่เคยสังเกตได้ไป pin เอง หากต้องการ endpoint คงที่ให้กำหนด Static/Custom Domain ที่จองไว้ในบัญชี ngrok ด้านล่าง' : 'This /mcp URL is the one to add in ChatGPT. Without an explicit static domain, lnwjud lets ngrok choose the URL on each start and never pins an observed runtime URL. For a stable endpoint, configure a static/custom domain reserved in your ngrok account below.'}</p>
+                    <p className="hint">{props.locale === 'th' ? 'URL นี้ลงท้าย /mcp และเป็น URL ที่นำไปใส่ใน ChatGPT; หากไม่กำหนด Static Domain, NexusPilot จะให้ ngrok เลือก URL ตอนเริ่มแต่ละครั้งและจะไม่เอา URL ที่เคยสังเกตได้ไป pin เอง หากต้องการ endpoint คงที่ให้กำหนด Static/Custom Domain ที่จองไว้ในบัญชี ngrok ด้านล่าง' : 'This /mcp URL is the one to add in ChatGPT. Without an explicit static domain, NexusPilot lets ngrok choose the URL on each start and never pins an observed runtime URL. For a stable endpoint, configure a static/custom domain reserved in your ngrok account below.'}</p>
                   </div>
                 </div>
                 <div className="tunnel-setup-box">
                   <div className="settings-mini-heading"><strong>{props.locale === 'th' ? '1. เตรียม ngrok' : '1. Prepare ngrok'}</strong><span>{ngrokReady ? 'READY' : remoteMcp.state === 'installing' ? 'INSTALLING' : 'NOT READY'}</span></div>
-                  <p className="hint">{props.locale === 'th' ? 'lnwjud ตรวจ ngrok จากการรัน `ngrok version` จริง ถ้าขึ้น READY ด้านล่าง แปลว่าติดตั้งแล้วและไม่ต้องกดติดตั้งซ้ำ' : 'lnwjud verifies ngrok by actually running `ngrok version`. When the status below is READY, it is installed and does not need to be installed again.'}</p>
+                  <p className="hint">{props.locale === 'th' ? 'NexusPilot ตรวจ ngrok จากการรัน `ngrok version` จริง ถ้าขึ้น READY ด้านล่าง แปลว่าติดตั้งแล้วและไม่ต้องกดติดตั้งซ้ำ' : 'NexusPilot verifies ngrok by actually running `ngrok version`. When the status below is READY, it is installed and does not need to be installed again.'}</p>
                   <div className={`${ngrokReady ? 'toast-success-banner' : 'alert-box-warning'} ngrok-readiness-banner`} role="status">
                     <strong>{ngrokReady ? (props.locale === 'th' ? '✓ ngrok ติดตั้งแล้วและพร้อมใช้งาน' : '✓ ngrok is installed and ready') : (props.locale === 'th' ? 'ยังไม่พบ ngrok ที่รันได้' : 'No runnable ngrok installation detected')}</strong>
                     {ngrokReady && remoteMcp.ngrokPath !== null ? <code className="ngrok-ready-path">{remoteMcp.ngrokPath}</code> : null}
@@ -789,9 +789,9 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
                     <button type="button" disabled={remoteMcp.publicMcpUrl === null} onClick={() => { void copyRemoteMcpUrl(); }}>{props.locale === 'th' ? 'Copy MCP URL' : 'Copy MCP URL'}</button>
                     <button type="button" disabled={remoteMcpBusy || !remoteMcp.oauthConnected} onClick={() => { void runRemoteMcpAction('regenerate'); }}>{props.locale === 'th' ? 'เชื่อม ChatGPT ใหม่' : 'Reconnect ChatGPT'}</button>
                   </div>
-                  {remoteMcp.oauthConnected ? <div className="toast-success-banner remote-mcp-auth-banner" role="status"><strong>{props.locale === 'th' ? '✓ ChatGPT เชื่อมแล้ว' : '✓ ChatGPT connected'}</strong><span>{remoteMcp.autoStartEnabled ? (props.locale === 'th' ? 'จำ OAuth ไว้แล้ว · เปิด lnwjud ครั้งถัดไป Remote MCP จะ Start อัตโนมัติ' : 'OAuth trust is remembered · Remote MCP will auto-start on the next lnwjud launch.') : (props.locale === 'th' ? 'จำ OAuth ไว้แล้ว · Auto-start ปิดอยู่เพราะ Remote MCP ถูกหยุดด้วยผู้ใช้' : 'OAuth trust is remembered · auto-start is off because Remote MCP was stopped manually.')}</span></div> : null}
+                  {remoteMcp.oauthConnected ? <div className="toast-success-banner remote-mcp-auth-banner" role="status"><strong>{props.locale === 'th' ? '✓ ChatGPT เชื่อมแล้ว' : '✓ ChatGPT connected'}</strong><span>{remoteMcp.autoStartEnabled ? (props.locale === 'th' ? 'จำ OAuth ไว้แล้ว · เปิด NexusPilot ครั้งถัดไป Remote MCP จะ Start อัตโนมัติ' : 'OAuth trust is remembered · Remote MCP will auto-start on the next NexusPilot launch.') : (props.locale === 'th' ? 'จำ OAuth ไว้แล้ว · Auto-start ปิดอยู่เพราะ Remote MCP ถูกหยุดด้วยผู้ใช้' : 'OAuth trust is remembered · auto-start is off because Remote MCP was stopped manually.')}</span></div> : null}
                   {remoteMcp.pairingCode === null ? null : <div className="alert-box-warning remote-mcp-auth-banner" role="status"><strong className="remote-mcp-pairing-line"><span>{props.locale === 'th' ? 'PIN สำรองสำหรับ OAuth client อื่น' : 'Fallback PIN for another OAuth client'}:</span><span className="remote-mcp-pairing-pin" aria-label={`${props.locale === 'th' ? 'Fallback pairing PIN' : 'Fallback pairing PIN'} ${remoteMcp.pairingCode}`}>{remoteMcp.pairingCode}</span></strong><span>{remoteMcp.pairingCodeExpiresAt === null ? (props.locale === 'th' ? 'ChatGPT ปกติไม่ต้องใช้ PIN นี้' : 'Normal ChatGPT connections do not need this PIN.') : `${props.locale === 'th' ? 'ChatGPT ปกติไม่ต้องใช้ · PIN หมดอายุ' : 'Not needed for ChatGPT · PIN expires'} ${formatDateTime(remoteMcp.pairingCodeExpiresAt, '—', props.locale)}`}</span></div>}
-                  <p className="hint">{props.locale === 'th' ? 'ครั้งแรก: กด Start → Admin เพิ่ม Public MCP URL เป็น Custom App แบบ OAuth และ Publish → สมาชิกกด Connect ใน ChatGPT ได้เลย ไม่ต้องกรอก PIN; browser จะ handoff อัตโนมัติผ่าน one-time 127.0.0.1 ของ lnwjud Desktop แล้วกลับ ChatGPT หลังเชื่อม lnwjud จะจำ OAuth trust/refresh grant แบบเข้ารหัสและ reconnect อัตโนมัติ PIN จะแสดงเฉพาะ fallback สำหรับ OAuth client อื่น' : 'First time: Start → an admin adds the Public MCP URL as an OAuth Custom App and publishes it → members simply press Connect in ChatGPT with no PIN. The browser automatically hands off through a one-time 127.0.0.1 lnwjud Desktop approval and returns to ChatGPT. lnwjud stores OAuth trust/refresh grants encrypted for automatic reconnect; a PIN appears only as a fallback for other OAuth clients.'}</p>
+                  <p className="hint">{props.locale === 'th' ? 'ครั้งแรก: กด Start → Admin เพิ่ม Public MCP URL เป็น Custom App แบบ OAuth และ Publish → สมาชิกกด Connect ใน ChatGPT ได้เลย ไม่ต้องกรอก PIN; browser จะ handoff อัตโนมัติผ่าน one-time 127.0.0.1 ของ NexusPilot Desktop แล้วกลับ ChatGPT หลังเชื่อม NexusPilot จะจำ OAuth trust/refresh grant แบบเข้ารหัสและ reconnect อัตโนมัติ PIN จะแสดงเฉพาะ fallback สำหรับ OAuth client อื่น' : 'First time: Start → an admin adds the Public MCP URL as an OAuth Custom App and publishes it → members simply press Connect in ChatGPT with no PIN. The browser automatically hands off through a one-time 127.0.0.1 NexusPilot Desktop approval and returns to ChatGPT. NexusPilot stores OAuth trust/refresh grants encrypted for automatic reconnect; a PIN appears only as a fallback for other OAuth clients.'}</p>
                   {remoteMcp.message === null ? null : <div className={remoteMcp.state === 'error' ? 'alert-box-warning' : 'hint'} role="status">{remoteMcp.message}{remoteMcp.ngrokPath === null ? '' : ` · ngrok: ${remoteMcp.ngrokPath}`}</div>}
                   {remoteMcpMessage === null ? null : <div className={remoteMcp.state === 'error' || /failed|error|exit|stopped unexpectedly/i.test(remoteMcpMessage) ? 'alert-box-warning' : 'toast-success-banner'} role="status">{remoteMcpMessage}</div>}
                 </div>
@@ -917,15 +917,15 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
                 </div>
                 <div className="setting-field">
                   <label className="field-label" htmlFor="tunnel-client-path">{props.locale === 'th' ? 'tunnel-client (รวมมากับโปรแกรมแล้ว)' : 'tunnel-client (bundled)'}</label>
-                  <div className="form-row"><input id="tunnel-client-path" placeholder={props.locale === 'th' ? 'ใช้ v0.0.14 ที่มากับ lnwjud อัตโนมัติ' : 'Bundled v0.0.14 is used automatically'} value={clientPath} onChange={(event) => setClientPath(event.target.value)} /><button type="button" onClick={() => { void browseTunnelClient(); }}>{props.locale === 'th' ? 'เลือกไฟล์…' : 'Browse…'}</button><button type="button" className="btn-save-gold" onClick={() => { void props.onSetTunnelClientPath(clientPath).then(() => setSavedMessage(clientPath.trim().length === 0 ? (props.locale === 'th' ? 'กลับมาใช้ tunnel-client ที่มากับโปรแกรมแล้ว' : 'Using the bundled tunnel-client again.') : t('settings.saved'))); }}>{clientPath.trim().length === 0 ? (props.locale === 'th' ? 'ใช้ตัวที่มากับโปรแกรม' : 'Use bundled') : (props.locale === 'th' ? 'บันทึก Override' : 'Save override')}</button></div>
-                  <p className="hint">{props.locale === 'th' ? 'ช่องว่าง = ใช้ OpenAI tunnel-client v0.0.14 แบบ native ตาม target ที่มากับโปรแกรม หากบันทึก custom override แล้ว path นั้นจะเป็นตัวเลือกหลัก: ถ้าไฟล์หาย lnwjud จะแจ้ง error และจะไม่สลับกลับ bundled เอง การเปลี่ยน client ขณะ runtime ทำงานจะหยุด/ยืนยัน owner เดิมก่อนจึงค่อยสลับ' : 'Blank = use the bundled target-native OpenAI tunnel-client v0.0.14. A saved custom override is authoritative: if it is missing, lnwjud reports an error and never silently falls back to bundled. Switching clients while running stops and verifies the recorded owner before committing the new selection.'}</p>
+                  <div className="form-row"><input id="tunnel-client-path" placeholder={props.locale === 'th' ? 'ใช้ v0.0.14 ที่มากับ NexusPilot อัตโนมัติ' : 'Bundled v0.0.14 is used automatically'} value={clientPath} onChange={(event) => setClientPath(event.target.value)} /><button type="button" onClick={() => { void browseTunnelClient(); }}>{props.locale === 'th' ? 'เลือกไฟล์…' : 'Browse…'}</button><button type="button" className="btn-save-gold" onClick={() => { void props.onSetTunnelClientPath(clientPath).then(() => setSavedMessage(clientPath.trim().length === 0 ? (props.locale === 'th' ? 'กลับมาใช้ tunnel-client ที่มากับโปรแกรมแล้ว' : 'Using the bundled tunnel-client again.') : t('settings.saved'))); }}>{clientPath.trim().length === 0 ? (props.locale === 'th' ? 'ใช้ตัวที่มากับโปรแกรม' : 'Use bundled') : (props.locale === 'th' ? 'บันทึก Override' : 'Save override')}</button></div>
+                  <p className="hint">{props.locale === 'th' ? 'ช่องว่าง = ใช้ OpenAI tunnel-client v0.0.14 แบบ native ตาม target ที่มากับโปรแกรม หากบันทึก custom override แล้ว path นั้นจะเป็นตัวเลือกหลัก: ถ้าไฟล์หาย NexusPilot จะแจ้ง error และจะไม่สลับกลับ bundled เอง การเปลี่ยน client ขณะ runtime ทำงานจะหยุด/ยืนยัน owner เดิมก่อนจึงค่อยสลับ' : 'Blank = use the bundled target-native OpenAI tunnel-client v0.0.14. A saved custom override is authoritative: if it is missing, NexusPilot reports an error and never silently falls back to bundled. Switching clients while running stops and verifies the recorded owner before committing the new selection.'}</p>
                 </div>
               </div>
               <div className="tunnel-setup-box">
                 <div className="settings-mini-heading"><strong>Setup Wizard</strong><span>{props.locale === 'th' ? 'ไม่ต้องเปิดคำสั่งระบบเอง' : 'No manual platform-specific init'}</span></div>
                 <label className="field-label" htmlFor="tunnel-id">OpenAI Tunnel ID</label>
                 <div className="form-row"><input id="tunnel-id" placeholder="tunnel_0123456789abcdef..." value={tunnelId} onChange={(event) => setTunnelId(event.target.value)} /><button type="button" className="btn-save-gold" disabled={tunnelBusy} onClick={() => { void configureTunnel(); }}>{tunnelBusy ? (props.locale === 'th' ? 'กำลังตั้งค่า…' : 'Configuring…') : (props.locale === 'th' ? 'Configure Tunnel' : 'Configure Tunnel')}</button></div>
-                <p className="hint">{props.locale === 'th' ? 'หลาย ChatGPT chats บน lnwjud เครื่องนี้ใช้ Tunnel ID เดียวกันได้ ไม่ต้องแยก profile ต่อแชท · ถ้ารัน lnwjud หลายเครื่อง เช่น Mac + Windows และต้องให้แต่ละแชทเลือกเครื่องได้แน่นอน ให้ใช้ Tunnel ID แยกต่อเครื่อง เพราะ replicas ที่แชร์ Tunnel ID เดียวรับงานแบบเครื่องไหน poll ได้ก่อน' : 'Multiple ChatGPT chats on this lnwjud machine can share one Tunnel ID; do not create a profile per chat. If you run lnwjud on multiple machines such as Mac + Windows and need deterministic host selection, use a distinct Tunnel ID per machine because replicas sharing one Tunnel ID receive work from whichever replica polls first.'}</p>
+                <p className="hint">{props.locale === 'th' ? 'หลาย ChatGPT chats บน NexusPilot เครื่องนี้ใช้ Tunnel ID เดียวกันได้ ไม่ต้องแยก profile ต่อแชท · ถ้ารัน NexusPilot หลายเครื่อง เช่น Mac + Windows และต้องให้แต่ละแชทเลือกเครื่องได้แน่นอน ให้ใช้ Tunnel ID แยกต่อเครื่อง เพราะ replicas ที่แชร์ Tunnel ID เดียวรับงานแบบเครื่องไหน poll ได้ก่อน' : 'Multiple ChatGPT chats on this NexusPilot machine can share one Tunnel ID; do not create a profile per chat. If you run NexusPilot on multiple machines such as Mac + Windows and need deterministic host selection, use a distinct Tunnel ID per machine because replicas sharing one Tunnel ID receive work from whichever replica polls first.'}</p>
               </div>
               {savedMessage === null ? null : <div className="toast-success-banner" role="status">✓ {savedMessage}</div>}
               {tunnelMessage === null ? null : <div className="alert-box-warning" role="status">{tunnelMessage}</div>}
@@ -1063,8 +1063,8 @@ function splitList(value: string): readonly string[] {
 }
 
 function profileHint(locale: UiLocale, profile: PermissionProfileName): string {
-  const th = { safe: 'ปลอดภัยสูงสุด: งานเขียนและรันคำสั่งต้องขออนุญาต', balanced: 'สมดุล: งานทั่วไปใน workspace ทำได้คล่องขึ้น', full: 'เต็มสิทธิ์สำหรับงานปกติ; เปิด Full Bypass แยกต่างหากหากต้องการข้ามทุก approval/scope ของ lnwjud', custom: 'ใช้กฎ READ / WRITE / EXECUTE / DANGEROUS และ executable ที่กำหนดเอง' } as const;
-  const en = { safe: 'Maximum safety: writes and execution require approval.', balanced: 'Balanced: common workspace work is less restrictive.', full: 'Full access for ordinary work; enable Full Bypass separately to skip every lnwjud approval and scope check.', custom: 'Uses your READ / WRITE / EXECUTE / DANGEROUS rules and custom executables.' } as const;
+  const th = { safe: 'ปลอดภัยสูงสุด: งานเขียนและรันคำสั่งต้องขออนุญาต', balanced: 'สมดุล: งานทั่วไปใน workspace ทำได้คล่องขึ้น', full: 'เต็มสิทธิ์สำหรับงานปกติ; เปิด Full Bypass แยกต่างหากหากต้องการข้ามทุก approval/scope ของ NexusPilot', custom: 'ใช้กฎ READ / WRITE / EXECUTE / DANGEROUS และ executable ที่กำหนดเอง' } as const;
+  const en = { safe: 'Maximum safety: writes and execution require approval.', balanced: 'Balanced: common workspace work is less restrictive.', full: 'Full access for ordinary work; enable Full Bypass separately to skip every NexusPilot approval and scope check.', custom: 'Uses your READ / WRITE / EXECUTE / DANGEROUS rules and custom executables.' } as const;
   return (locale === 'th' ? th : en)[profile];
 }
 

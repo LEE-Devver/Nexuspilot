@@ -271,15 +271,18 @@ Legacy aliases should be documented, tested, and eventually removable rather tha
 ## Immediate next implementation step
 Stage 7 is complete. Stage 7A migrated tunnel runtime/profile/log identity to NexusPilot with bounded legacy adoption; tunnel lock/mutex names intentionally remain legacy for cross-version mutual exclusion. Stage 7B1 migrated macOS/Linux native hosts to canonical `nexuspilot-*` binaries with packaged legacy aliases and runtime fallback. Stage 7B2 reviewed Windows helpers and intentionally retains `lnwjud-windows-ocr.exe` because existing sparse AppX registrations bind identity to that executable name, and retains `lnwjud-windows-secret-migrator.exe` because it is a one-time legacy-secret compatibility helper. Rename either Windows helper only with an explicit tested OS-registration/data-migration handoff.
 
-The following compatibility/runtime identities remain intentionally preserved until their later stages:
+Final compatibility cleanup is classified in `docs/NEXUSPILOT_COMPATIBILITY_CLEANUP.md`. Current UI/CLI branding and fresh tunnel guidance are canonical NexusPilot, including canonical `start-nexuspilot-tunnel.ps1/.bat` launcher aliases. Remaining inherited identifiers are intentional compatibility, persisted protocol, Windows registration/data-migration boundaries, or historical evidence.
+
+The following compatibility/runtime identities remain intentionally preserved:
 - bounded `LNWJUD_*` environment fallbacks / dual-writes
-- `.lnwjud` persisted workspace metadata
+- `.lnwjud` persisted workspace metadata and related serialized paths
 - deprecated `window.lnwjud` preload alias
 - legacy MCP identity endpoint/header recognition retained for older listeners
-- legacy stdio launcher alias
-- native-host names / manifests
-- tunnel profile compatibility names
-- historical documents
+- legacy stdio and tunnel-script launcher aliases
+- packaged legacy macOS/Linux native-host aliases
+- Windows OCR and secret-migrator legacy executable identities
+- tunnel lock/mutex and legacy profile readers
+- historical documents / immutable regression fixtures
 
 After each migration stage, run:
 ```bash
