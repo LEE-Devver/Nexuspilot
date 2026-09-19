@@ -45,14 +45,14 @@ describe('release asset collector', () => {
 
       const assetNames = new Set(await readdir(assetsDirectory));
       for (const name of [
-        `lnwjud-Setup-${version}.exe`,
-        `lnwjud-Portable-${version}.exe`,
-        `lnwjud-${version}-arm64.dmg`,
-        `lnwjud-${version}-arm64.zip`,
-        `lnwjud-${version}-x64.dmg`,
-        `lnwjud-${version}-x64.zip`,
-        `lnwjud-${version}-x64.AppImage`,
-        `lnwjud-${version}-arm64.AppImage`,
+        `NexusPilot-Setup-${version}.exe`,
+        `NexusPilot-Portable-${version}.exe`,
+        `NexusPilot-${version}-arm64.dmg`,
+        `NexusPilot-${version}-arm64.zip`,
+        `NexusPilot-${version}-x64.dmg`,
+        `NexusPilot-${version}-x64.zip`,
+        `NexusPilot-${version}-x64.AppImage`,
+        `NexusPilot-${version}-arm64.AppImage`,
         'latest-linux.yml',
         'latest-linux-arm64.yml',
         'latest-mac.yml',
@@ -64,8 +64,8 @@ describe('release asset collector', () => {
         expect(assetNames.has(name), name).toBe(true);
       }
       const macManifest = await readFile(path.join(assetsDirectory, 'latest-mac.yml'), 'utf8');
-      expect(macManifest).toContain(`lnwjud-${version}-arm64.zip`);
-      expect(macManifest).toContain(`lnwjud-${version}-x64.zip`);
+      expect(macManifest).toContain(`NexusPilot-${version}-arm64.zip`);
+      expect(macManifest).toContain(`NexusPilot-${version}-x64.zip`);
       for (const name of assetNames) {
         if (!/^SHA256SUMS(?:-.+)?\.txt$/.test(name)) continue;
         const sums = await readFile(path.join(assetsDirectory, name), 'utf8');
@@ -121,17 +121,17 @@ async function writeTargetFixture(
   const targetDirectory = path.join(stagingDirectory, target.key, 'apps', 'desktop', 'dist', 'installers');
   await mkdir(targetDirectory, { recursive: true });
   const artifactNames = target.platform === 'win32'
-    ? [`lnwjud-Setup-${version}.exe`, `lnwjud-Setup-${version}.exe.blockmap`, `lnwjud-Portable-${version}.exe`, 'latest.yml', 'portable.yml']
+    ? [`NexusPilot-Setup-${version}.exe`, `NexusPilot-Setup-${version}.exe.blockmap`, `NexusPilot-Portable-${version}.exe`, 'latest.yml', 'portable.yml']
     : target.platform === 'darwin'
-      ? [`lnwjud-${version}-${target.arch}.dmg`, `lnwjud-${version}-${target.arch}.zip`, 'latest-mac.yml']
-      : [`lnwjud-${version}-${target.arch}.AppImage`, `lnwjud-${version}-${target.arch}.deb`, target.arch === 'x64' ? 'latest-linux.yml' : 'latest-linux-arm64.yml'];
+      ? [`NexusPilot-${version}-${target.arch}.dmg`, `NexusPilot-${version}-${target.arch}.zip`, 'latest-mac.yml']
+      : [`NexusPilot-${version}-${target.arch}.AppImage`, `NexusPilot-${version}-${target.arch}.deb`, target.arch === 'x64' ? 'latest-linux.yml' : 'latest-linux-arm64.yml'];
   const artifactEntries = [];
   for (const name of artifactNames) {
     const contents = name.endsWith('.yml') && target.platform === 'darwin'
       ? [
         `version: ${version}`,
         'files:',
-        `  - url: lnwjud-${version}-${target.arch}.zip`,
+        `  - url: NexusPilot-${version}-${target.arch}.zip`,
         '    sha512: YmFzZTY0',
         "releaseDate: '2026-09-08T00:00:00.000Z'",
         '',
@@ -142,11 +142,11 @@ async function writeTargetFixture(
   }
   const provenance = {
     schemaVersion: 1,
-    product: 'lnwjud',
+    product: 'nexuspilot',
     version,
     platform: target.platform,
     arch: target.arch,
-    source: { repository: 'https://github.com/engasnm111/lnwjud', commit, dirty: false },
+    source: { repository: 'https://github.com/example/NexusPilot', commit, dirty: false },
     build: { environment: 'github-actions', workingTreeDirtyAtEvidence: false },
     capabilityBridge: null,
     artifacts: artifactEntries,

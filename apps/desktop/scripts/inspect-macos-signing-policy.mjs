@@ -101,7 +101,7 @@ export async function inspectMacosSigningPolicy(appPath, options) {
     throw new Error('Certificate-signed macOS app does not expose a TeamIdentifier');
   }
 
-  const mainExecutable = inspected.find((candidate) => candidate.relativePath === 'Contents/MacOS/lnwjud');
+  const mainExecutable = inspected.find((candidate) => candidate.relativePath === 'Contents/MacOS/NexusPilot' || candidate.relativePath === 'Contents/MacOS/lnwjud');
   if (!mainExecutable?.electronProcess) throw new Error('macOS signing inspection did not include the root executable');
   const policy = {
     schemaVersion: 1,
@@ -145,7 +145,18 @@ export async function discoverMacosSignableCode(appPath, { arch }) {
     candidates.push({ absolutePath, relativePath: normalized, kind, electronProcess });
   };
   add(root, '.', 'app');
-  add(path.join(root, 'Contents', 'MacOS', 'lnwjud'), 'Contents/MacOS/lnwjud', 'executable', true);
+  const canonicalMain = path.join(root, 'Contents', 'MacOS', 'NexusPilot');
+  const legacyMain = path.join(root, 'Contents', 'MacOS', 'lnwjud');
+  let mainAbsolutePath = canonicalMain;
+  let mainRelativePath = 'Contents/MacOS/NexusPilot';
+  try {
+    const metadata = await lstat(canonicalMain);
+    if (!metadata.isFile() || metadata.isSymbolicLink()) throw new Error('canonical main executable is invalid');
+  } catch {
+    mainAbsolutePath = legacyMain;
+    mainRelativePath = 'Contents/MacOS/lnwjud';
+  }
+  add(mainAbsolutePath, mainRelativePath, 'executable', true);
 
   const frameworks = path.join(root, 'Contents', 'Frameworks');
   await walkFrameworks(frameworks, root, add);
@@ -221,10 +232,15 @@ export function validateMacosSigningPolicyEvidence(policy, expected = {}) {
       throw new Error(`macOS certificate Electron process policy is invalid: ${entry.relativePath}`);
     }
   }
-  if (!processPaths.has('Contents/MacOS/lnwjud')) throw new Error('macOS signing-policy root executable evidence is missing');
+  const rootProcessPath = processPaths.has('Contents/MacOS/NexusPilot')
+    ? 'Contents/MacOS/NexusPilot'
+    : processPaths.has('Contents/MacOS/lnwjud')
+      ? 'Contents/MacOS/lnwjud'
+      : null;
+  if (rootProcessPath === null) throw new Error('macOS signing-policy root executable evidence is missing');
   const expectedProcessPaths = policy.code
     .filter((entry) => entry.kind === 'executable'
-      && (entry.relativePath === 'Contents/MacOS/lnwjud' || /[.]app\/Contents\/MacOS\/[^/]+$/.test(entry.relativePath)))
+      && (entry.relativePath === rootProcessPath || /[.]app\/Contents\/MacOS\/[^/]+$/.test(entry.relativePath)))
     .map((entry) => entry.relativePath);
   if (expectedProcessPaths.length !== processPaths.size || expectedProcessPaths.some((entry) => !processPaths.has(entry))) {
     throw new Error('macOS signing-policy Electron process evidence is incomplete');

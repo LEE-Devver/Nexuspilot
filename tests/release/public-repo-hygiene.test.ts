@@ -27,6 +27,8 @@ describe('public repository hygiene', () => {
     const tracked = await trackedFiles();
     const generated = [
       'apps/desktop/build/lnwjud-mcp-stdio.cjs',
+      'apps/desktop/build/nexuspilot-mcp-stdio.cmd',
+      'apps/desktop/build/nexuspilot-mcp-stdio.sh',
       'apps/desktop/build/lnwjud-mcp-stdio.cmd',
       'apps/desktop/build/lnwjud-mcp-stdio.mjs',
       'apps/desktop/build/lnwjud-node.exe',
@@ -75,15 +77,12 @@ describe('public repository hygiene', () => {
     expect(typeof rootPackage.version).toBe('string');
     const version = rootPackage.version as string;
 
-    const publishedVersion = readme.match(/^## Current published version: v([0-9.]+)$/m)?.[1]
-      ?? readme.match(/^## What's new in v([0-9.]+)$/m)?.[1];
-    expect(publishedVersion).toBeTruthy();
-    expect(expandedReadme).toContain(`## Current published version: v${publishedVersion}`);
-    expect(usageTh).toContain(`public release \`v${publishedVersion}\``);
-    expect(packagingWindows).toContain(`lnwjud-Setup-${version}.exe`);
-    expect(packagingWindows).toContain(`lnwjud-Portable-${version}.exe`);
-    expect(packagingWindows).toContain(`apps/desktop/dist/installers/lnwjud-Setup-${version}.exe`);
-    expect(packagingWindows).toContain(`apps/desktop/dist/installers/lnwjud-Portable-${version}.exe`);
+    expect(readme).toContain(`## Upstream baseline version: lnwjud v${version}`);
+    expect(readme).toContain('NexusPilot does not publish its own installer yet');
+    expect(expandedReadme).toContain(`## Current published version: v${version}`);
+    expect(usageTh).toContain(`public release \`v${version}\``);
+    expect(packagingWindows).toContain(`NexusPilot-Setup-${version}.exe`);
+    expect(packagingWindows).toContain(`NexusPilot-Portable-${version}.exe`);
     expect(readme).not.toContain('current source/release candidate is');
     expect(readme).not.toContain('pending publication');
   });
@@ -107,9 +106,9 @@ describe('public repository hygiene', () => {
     const totalDefinitions = fullRegistry.listAll().length;
     const defaultAdvertised = defaultRegistry.list().length;
     const fullAdvertised = fullRegistry.list().length;
-    expect(readme).toContain(`${totalDefinitions} total tool definitions`);
-    expect(readme).toContain(`${defaultAdvertised} are advertised by default`);
-    expect(readme).toContain(`all ${fullAdvertised} when Codex delegation plus Agent Swarm is enabled`);
+    expect(readme).toContain(`inherits **${totalDefinitions} tool definitions**`);
+    expect(readme).toContain(`default advertised set is ${defaultAdvertised}`);
+    expect(readme).toContain(`all ${fullAdvertised} are available when Codex delegation plus Agent Swarm is enabled`);
     expect(readme).not.toContain(['Verify the ', '184-tool catalog'].join(''));
     expect(readme).not.toContain(['current v3.0.0 catalog contains ', '184 tools'].join(''));
     expect(readme).not.toContain('packaged v3.0.0 build');

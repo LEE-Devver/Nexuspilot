@@ -18,7 +18,8 @@ const BUNDLED_TUNNEL_CLIENT_VERSION = runtimeDependencies.tunnelClient.version;
 const TARGETS = Object.freeze({
   win32: Object.freeze({
     required: Object.freeze([
-      ['lnwjud.exe', 'lnwjud.exe'],
+      ['NexusPilot.exe', 'NexusPilot.exe'],
+      ['nexuspilot-mcp-stdio.cmd', 'nexuspilot-mcp-stdio.cmd'],
       ['lnwjud-mcp-stdio.cmd', 'lnwjud-mcp-stdio.cmd'],
       ['windows-capability-bridge.ps1', 'resources/windows-capability-bridge.ps1'],
       ['windows-capability-bridge.sha256', 'resources/windows-capability-bridge.sha256'],
@@ -32,7 +33,8 @@ const TARGETS = Object.freeze({
   }),
   darwin: Object.freeze({
     required: Object.freeze([
-      ['lnwjud', 'Contents/MacOS/lnwjud'],
+      ['NexusPilot', 'Contents/MacOS/NexusPilot'],
+      ['nexuspilot-mcp-stdio', 'Contents/Resources/nexuspilot-mcp-stdio'],
       ['lnwjud-mcp-stdio', 'Contents/Resources/lnwjud-mcp-stdio'],
       ['rg', 'Contents/Resources/runtime-tools/ripgrep/rg'],
       ['rg-manifest', 'Contents/Resources/runtime-tools/ripgrep/BUNDLED_RIPGREP.json'],
@@ -44,7 +46,8 @@ const TARGETS = Object.freeze({
   }),
   linux: Object.freeze({
     required: Object.freeze([
-      ['lnwjud', 'lnwjud'],
+      ['nexuspilot', 'nexuspilot'],
+      ['nexuspilot-mcp-stdio', 'nexuspilot-mcp-stdio'],
       ['lnwjud-mcp-stdio', 'lnwjud-mcp-stdio'],
       ['rg', 'resources/runtime-tools/ripgrep/rg'],
       ['rg-manifest', 'resources/runtime-tools/ripgrep/BUNDLED_RIPGREP.json'],
@@ -118,7 +121,7 @@ export async function collectPackagedRuntimeEvidence(context, { allowIncompleteM
     let policy;
     if (mode !== 'unsigned' && !allowIncompleteMacSigningPolicy) {
       policy = await readMacosSigningPolicyEvidence();
-      const rootExecutable = files.find((entry) => entry.relativePath === 'Contents/MacOS/lnwjud');
+      const rootExecutable = files.find((entry) => entry.relativePath === 'Contents/MacOS/NexusPilot');
       validateMacosSigningPolicyEvidence(policy, {
         mode,
         arch,
@@ -154,14 +157,14 @@ async function assertRegularCanonicalFile(filePath, label) {
 
 function resolvePackagedPath(appOutDir, platform, relativePath) {
   // electron-builder 26 passes the output directory to both afterPack and
-  // afterSign. productName is lnwjud; mac extraFiles live in its Contents.
+  // afterSign. productName is NexusPilot; mac extraFiles live in its Contents.
   return platform === 'darwin'
-    ? path.join(appOutDir, 'lnwjud.app', relativePath)
+    ? path.join(appOutDir, 'NexusPilot.app', relativePath)
     : path.join(appOutDir, relativePath);
 }
 
 function isExecutablePath(relativePath) {
-  return ['lnwjud', 'lnwjud-mcp-stdio', 'rg', 'tunnel-client', 'lnwjud-macos-host', 'lnwjud-linux-host']
+  return ['NexusPilot', 'nexuspilot', 'nexuspilot-mcp-stdio', 'lnwjud-mcp-stdio', 'rg', 'tunnel-client', 'lnwjud-macos-host', 'lnwjud-linux-host']
     .includes(path.posix.basename(relativePath));
 }
 

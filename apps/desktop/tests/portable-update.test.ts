@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   PORTABLE_UPDATE_CHANNEL,
-  PORTABLE_UPDATE_FEED_URL,
   configureUpdaterForDistribution,
+  portableUpdateFeedUrl,
   configureUpdaterForPlatform,
   currentPortableExecutablePath,
   detectWindowsDistribution,
@@ -35,20 +35,26 @@ describe('Windows distribution-aware auto updater', () => {
     expect(detectWindowsDistribution(true, { PORTABLE_EXECUTABLE_FILE: '/tmp/lnwjud' }, 'linux')).toBe('installer');
   });
 
-  it('keeps the installer on the packaged GitHub feed and gives portable builds their own manifest channel', () => {
+  it('uses an explicit NexusPilot portable feed and never inherits the upstream feed', () => {
     const setFeedURL = vi.fn();
     const installerUpdater = { disableDifferentialDownload: false, setFeedURL };
     configureUpdaterForDistribution(installerUpdater, 'installer');
     expect(setFeedURL).not.toHaveBeenCalled();
     expect(installerUpdater.disableDifferentialDownload).toBe(false);
 
+    expect(portableUpdateFeedUrl({})).toBeNull();
+    expect(portableUpdateFeedUrl({ LNWJUD_UPDATE_FEED_URL: 'https://legacy.example/releases' })).toBe('https://legacy.example/releases/');
+    expect(portableUpdateFeedUrl({ NEXUSPILOT_UPDATE_FEED_URL: 'https://nexus.example/releases', LNWJUD_UPDATE_FEED_URL: 'https://legacy.example/releases' })).toBe('https://nexus.example/releases/');
+
     const portableSetFeedURL = vi.fn();
     const portableUpdater = { disableDifferentialDownload: false, setFeedURL: portableSetFeedURL };
+    vi.stubEnv('NEXUSPILOT_UPDATE_FEED_URL', 'https://nexus.example/releases');
     configureUpdaterForDistribution(portableUpdater, 'portable');
+    vi.unstubAllEnvs();
     expect(portableUpdater.disableDifferentialDownload).toBe(true);
     expect(portableSetFeedURL).toHaveBeenCalledWith({
       provider: 'generic',
-      url: PORTABLE_UPDATE_FEED_URL,
+      url: 'https://nexus.example/releases/',
       channel: PORTABLE_UPDATE_CHANNEL,
       useMultipleRangeRequest: false,
     });
@@ -69,7 +75,7 @@ describe('Windows distribution-aware auto updater', () => {
   it('uses a wait, rollback backup, in-place replacement, restart, and script self-cleanup for portable installs', () => {
     const script = portableReplacementScript();
     expect(script).toContain('Get-Process -Id $CurrentPid');
-    expect(script).toContain('$Target.lnwjud-update-backup');
+    expect(script).toContain('$Target.nexuspilot-update-backup');
     expect(script).toContain('Move-Item -LiteralPath $Target -Destination $backup -Force');
     expect(script).toContain('Move-Item -LiteralPath $Source -Destination $Target -Force');
     expect(script).toContain('Move-Item -LiteralPath $backup -Destination $Target -Force');

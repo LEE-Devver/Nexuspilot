@@ -5,9 +5,9 @@ $desktopDirectory = Join-Path $repositoryRoot 'apps\desktop'
 $installerDirectory = Join-Path $desktopDirectory 'dist\installers'
 $rootPackage = Get-Content -LiteralPath (Join-Path $repositoryRoot 'package.json') -Raw | ConvertFrom-Json
 $expectedArtifacts = @(
-    "lnwjud-Setup-$($rootPackage.version).exe",
-    "lnwjud-Setup-$($rootPackage.version).exe.blockmap",
-    "lnwjud-Portable-$($rootPackage.version).exe",
+    "NexusPilot-Setup-$($rootPackage.version).exe",
+    "NexusPilot-Setup-$($rootPackage.version).exe.blockmap",
+    "NexusPilot-Portable-$($rootPackage.version).exe",
     'latest.yml',
     'portable.yml',
     'SHA256SUMS.txt',

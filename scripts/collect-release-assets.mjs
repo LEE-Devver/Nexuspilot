@@ -4,13 +4,14 @@ import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { copyFile, lstat, mkdir, readdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { readCompatEnv } from './lib/compat-env.mjs';
 
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
 const packageJson = JSON.parse(await readFile(path.join(repositoryRoot, 'package.json'), 'utf8'));
 const version = String(packageJson.version ?? '').trim();
-const stagingDirectory = requiredDirectory('LNWJUD_RELEASE_STAGING_DIRECTORY');
-const assetsDirectory = requiredDirectory('LNWJUD_RELEASE_ASSETS_DIRECTORY');
-const expectedCommit = requiredValue('LNWJUD_RELEASE_COMMIT');
+const stagingDirectory = requiredCompatDirectory('RELEASE_STAGING_DIRECTORY');
+const assetsDirectory = requiredCompatDirectory('RELEASE_ASSETS_DIRECTORY');
+const expectedCommit = requiredCompatValue('RELEASE_COMMIT');
 
 if (!/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(version)) throw new Error(`Invalid package version: ${version}`);
 if (!/^[0-9a-f]{40}$/i.test(expectedCommit)) throw new Error(`Invalid release commit SHA: ${expectedCommit}`);
@@ -121,7 +122,7 @@ for (const name of payloadFiles) {
 
 const releaseManifest = {
   schemaVersion: 1,
-  product: 'lnwjud',
+  product: 'nexuspilot',
   version,
   sourceCommit: expectedCommit.toLowerCase(),
   generatedBy: 'scripts/collect-release-assets.mjs',
@@ -152,16 +153,16 @@ for (const name of integrityFiles) {
 }
 await writeFile(path.join(assetsDirectory, 'SHA256SUMS.txt'), `${aggregateSums.join('\n')}\n`, 'utf8');
 
-process.stdout.write(`Collected ${integrityFiles.length} release assets for lnwjud ${version} from ${expectedCommit}\n`);
+process.stdout.write(`Collected ${integrityFiles.length} release assets for NexusPilot ${version} from ${expectedCommit}\n`);
 
-function requiredValue(name) {
-  const value = process.env[name]?.trim();
-  if (!value) throw new Error(`${name} is required`);
+function requiredCompatValue(suffix) {
+  const value = readCompatEnv(suffix)?.trim();
+  if (!value) throw new Error(`NEXUSPILOT_${suffix} (or legacy LNWJUD_${suffix}) is required`);
   return value;
 }
 
-function requiredDirectory(name) {
-  return path.resolve(requiredValue(name));
+function requiredCompatDirectory(suffix) {
+  return path.resolve(requiredCompatValue(suffix));
 }
 
 async function prepareEmptyAssetsDirectory(directory) {
@@ -229,7 +230,7 @@ async function listDirectRegularFiles(directory) {
 }
 
 function validateProvenance(provenance, target) {
-  if (provenance?.schemaVersion !== 1 || provenance.product !== 'lnwjud') throw new Error(`${target.key} provenance schema/product is invalid`);
+  if (provenance?.schemaVersion !== 1 || provenance.product !== 'nexuspilot') throw new Error(`${target.key} provenance schema/product is invalid`);
   if (provenance.version !== version) throw new Error(`${target.key} provenance version mismatch`);
   if (provenance.platform !== target.platform || provenance.arch !== target.arch) throw new Error(`${target.key} provenance target mismatch`);
   if (provenance.source?.commit?.toLowerCase() !== expectedCommit.toLowerCase()) throw new Error(`${target.key} provenance commit mismatch`);
@@ -238,14 +239,14 @@ function validateProvenance(provenance, target) {
 
 function expectedArtifactNames(platform, releaseVersion, arch) {
   if (platform === 'win32') return [
-    `lnwjud-Setup-${releaseVersion}.exe`,
-    `lnwjud-Setup-${releaseVersion}.exe.blockmap`,
-    `lnwjud-Portable-${releaseVersion}.exe`,
+    `NexusPilot-Setup-${releaseVersion}.exe`,
+    `NexusPilot-Setup-${releaseVersion}.exe.blockmap`,
+    `NexusPilot-Portable-${releaseVersion}.exe`,
     'latest.yml',
     'portable.yml',
   ];
-  if (platform === 'darwin') return [`lnwjud-${releaseVersion}-${arch}.dmg`, `lnwjud-${releaseVersion}-${arch}.zip`, 'latest-mac.yml'];
-  return [`lnwjud-${releaseVersion}-${arch}.AppImage`, `lnwjud-${releaseVersion}-${arch}.deb`, linuxUpdateMetadataName(arch)];
+  if (platform === 'darwin') return [`NexusPilot-${releaseVersion}-${arch}.dmg`, `NexusPilot-${releaseVersion}-${arch}.zip`, 'latest-mac.yml'];
+  return [`NexusPilot-${releaseVersion}-${arch}.AppImage`, `NexusPilot-${releaseVersion}-${arch}.deb`, linuxUpdateMetadataName(arch)];
 }
 
 function linuxUpdateMetadataName(arch) {
@@ -280,7 +281,7 @@ function parseMacUpdateManifest(text, fileName, target) {
     if (hashMatch !== null && pending !== null) pending.sha512 = unquoteYamlScalar(hashMatch[1]);
   }
   if (pending !== null) files.push(pending);
-  const expectedZip = `lnwjud-${version}-${target.arch}.zip`;
+  const expectedZip = `NexusPilot-${version}-${target.arch}.zip`;
   const file = files.find((entry) => entry.url === expectedZip);
   if (files.length === 0 || file === undefined || typeof file.sha512 !== 'string' || !/^[0-9a-z+/=]+$/i.test(file.sha512)) {
     throw new Error(`${target.key} ${fileName} does not contain a valid ${expectedZip} entry`);

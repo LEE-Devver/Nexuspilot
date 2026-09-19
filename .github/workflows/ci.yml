@@ -250,11 +250,11 @@ jobs:
         run: |
           version="$(node -p "require('./package.json').version")"
           if [[ "${{ matrix.platform }}" == "darwin" ]]; then
-            corepack pnpm@10.15.0 verify:macos-release "apps/desktop/dist/installers/lnwjud-${version}-${{ matrix.arch }}.dmg"
-            corepack pnpm@10.15.0 verify:macos-release "apps/desktop/dist/installers/lnwjud-${version}-${{ matrix.arch }}.zip"
+            corepack pnpm@10.15.0 verify:macos-release "apps/desktop/dist/installers/NexusPilot-${version}-${{ matrix.arch }}.dmg"
+            corepack pnpm@10.15.0 verify:macos-release "apps/desktop/dist/installers/NexusPilot-${version}-${{ matrix.arch }}.zip"
           else
-            corepack pnpm@10.15.0 verify:linux-release "apps/desktop/dist/installers/lnwjud-${version}-${{ matrix.arch }}.AppImage"
-            corepack pnpm@10.15.0 verify:linux-release "apps/desktop/dist/installers/lnwjud-${version}-${{ matrix.arch }}.deb"
+            corepack pnpm@10.15.0 verify:linux-release "apps/desktop/dist/installers/NexusPilot-${version}-${{ matrix.arch }}.AppImage"
+            corepack pnpm@10.15.0 verify:linux-release "apps/desktop/dist/installers/NexusPilot-${version}-${{ matrix.arch }}.deb"
           fi
 
       - name: Stage and launch the real macOS DMG package
@@ -263,11 +263,11 @@ jobs:
         run: |
           set -euo pipefail
           version="$(node -p "require('./package.json').version")"
-          installed_app="$RUNNER_TEMP/lnwjud-installed-${{ matrix.arch }}/lnwjud.app"
+          installed_app="$RUNNER_TEMP/nexuspilot-installed-${{ matrix.arch }}/NexusPilot.app"
           bash scripts/stage-macos-smoke-app.sh \
-            "apps/desktop/dist/installers/lnwjud-${version}-${{ matrix.arch }}.dmg" \
+            "apps/desktop/dist/installers/NexusPilot-${version}-${{ matrix.arch }}.dmg" \
             "$installed_app"
-          echo "LNWJUD_STAGED_MACOS_EXECUTABLE=$installed_app/Contents/MacOS/lnwjud" >> "$GITHUB_ENV"
+          echo "NEXUSPILOT_STAGED_MACOS_EXECUTABLE=$installed_app/Contents/MacOS/NexusPilot" >> "$GITHUB_ENV"
 
       - name: Run native packaged Electron E2E smoke
         shell: bash
@@ -280,29 +280,29 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$TARGET_PLATFORM" == darwin ]]; then
-            test -n "${LNWJUD_STAGED_MACOS_EXECUTABLE:-}"
-            export LNWJUD_PACKAGED_EXECUTABLE="$LNWJUD_STAGED_MACOS_EXECUTABLE"
+            test -n "${NEXUSPILOT_STAGED_MACOS_EXECUTABLE:-}"
+            export NEXUSPILOT_PACKAGED_EXECUTABLE="$NEXUSPILOT_STAGED_MACOS_EXECUTABLE"
           else
             case "$TARGET_PLATFORM/$TARGET_ARCH" in
-              linux/x64) relative='linux-unpacked/lnwjud' ;;
-              linux/arm64) relative='linux-arm64-unpacked/lnwjud' ;;
+              linux/x64) relative='linux-unpacked/nexuspilot' ;;
+              linux/arm64) relative='linux-arm64-unpacked/nexuspilot' ;;
               *) echo 'Unsupported native smoke target' >&2; exit 1 ;;
             esac
-            export LNWJUD_PACKAGED_EXECUTABLE="$GITHUB_WORKSPACE/apps/desktop/dist/installers/$relative"
+            export NEXUSPILOT_PACKAGED_EXECUTABLE="$GITHUB_WORKSPACE/apps/desktop/dist/installers/$relative"
           fi
           if [[ "$TARGET_PLATFORM" == linux ]]; then
             # Install the real DEB on this disposable runner. Its post-install
             # hook configures the supported AppArmor/userns or SUID sandbox.
             # A generic unshare probe does not prove Electron can use userns.
             version="$(node -p "require('./package.json').version")"
-            sudo apt-get install -y "$GITHUB_WORKSPACE/apps/desktop/dist/installers/lnwjud-${version}-${TARGET_ARCH}.deb"
-            export LNWJUD_PACKAGED_EXECUTABLE=/opt/lnwjud/lnwjud
+            sudo apt-get install -y "$GITHUB_WORKSPACE/apps/desktop/dist/installers/NexusPilot-${version}-${TARGET_ARCH}.deb"
+            export NEXUSPILOT_PACKAGED_EXECUTABLE=/opt/NexusPilot/nexuspilot
           fi
-          test -f "$LNWJUD_PACKAGED_EXECUTABLE" && test -x "$LNWJUD_PACKAGED_EXECUTABLE"
+          test -f "$NEXUSPILOT_PACKAGED_EXECUTABLE" && test -x "$NEXUSPILOT_PACKAGED_EXECUTABLE"
           test "$(id -u)" -ne 0
           cd "$GITHUB_WORKSPACE/apps/desktop"
           mkdir -p packaged-e2e-diagnostics
-          printf '%s\n' "$LNWJUD_PACKAGED_EXECUTABLE" > packaged-e2e-diagnostics/executable.txt
+          printf '%s\n' "$NEXUSPILOT_PACKAGED_EXECUTABLE" > packaged-e2e-diagnostics/executable.txt
           # Execute the installed Linux package or sealed macOS app just built.
           smoke=(node node_modules/@playwright/test/cli.js test --config playwright.config.ts
             desktop-dashboard.e2e.ts desktop-mcp-client.e2e.ts tools-doctor.e2e.ts electron-security.e2e.ts
@@ -311,12 +311,12 @@ jobs:
             # Record installed sandbox state without altering the artifact or
             # disabling sandboxing. The Electron security test asserts that
             # the actual renderer remains sandboxed.
-            sandbox="$(dirname "$LNWJUD_PACKAGED_EXECUTABLE")/chrome-sandbox"
+            sandbox="$(dirname "$NEXUSPILOT_PACKAGED_EXECUTABLE")/chrome-sandbox"
             test -f "$sandbox" && test ! -L "$sandbox"
             stat -c '%a %u:%g %n' "$sandbox" | tee packaged-e2e-diagnostics/sandbox.txt
-            dpkg-query -W lnwjud | tee -a packaged-e2e-diagnostics/sandbox.txt
-            if [[ -f /etc/apparmor.d/lnwjud ]]; then
-              cat /etc/apparmor.d/lnwjud >> packaged-e2e-diagnostics/sandbox.txt
+            dpkg-query -W nexuspilot | tee -a packaged-e2e-diagnostics/sandbox.txt
+            if [[ -f /etc/apparmor.d/nexuspilot ]]; then
+              cat /etc/apparmor.d/nexuspilot >> packaged-e2e-diagnostics/sandbox.txt
             fi
             umask 077
             session_root="$(mktemp -d "$RUNNER_TEMP/lnwjud-keyring.XXXXXXXX")"
@@ -476,19 +476,19 @@ jobs:
           fi
           IFS= read -r provenance_path < "$provenance_list"
           installer_directory="$(dirname "$provenance_path")"
-          export LNWJUD_RELEASE_INSTALLER_DIRECTORY="$installer_directory"
+          export NEXUSPILOT_RELEASE_INSTALLER_DIRECTORY="$installer_directory"
           node apps/desktop/scripts/verify-release-evidence.mjs
           version="$(node -p "require('./package.json').version")"
-          dmg="$installer_directory/lnwjud-${version}-${{ matrix.arch }}.dmg"
-          zip="$installer_directory/lnwjud-${version}-${{ matrix.arch }}.zip"
+          dmg="$installer_directory/NexusPilot-${version}-${{ matrix.arch }}.dmg"
+          zip="$installer_directory/NexusPilot-${version}-${{ matrix.arch }}.zip"
           mkdir -p macos26-diagnostics
           sw_vers > macos26-diagnostics/os.txt
           uname -a >> macos26-diagnostics/os.txt
           shasum -a 256 "$dmg" "$zip" > macos26-diagnostics/artifact-sha256.txt
           bash scripts/verify-macos-release.sh "$dmg" 2>&1 | tee macos26-diagnostics/verify-dmg.log
           bash scripts/verify-macos-release.sh "$zip" 2>&1 | tee macos26-diagnostics/verify-zip.log
-          echo "LNWJUD_MACOS26_DMG=$dmg" >> "$GITHUB_ENV"
-          echo "LNWJUD_MACOS26_ZIP=$zip" >> "$GITHUB_ENV"
+          echo "NEXUSPILOT_MACOS26_DMG=$dmg" >> "$GITHUB_ENV"
+          echo "NEXUSPILOT_MACOS26_ZIP=$zip" >> "$GITHUB_ENV"
 
       # Keep the artifacts staged-only here so the UI smoke owns the only live
       # package instance and its startup journal identifies any pre-window block.
@@ -497,11 +497,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          dmg_app="$RUNNER_TEMP/lnwjud-macos26-dmg/lnwjud.app"
-          zip_app="$RUNNER_TEMP/lnwjud-macos26-zip/lnwjud.app"
-          bash scripts/stage-macos-smoke-app.sh "$LNWJUD_MACOS26_DMG" "$dmg_app" stage-only
-          bash scripts/stage-macos-smoke-app.sh "$LNWJUD_MACOS26_ZIP" "$zip_app" stage-only
-          echo "LNWJUD_PACKAGED_EXECUTABLE=$dmg_app/Contents/MacOS/lnwjud" >> "$GITHUB_ENV"
+          dmg_app="$RUNNER_TEMP/nexuspilot-macos26-dmg/NexusPilot.app"
+          zip_app="$RUNNER_TEMP/nexuspilot-macos26-zip/NexusPilot.app"
+          bash scripts/stage-macos-smoke-app.sh "$NEXUSPILOT_MACOS26_DMG" "$dmg_app" stage-only
+          bash scripts/stage-macos-smoke-app.sh "$NEXUSPILOT_MACOS26_ZIP" "$zip_app" stage-only
+          echo "NEXUSPILOT_PACKAGED_EXECUTABLE=$dmg_app/Contents/MacOS/NexusPilot" >> "$GITHUB_ENV"
 
       - name: Run packaged Electron smoke on macOS 26
         shell: bash
@@ -555,10 +555,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          dmg_app="$RUNNER_TEMP/lnwjud-macos26-dmg/lnwjud.app"
-          zip_app="$RUNNER_TEMP/lnwjud-macos26-zip/lnwjud.app"
-          bash scripts/stage-macos-smoke-app.sh "$LNWJUD_MACOS26_DMG" "$dmg_app" 2>&1 | tee macos26-diagnostics/launch-dmg.log
-          bash scripts/stage-macos-smoke-app.sh "$LNWJUD_MACOS26_ZIP" "$zip_app" 2>&1 | tee macos26-diagnostics/launch-zip.log
+          dmg_app="$RUNNER_TEMP/nexuspilot-macos26-dmg/NexusPilot.app"
+          zip_app="$RUNNER_TEMP/nexuspilot-macos26-zip/NexusPilot.app"
+          bash scripts/stage-macos-smoke-app.sh "$NEXUSPILOT_MACOS26_DMG" "$dmg_app" 2>&1 | tee macos26-diagnostics/launch-dmg.log
+          bash scripts/stage-macos-smoke-app.sh "$NEXUSPILOT_MACOS26_ZIP" "$zip_app" 2>&1 | tee macos26-diagnostics/launch-zip.log
 
       - name: Upload macOS 26 compatibility diagnostics
         if: always()

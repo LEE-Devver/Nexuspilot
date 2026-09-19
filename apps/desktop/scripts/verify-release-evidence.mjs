@@ -24,7 +24,7 @@ const provenance = JSON.parse(await readFile(provenancePath, 'utf8'));
 const sumsText = await readFile(sumsPath, 'utf8');
 const sums = parseSums(sumsText);
 
-if (provenance?.schemaVersion !== 1 || provenance.product !== 'lnwjud') throw new Error('PROVENANCE.json schema/product is invalid');
+if (provenance?.schemaVersion !== 1 || provenance.product !== 'nexuspilot') throw new Error('PROVENANCE.json schema/product is invalid');
 if (provenance.version !== packageJson.version) throw new Error(`Provenance version mismatch: ${String(provenance.version)} != ${String(packageJson.version)}`);
 if (!isPlatform(provenance.platform)) throw new Error('Provenance platform is invalid');
 let macSigning = null;
@@ -105,7 +105,7 @@ for (const runtime of provenance.runtime) {
 }
 if (requiredRuntime.size > 0) throw new Error(`Runtime provenance is incomplete: ${[...requiredRuntime].join(', ')}`);
 if (macSigning) {
-  const rootExecutable = provenance.runtime.find((entry) => entry.relativePath === 'Contents/MacOS/lnwjud');
+  const rootExecutable = provenance.runtime.find((entry) => entry.relativePath === 'Contents/MacOS/NexusPilot');
   validateMacosSigningPolicyEvidence(macSigning.policy, {
     mode: macSigning.mode,
     arch: provenance.arch,
@@ -114,7 +114,7 @@ if (macSigning) {
   process.stdout.write(`macOS effective signing evidence verified: ${macSigning.mode}, ${macSigning.policy.inspectedNestedCodeCount} nested targets\n`);
 }
 
-process.stdout.write(`Release evidence verified for lnwjud ${provenance.version} ${provenance.platform}/${String(provenance.arch)} commit ${provenance.source.commit}\n`);
+process.stdout.write(`Release evidence verified for NexusPilot ${provenance.version} ${provenance.platform}/${String(provenance.arch)} commit ${provenance.source.commit}\n`);
 
 function isPlatform(value) {
   return value === 'win32' || value === 'darwin' || value === 'linux';
@@ -122,14 +122,14 @@ function isPlatform(value) {
 
 function expectedArtifactNames(platform, version, arch) {
   if (platform === 'win32') return [
-    `lnwjud-Setup-${version}.exe`,
-    `lnwjud-Setup-${version}.exe.blockmap`,
-    `lnwjud-Portable-${version}.exe`,
+    `NexusPilot-Setup-${version}.exe`,
+    `NexusPilot-Setup-${version}.exe.blockmap`,
+    `NexusPilot-Portable-${version}.exe`,
     'latest.yml',
     'portable.yml',
   ];
-  if (platform === 'darwin') return [`lnwjud-${version}-${normalizeArtifactArch(arch)}.dmg`, `lnwjud-${version}-${normalizeArtifactArch(arch)}.zip`, 'latest-mac.yml'];
-  return [`lnwjud-${version}-${normalizeArtifactArch(arch)}.AppImage`, `lnwjud-${version}-${normalizeArtifactArch(arch)}.deb`, linuxUpdateMetadataName(arch)];
+  if (platform === 'darwin') return [`NexusPilot-${version}-${normalizeArtifactArch(arch)}.dmg`, `NexusPilot-${version}-${normalizeArtifactArch(arch)}.zip`, 'latest-mac.yml'];
+  return [`NexusPilot-${version}-${normalizeArtifactArch(arch)}.AppImage`, `NexusPilot-${version}-${normalizeArtifactArch(arch)}.deb`, linuxUpdateMetadataName(arch)];
 }
 
 function linuxUpdateMetadataName(arch) {
@@ -147,7 +147,8 @@ function requiredRuntimePaths(platform, arch) {
   const tunnelPrefix = `tunnel-client-v${BUNDLED_TUNNEL_CLIENT_VERSION}-${releaseTarget}-${releaseArch}`;
   const paths = platform === 'win32'
     ? [
-      'lnwjud.exe',
+      'NexusPilot.exe',
+      'nexuspilot-mcp-stdio.cmd',
       'lnwjud-mcp-stdio.cmd',
       'resources/windows-capability-bridge.ps1',
       'resources/windows-capability-bridge.sha256',
@@ -163,8 +164,8 @@ function requiredRuntimePaths(platform, arch) {
       `resources/tunnel-client/tunnel-client-v${BUNDLED_TUNNEL_CLIENT_VERSION}-provenance.sigstore.json`,
     ]
     : platform === 'darwin'
-      ? ['Contents/MacOS/lnwjud', 'Contents/Resources/lnwjud-mcp-stdio', 'Contents/Resources/runtime-tools/ripgrep/rg', 'Contents/Resources/runtime-tools/ripgrep/BUNDLED_RIPGREP.json', 'Contents/Resources/tunnel-client/tunnel-client', 'Contents/Resources/tunnel-client/BUNDLED_TUNNEL_CLIENT.json', `Contents/Resources/tunnel-client/${tunnelPrefix}-licenses.txt`, `Contents/Resources/tunnel-client/${tunnelPrefix}.spdx.json`, `Contents/Resources/tunnel-client/tunnel-client-v${BUNDLED_TUNNEL_CLIENT_VERSION}-provenance.sigstore.json`, `Contents/Resources/native-host/macos/${provenance.arch}/lnwjud-macos-host`, `Contents/Resources/native-host/macos/${provenance.arch}/NATIVE_HOST.json`]
-      : ['lnwjud', 'lnwjud-mcp-stdio', 'resources/runtime-tools/ripgrep/rg', 'resources/runtime-tools/ripgrep/BUNDLED_RIPGREP.json', 'resources/tunnel-client/tunnel-client', 'resources/tunnel-client/BUNDLED_TUNNEL_CLIENT.json', `resources/tunnel-client/${tunnelPrefix}-licenses.txt`, `resources/tunnel-client/${tunnelPrefix}.spdx.json`, `resources/tunnel-client/tunnel-client-v${BUNDLED_TUNNEL_CLIENT_VERSION}-provenance.sigstore.json`, `resources/native-host/linux/${provenance.arch}/lnwjud-linux-host`, `resources/native-host/linux/${provenance.arch}/NATIVE_HOST.json`];
+      ? ['Contents/MacOS/NexusPilot', 'Contents/Resources/nexuspilot-mcp-stdio', 'Contents/Resources/lnwjud-mcp-stdio', 'Contents/Resources/runtime-tools/ripgrep/rg', 'Contents/Resources/runtime-tools/ripgrep/BUNDLED_RIPGREP.json', 'Contents/Resources/tunnel-client/tunnel-client', 'Contents/Resources/tunnel-client/BUNDLED_TUNNEL_CLIENT.json', `Contents/Resources/tunnel-client/${tunnelPrefix}-licenses.txt`, `Contents/Resources/tunnel-client/${tunnelPrefix}.spdx.json`, `Contents/Resources/tunnel-client/tunnel-client-v${BUNDLED_TUNNEL_CLIENT_VERSION}-provenance.sigstore.json`, `Contents/Resources/native-host/macos/${provenance.arch}/lnwjud-macos-host`, `Contents/Resources/native-host/macos/${provenance.arch}/NATIVE_HOST.json`]
+      : ['nexuspilot', 'nexuspilot-mcp-stdio', 'lnwjud-mcp-stdio', 'resources/runtime-tools/ripgrep/rg', 'resources/runtime-tools/ripgrep/BUNDLED_RIPGREP.json', 'resources/tunnel-client/tunnel-client', 'resources/tunnel-client/BUNDLED_TUNNEL_CLIENT.json', `resources/tunnel-client/${tunnelPrefix}-licenses.txt`, `resources/tunnel-client/${tunnelPrefix}.spdx.json`, `resources/tunnel-client/tunnel-client-v${BUNDLED_TUNNEL_CLIENT_VERSION}-provenance.sigstore.json`, `resources/native-host/linux/${provenance.arch}/lnwjud-linux-host`, `resources/native-host/linux/${provenance.arch}/NATIVE_HOST.json`];
   return new Set(paths);
 }
 

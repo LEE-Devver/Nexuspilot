@@ -72,10 +72,11 @@ async function fixture(platform: 'linux' | 'darwin', arch = 'x64'): Promise<{
   const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'lnwjud-hook-')));
   temporaryRoots.push(root);
   const appOutDir = path.join(root, 'output');
-  const bundle = platform === 'darwin' ? path.join(appOutDir, 'lnwjud.app') : appOutDir;
+  const bundle = platform === 'darwin' ? path.join(appOutDir, 'NexusPilot.app') : appOutDir;
   const resources = platform === 'darwin' ? 'Contents/Resources' : 'resources';
-  const executable = platform === 'darwin' ? 'Contents/MacOS/lnwjud' : 'lnwjud';
-  const launcher = platform === 'darwin' ? 'Contents/Resources/lnwjud-mcp-stdio' : 'lnwjud-mcp-stdio';
+  const executable = platform === 'darwin' ? 'Contents/MacOS/NexusPilot' : 'nexuspilot';
+  const launcher = platform === 'darwin' ? 'Contents/Resources/nexuspilot-mcp-stdio' : 'nexuspilot-mcp-stdio';
+  const legacyLauncher = platform === 'darwin' ? 'Contents/Resources/lnwjud-mcp-stdio' : 'lnwjud-mcp-stdio';
   const nativeName = platform === 'darwin' ? 'lnwjud-macos-host' : 'lnwjud-linux-host';
   const nativeDir = `${resources}/native-host/${platform === 'darwin' ? 'macos' : 'linux'}/${arch}`;
   const binaries = [executable, launcher, `${resources}/runtime-tools/ripgrep/rg`, `${resources}/tunnel-client/tunnel-client`, `${nativeDir}/${nativeName}`];
@@ -86,6 +87,7 @@ async function fixture(platform: 'linux' | 'darwin', arch = 'x64'): Promise<{
     state.modes.set(file, mode);
   }
   for (const binary of binaries) await put(binary, 'binary fixture\n', 0o100755);
+  await put(legacyLauncher, 'binary fixture\n', 0o100755);
   const manifest = {
     schemaVersion: 1, product: 'lnwjud', platform, arch, version: '1.0.0',
     assetSha256: 'a'.repeat(64), executableSha256: digest('binary fixture\n'),
@@ -113,7 +115,7 @@ describe.each(['linux', 'darwin'] as const)('%s packaged runtime hook', (platfor
     expect(state.outputs).toHaveLength(1);
     const result = JSON.parse(state.outputs[0]);
     expect(result).toMatchObject({ schemaVersion: 1, platform, arch, capabilityBridge: null });
-    expect(result.files).toHaveLength(11);
+    expect(result.files).toHaveLength(12);
     for (const file of result.files) {
       const bytes = await fs.readFile(path.join(f.bundle, file.relativePath));
       expect(file.sizeBytes).toBe(bytes.length);
@@ -171,7 +173,7 @@ it.each(['output-root', 'output-parent'])('does not accept macOS decoys in %s', 
   const f = await fixture('darwin');
   const contents = path.join(f.bundle, 'Contents');
   await fs.rename(contents, path.join(location === 'output-root' ? f.appOutDir : f.root, 'Contents'));
-  await expect(capture(f.context)).rejects.toThrow('Contents/MacOS/lnwjud is unavailable');
+  await expect(capture(f.context)).rejects.toThrow('Contents/MacOS/NexusPilot is unavailable');
   expect(state.outputs).toHaveLength(0);
 });
 
@@ -206,14 +208,14 @@ function observedPolicy(mode: 'ad-hoc' | 'certificate', arch: string): Record<st
   const teamId = mode === 'certificate' ? 'ABCDE12345' : null;
   const rootExecutableSha256 = digest('binary fixture\n');
   return {
-    schemaVersion: 1, mode, arch, rootIdentifier: 'com.lnwjud.desktop', teamId,
+    schemaVersion: 1, mode, arch, rootIdentifier: 'com.nexuspilot.desktop', teamId,
     rootCdHash: 'a'.repeat(40), rootExecutableSha256, inspectedNestedCodeCount: 1,
     code: [
-      { relativePath: '.', kind: 'app', mode, teamId, identifier: 'com.lnwjud.desktop', cdHash: 'a'.repeat(40) },
-      { relativePath: 'Contents/MacOS/lnwjud', kind: 'executable', mode, teamId,
-        identifier: 'com.lnwjud.desktop', cdHash: 'b'.repeat(40) },
+      { relativePath: '.', kind: 'app', mode, teamId, identifier: 'com.nexuspilot.desktop', cdHash: 'a'.repeat(40) },
+      { relativePath: 'Contents/MacOS/NexusPilot', kind: 'executable', mode, teamId,
+        identifier: 'com.nexuspilot.desktop', cdHash: 'b'.repeat(40) },
     ],
-    electronProcesses: [{ relativePath: 'Contents/MacOS/lnwjud', hardenedRuntime: true,
+    electronProcesses: [{ relativePath: 'Contents/MacOS/NexusPilot', hardenedRuntime: true,
       libraryValidationDisabled: mode === 'ad-hoc', secureTimestamp: mode === 'certificate', cdHash: 'b'.repeat(40) }],
   };
 }

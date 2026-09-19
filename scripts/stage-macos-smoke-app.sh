@@ -51,7 +51,7 @@ cleanup() {
   if [[ -n "${destination:-}" ]]; then
     while IFS= read -r candidate_pid; do
       [[ -n "$candidate_pid" ]] && kill -TERM "$candidate_pid" >/dev/null 2>&1 || true
-    done < <(pgrep -f "$destination/Contents/MacOS/lnwjud" 2>/dev/null || true)
+    done < <(pgrep -f "$destination/Contents/MacOS/(NexusPilot|lnwjud)" 2>/dev/null || true)
   fi
   if [[ -n "$device" ]]; then hdiutil detach "$device" >/dev/null 2>&1 || true; fi
   safe_remove_directory "$scratch"
@@ -64,11 +64,13 @@ dump_launch_diagnostics() {
   shasum -a 256 "$artifact" >&2 || true
   if [[ -d "${destination:-}" ]]; then
     codesign --display --verbose=4 "$destination" >&2 || true
-    if [[ -f "$destination/Contents/MacOS/lnwjud" ]]; then
+    if [[ -f "$destination/Contents/MacOS/NexusPilot" ]]; then
+      codesign --display --entitlements :- "$destination/Contents/MacOS/NexusPilot" >&2 || true
+    elif [[ -f "$destination/Contents/MacOS/lnwjud" ]]; then
       codesign --display --entitlements :- "$destination/Contents/MacOS/lnwjud" >&2 || true
     fi
   fi
-  /usr/bin/log show --last 2m --style compact --predicate 'process == "lnwjud" OR eventMessage CONTAINS[c] "lnwjud"' 2>/dev/null | tail -n 120 >&2 || true
+  /usr/bin/log show --last 2m --style compact --predicate 'process == "NexusPilot" OR process == "lnwjud" OR eventMessage CONTAINS[c] "NexusPilot" OR eventMessage CONTAINS[c] "lnwjud"' 2>/dev/null | tail -n 120 >&2 || true
   echo "--- end macOS launch diagnostics ---" >&2
 }
 trap cleanup EXIT
@@ -78,13 +80,13 @@ case "$artifact" in
     mount_point="$scratch/mount"
     mkdir -p "$mount_point"
     device="$(hdiutil attach -nobrowse -readonly -mountpoint "$mount_point" "$artifact" | awk 'END { print $1 }')"
-    source_app="$(find "$mount_point" -maxdepth 2 -name 'lnwjud.app' -type d -print -quit)"
+    source_app="$(find "$mount_point" -maxdepth 2 \( -name 'NexusPilot.app' -o -name 'lnwjud.app' \) -type d -print -quit)"
     ;;
   *.zip)
     extract_root="$scratch/extracted"
     mkdir -p "$extract_root"
     ditto -x -k "$artifact" "$extract_root"
-    source_app="$(find "$extract_root" -maxdepth 3 -name 'lnwjud.app' -type d -print -quit)"
+    source_app="$(find "$extract_root" -maxdepth 3 \( -name 'NexusPilot.app' -o -name 'lnwjud.app' \) -type d -print -quit)"
     ;;
   *)
     echo "expected a .dmg or .zip macOS artifact" >&2
@@ -93,13 +95,14 @@ case "$artifact" in
 esac
 
 if [[ -z "${source_app:-}" || ! -d "$source_app" ]]; then
-  echo "lnwjud.app was not found in the packaged artifact" >&2
+  echo "NexusPilot.app (or legacy lnwjud.app) was not found in the packaged artifact" >&2
   exit 1
 fi
 safe_remove_directory "$destination"
 ditto "$source_app" "$destination"
 
-executable="$destination/Contents/MacOS/lnwjud"
+executable="$destination/Contents/MacOS/NexusPilot"
+if [[ ! -f "$executable" ]]; then executable="$destination/Contents/MacOS/lnwjud"; fi
 if [[ ! -f "$executable" || -L "$executable" || ! -x "$executable" ]]; then
   echo "installed macOS executable is invalid: $executable" >&2
   exit 1

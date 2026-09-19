@@ -1,4 +1,4 @@
-# Install lnwjud on Linux
+# Install NexusPilot on Linux
 
 The first Linux release target is x64 on Ubuntu 24.04 LTS. GNOME Wayland and
 X11 are acceptance sessions; KDE Wayland is a smoke target. Linux arm64 has a
@@ -16,7 +16,7 @@ package smoke, and provenance all have matching production evidence.
 3. For an AppImage, make it executable and launch it from a user-owned path.
    For a DEB, install it with the distribution package manager in a disposable
    test environment before using it with real workspaces.
-4. Add a project explicitly in Projects. lnwjud does not auto-register `/`, a
+4. Add a project explicitly in Projects. NexusPilot does not auto-register `/`, a
    mount root, or a home directory.
 
 On Ubuntu 24.04, prefer the DEB: its installation hook configures the
@@ -44,7 +44,7 @@ Doctor displays the detected session without treating it as permission:
 The Linux secure-storage backend must be a supported Secret Service/KWallet
 provider exposed through Electron `safeStorage`. `basic_text`, `unknown`, a
 locked keyring, or temporary unavailability blocks new persisted tunnel and
-checkpoint secrets. lnwjud never enables plaintext encryption as a fallback.
+checkpoint secrets. NexusPilot never enables plaintext encryption as a fallback.
 
 For Wayland capture/input, install and run the desktop portal and PipeWire
 services required by the desktop environment. Missing DBus, portals, AT-SPI,
@@ -55,7 +55,7 @@ or PipeWire is shown as a dependency state, not as a successful capability.
 Use the packaged launcher path from the app's MCP panel, for example:
 
 ```text
-/opt/lnwjud/lnwjud-mcp-stdio --workspace /home/user/project
+/opt/NexusPilot/nexuspilot-mcp-stdio --workspace /home/user/project
 ```
 
 The exact installation path depends on the AppImage/DEB layout. The launcher
@@ -64,7 +64,7 @@ and sends diagnostics to stderr. Always pass an explicit project path when
 using a new installation.
 
 For ChatGPT Secure MCP Tunnel, configure the Platform tunnel and runtime key
-in Settings, keep the `tunnel-client` override empty, and let lnwjud select the
+in Settings, keep the `tunnel-client` override empty, and let NexusPilot select the
 verified bundled client. The key is protected by the host secure-storage
 provider and the tunnel targets the Desktop loopback MCP endpoint. The source
 of the bundled client is the

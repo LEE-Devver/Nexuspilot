@@ -1799,7 +1799,7 @@ function initAutoUpdater(runtime: DesktopRuntime): void {
 
     autoUpdater.on('checking-for-update', () => {
       recordUpdaterEvent('checking-for-update');
-      console.log('[AutoUpdater] Checking for updates on GitHub...');
+      console.log('[AutoUpdater] Checking for NexusPilot updates...');
       patchUpdateStatus({ phase: 'checking', progressPercent: null, message: nativeMessages(desktopLocale).updaterChecking, canInstall: false });
     });
 
@@ -2008,7 +2008,7 @@ async function readTrustedSecretFile(filePath: string): Promise<string | null> {
 }
 
 function defaultStdioCommand(profile: PermissionProfileName): string {
-  const launcher = process.platform === 'win32' ? 'lnwjud-mcp-stdio.cmd' : 'lnwjud-mcp-stdio';
+  const launcher = process.platform === 'win32' ? 'nexuspilot-mcp-stdio.cmd' : 'nexuspilot-mcp-stdio';
   return `${launcher} --profile ${profile}`;
 }
 
@@ -2205,7 +2205,7 @@ function bootstrapDesktop(configuredDataPath?: string): void {
   void app.whenReady().then(async () => {
     recordDesktopStartup('app-ready:resolved');
     assertSupportedPlatform();
-    app.setAppUserModelId('com.lnwjud.desktop');
+    app.setAppUserModelId('com.nexuspilot.desktop');
     const session = platformCompatibility.linuxSession;
     console.log(
       `[PlatformCompatibility] family=${platformCompatibility.family} tier=${platformCompatibility.supportTier} generation=${platformCompatibility.generation} build=${platformCompatibility.build ?? 'unknown'} arch=${process.arch} gpu=${platformCompatibility.disableHardwareAcceleration ? 'software' : 'hardware'}${session === undefined ? '' : ` session=${session.sessionType} dbus=${session.dbusAvailable} portal=${session.portalAvailable} atspi=${session.atSpiAvailable} pipewire=${session.pipewireAvailable}`}; ${platformCompatibility.reason}`,
@@ -2257,7 +2257,7 @@ function bootstrapLogViewerOnly(configuredDataPath?: string): void {
   if (platformCompatibility.disableHardwareAcceleration) app.disableHardwareAcceleration();
   void app.whenReady().then(async () => {
     assertSupportedPlatform();
-    app.setAppUserModelId('com.lnwjud.desktop');
+    app.setAppUserModelId('com.nexuspilot.desktop');
     prependBundledRuntimeToolsToPath();
     const runtime = await createNativeDesktopRuntime(dataPath);
     desktopRuntime = runtime;

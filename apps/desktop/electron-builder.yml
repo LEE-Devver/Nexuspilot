@@ -1,5 +1,5 @@
-appId: com.lnwjud.desktop
-productName: lnwjud
+appId: com.nexuspilot.desktop
+productName: NexusPilot
 asar: true
 npmRebuild: false
 directories:
@@ -12,11 +12,8 @@ files:
   - build/icon.ico
   - build/icon.png
   - package.json
-publish:
-  provider: github
-  owner: engasnm111
-  repo: lnwjud
-  releaseType: release
+# NexusPilot release publishing is intentionally not configured here yet.
+# Do not inherit the upstream lnwjud GitHub release target.
 afterPack: scripts/capture-packaged-runtime-evidence.mjs
 afterSign: scripts/capture-packaged-runtime-evidence.mjs
 extraResources:
@@ -51,10 +48,12 @@ win:
     - target: portable
       arch:
         - x64
-  artifactName: lnwjud-Setup-${version}.${ext}
-  # Keep the branded icon embedded in lnwjud.exe for Windows shortcuts and taskbar.
+  artifactName: NexusPilot-Setup-${version}.${ext}
+  # Keep the branded icon embedded in NexusPilot.exe for Windows shortcuts and taskbar.
   signAndEditExecutable: true
   extraFiles:
+    - from: build/nexuspilot-mcp-stdio.cmd
+      to: nexuspilot-mcp-stdio.cmd
     - from: build/lnwjud-mcp-stdio.cmd
       to: lnwjud-mcp-stdio.cmd
   extraResources:
@@ -77,10 +76,10 @@ mac:
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.inherit.plist
   extendInfo:
-    NSAccessibilityUsageDescription: lnwjud uses Accessibility only after you approve a native UI action.
-    NSScreenCaptureUsageDescription: lnwjud uses Screen Recording only for an explicitly requested capture.
-    NSMicrophoneUsageDescription: lnwjud uses the microphone only for an explicitly requested audio task.
-    NSAppleEventsUsageDescription: lnwjud uses Apple Events only for an explicitly approved Office action.
+    NSAccessibilityUsageDescription: NexusPilot uses Accessibility only after you approve a native UI action.
+    NSScreenCaptureUsageDescription: NexusPilot uses Screen Recording only for an explicitly requested capture.
+    NSMicrophoneUsageDescription: NexusPilot uses the microphone only for an explicitly requested audio task.
+    NSAppleEventsUsageDescription: NexusPilot uses Apple Events only for an explicitly approved Office action.
   target:
     - target: dmg
       arch:
@@ -90,17 +89,19 @@ mac:
       arch:
         - x64
         - arm64
-  artifactName: lnwjud-${version}-${arch}.${ext}
+  artifactName: NexusPilot-${version}-${arch}.${ext}
   extraFiles:
-    - from: build/lnwjud-mcp-stdio.sh
+    - from: build/nexuspilot-mcp-stdio.sh
       # Shell scripts belong in Resources, not the signed-code area at Contents.
+      to: Resources/nexuspilot-mcp-stdio
+    - from: build/lnwjud-mcp-stdio.sh
       to: Resources/lnwjud-mcp-stdio
   extraResources:
     - from: build/native-host/macos
       to: native-host/macos
 linux:
-  executableName: lnwjud
-  maintainer: Adisorn <engasnm111@users.noreply.github.com>
+  executableName: nexuspilot
+  maintainer: NexusPilot contributors
   icon: build/icons
   category: Development
   synopsis: Local AI-agent runtime and MCP gateway
@@ -115,8 +116,10 @@ linux:
         - x64
         - arm64
   # Keep release filenames aligned with runtime evidence (x64, not amd64/x86_64).
-  artifactName: lnwjud-${version}-${env.LNWJUD_RUNTIME_ARCH}.${ext}
+  artifactName: NexusPilot-${version}-${env.NEXUSPILOT_RUNTIME_ARCH}.${ext}
   extraFiles:
+    - from: build/nexuspilot-mcp-stdio.sh
+      to: nexuspilot-mcp-stdio
     - from: build/lnwjud-mcp-stdio.sh
       to: lnwjud-mcp-stdio
   extraResources:
@@ -137,4 +140,4 @@ nsis:
   uninstallDisplayName: ${productName}
   include: build/installer.nsh
 portable:
-  artifactName: lnwjud-Portable-${version}.${ext}
+  artifactName: NexusPilot-Portable-${version}.${ext}

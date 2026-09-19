@@ -61,8 +61,8 @@ describe('MVP release verification gate', () => {
     expect(script).toContain("'latest.yml'");
     expect(script).toContain("'portable.yml'");
     expect(script).toContain('git diff --check');
-    expect(script).toContain('lnwjud-Setup-$($rootPackage.version).exe');
-    expect(script).toContain('lnwjud-Portable-$($rootPackage.version).exe');
+    expect(script).toContain('NexusPilot-Setup-$($rootPackage.version).exe');
+    expect(script).toContain('NexusPilot-Portable-$($rootPackage.version).exe');
   });
 
   it('documents the acceptance evidence and clean-machine limitations', async () => {
@@ -215,7 +215,7 @@ describe('MVP release verification gate', () => {
     expect(release).toContain('native-linux-arm64-$sha');
     expect(release).toContain('--event workflow_dispatch');
     expect(release).toContain('successful CI push or workflow_dispatch run for exact commit');
-    expect(release).toContain('LNWJUD_RELEASE_INSTALLER_DIRECTORY');
+    expect(release).toContain('NEXUSPILOT_RELEASE_INSTALLER_DIRECTORY');
     expect(release).toContain('node scripts/collect-release-assets.mjs');
     expect(release).toContain('release-assets/*');
     expect(releaseNotes).toContain('`RELEASE_MANIFEST.json`');
@@ -224,7 +224,7 @@ describe('MVP release verification gate', () => {
     expect(release).toContain('generate_release_notes: false');
     expect(release).toContain('body_path: release-notes.md');
     expect(release).not.toContain('generate_release_notes: true');
-    expect(release).toContain("LNWJUD_RELEASE_ARTIFACT_ONLY: '1'");
+    expect(release).toContain("NEXUSPILOT_RELEASE_ARTIFACT_ONLY: '1'");
     expect(release.indexOf('Download verified target-native CI artifacts')).toBeLessThan(release.indexOf('Verify each downloaded release evidence bundle'));
     expect(release.indexOf('Verify each downloaded release evidence bundle')).toBeLessThan(release.indexOf('Aggregate target-native artifacts and update feeds'));
     expect(release).not.toContain('verify-release.ps1');
@@ -235,8 +235,8 @@ describe('MVP release verification gate', () => {
   it('keeps release asset aggregation target-aware and architecture-aware', async () => {
     const collector = await readFile(path.join(repositoryRoot, 'scripts', 'collect-release-assets.mjs'), 'utf8');
     const verifier = await readFile(path.join(repositoryRoot, 'apps', 'desktop', 'scripts', 'verify-release-evidence.mjs'), 'utf8');
-    expect(collector).toContain('LNWJUD_RELEASE_STAGING_DIRECTORY');
-    expect(collector).toContain('LNWJUD_RELEASE_ASSETS_DIRECTORY');
+    expect(collector).toContain("requiredCompatDirectory('RELEASE_STAGING_DIRECTORY')");
+    expect(collector).toContain("requiredCompatDirectory('RELEASE_ASSETS_DIRECTORY')");
     expect(collector).toContain('win32-x64');
     expect(collector).toContain('darwin-arm64');
     expect(collector).toContain('darwin-x64');
@@ -246,7 +246,7 @@ describe('MVP release verification gate', () => {
     expect(collector).toContain('latest-mac.yml');
     expect(collector).toContain('RELEASE_MANIFEST.json');
     expect(collector).toContain('sourceProvenanceSha256');
-    expect(verifier).toContain('LNWJUD_RELEASE_INSTALLER_DIRECTORY');
+    expect(verifier).toContain("readCompatEnv('RELEASE_INSTALLER_DIRECTORY')");
     expect(verifier).toContain('latest-linux-${normalizeArtifactArch(arch)}.yml');
   });
 

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { realpathSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -41,8 +42,9 @@ export async function writeCapabilityIntegrity({
   return identity;
 }
 
-const invokedPath = process.argv[1] === undefined ? undefined : path.resolve(process.argv[1]);
-if (invokedPath === fileURLToPath(import.meta.url)) {
+const invokedPath = process.argv[1] === undefined ? undefined : realpathSync(process.argv[1]);
+const modulePath = realpathSync(fileURLToPath(import.meta.url));
+if (invokedPath === modulePath) {
   const identity = await writeCapabilityIntegrity();
   process.stdout.write(`windows-capability-bridge sha256 ${identity.sha256} bytes ${identity.sizeBytes}\n`);
 }

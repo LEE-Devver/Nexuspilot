@@ -1,8 +1,8 @@
-# lnwjud Release Checklist
+# NexusPilot Release Checklist
 
 Operational release sequencing is defined by [`docs/development/RELEASE_PROCESS.md`](../docs/development/RELEASE_PROCESS.md). This checklist records current-version acceptance evidence and does not override that sequence.
 
-**Current version:** `v5.2.2` - Windows installer `lnwjud-Setup-5.2.2.exe` and portable executable `lnwjud-Portable-5.2.2.exe`; MCP registry **253 total definitions / 241 advertised by default / all 253 with Codex delegation plus Agent Swarm enabled**.
+**Current version:** `v5.2.2` - Windows installer `NexusPilot-Setup-5.2.2.exe` and portable executable `NexusPilot-Portable-5.2.2.exe`; MCP registry **253 total definitions / 241 advertised by default / all 253 with Codex delegation plus Agent Swarm enabled**.
 
 Run the release verification from PowerShell at the repository root. The automated gate must fail fast on any non-zero stage and `git diff --check` must pass before packaging or publishing. Pull-request/non-main CI may pass `-SkipWindowsPackaging`; the exact `main` commit that will be tagged must run the full Windows gate plus the target-native macOS/Linux package matrix and produce all five SHA-scoped release artifacts. The normal source is the protected `main` push; if the merge credential suppresses that downstream Actions event, an explicit `workflow_dispatch` of `ci.yml` on the exact `main` SHA is the approved fallback and must produce the same five artifacts.
 
@@ -55,7 +55,7 @@ Issue #26 / secret migration boundary: the JavaScript runtime must not ship Powe
 
 ## Manual clean-machine evidence
 
-On a clean Windows account or VM, install and launch the packaged application, confirm first-run data creation, exercise a disposable workspace and Doctor, close the application, then uninstall it. Include one account with an unavailable or remote mapped drive (for example `Z:`): startup must not probe/register that drive or fail because it is disconnected. Separately launch `lnwjud-Portable-<version>.exe` without installing it and confirm the dashboard, bundled runtime assets, workspace scope, and tunnel controls initialize normally. Record only pass/fail status, OS architecture, artifact path, and relevant error codes.
+On a clean Windows account or VM, install and launch the packaged application, confirm first-run data creation, exercise a disposable workspace and Doctor, close the application, then uninstall it. Include one account with an unavailable or remote mapped drive (for example `Z:`): startup must not probe/register that drive or fail because it is disconnected. Separately launch `NexusPilot-Portable-<version>.exe` without installing it and confirm the dashboard, bundled runtime assets, workspace scope, and tunnel controls initialize normally. Record only pass/fail status, OS architecture, artifact path, and relevant error codes.
 
 For macOS and Linux, use the matching target artifact on a clean supported host. Confirm the app launches without system Node.js, the packaged stdio launcher keeps stdout MCP-clean, the bundled target-native tunnel client is selected, a project can be added explicitly, Doctor reports permission/session/keyring state truthfully, and the native capability needed for the test works only after its OS permission is granted. Verify macOS Accessibility/Screen Recording/Keychain behavior as applicable; verify Linux X11 or Wayland portal/PipeWire behavior as applicable. Test both macOS arm64/x64 and Linux x64; Linux arm64 remains preview and must use its matching artifact. Confirm macOS update selection uses the merged `latest-mac.yml` and Linux AppImage update selection uses the architecture-specific feed. Record the target, architecture, artifact hash, and pass/fail result separately from Windows evidence.
 

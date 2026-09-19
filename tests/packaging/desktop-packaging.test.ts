@@ -53,16 +53,11 @@ describe('cross-platform desktop packaging', () => {
     const rootPackage = JSON.parse(await readFile(path.join(repositoryRoot, 'package.json'), 'utf8')) as { version?: unknown };
     const version = String(rootPackage.version);
     const readme = await readFile(path.join(repositoryRoot, 'README.md'), 'utf8');
-    const fullReadme = await readFile(path.join(repositoryRoot, 'FULL_README.md'), 'utf8');
-    expect(fullReadme).toContain(`apps/desktop/dist/installers/lnwjud-Setup-${version}.exe`);
-    expect(fullReadme).toContain(`apps/desktop/dist/installers/lnwjud-Portable-${version}.exe`);
+    expect(readme).toContain(`## Upstream baseline version: lnwjud v${version}`);
 
 
     const usageTh = await readFile(path.join(repositoryRoot, 'docs', 'USAGE_TH.md'), 'utf8');
-    const publishedVersion = readme.match(/^## Current published version: v([0-9.]+)$/m)?.[1]
-      ?? readme.match(/^## What's new in v([0-9.]+)$/m)?.[1];
-    expect(publishedVersion).toBeTruthy();
-    expect(fullReadme).toContain(`## Current published version: v${publishedVersion}`);
+    const publishedVersion = version;
     expect(usageTh).toContain(`lnwjud v${publishedVersion} (ภาษาไทย)`);
     expect(usageTh).toContain(`public release \`v${publishedVersion}\``);
 
@@ -91,24 +86,24 @@ describe('cross-platform desktop packaging', () => {
     };
 
     expect(desktopPackage.description).toBe('Cross-platform local AI-agent runtime and MCP gateway with 253 total tool definitions.');
-    expect(desktopPackage.author).toBe('Adisorn');
-    expect(desktopPackage.homepage).toBe('https://github.com/engasnm111/lnwjud#readme');
-    expect(desktopPackage.repository).toEqual({ type: 'git', url: 'https://github.com/engasnm111/lnwjud.git' });
+    expect(desktopPackage.author).toBe('NexusPilot contributors');
+    expect(desktopPackage.homepage).toBeUndefined();
+    expect(desktopPackage.repository).toBeUndefined();
   });
 
-  it('declares lnwjud x64 NSIS and portable packaging with built runtime bundles', async () => {
+  it('declares NexusPilot x64 NSIS and portable packaging with bounded legacy launchers', async () => {
     const configPath = path.join(desktopRoot, 'electron-builder.yml');
     const config = await readFile(configPath, 'utf8');
     const desktopPackage = JSON.parse(await readFile(path.join(desktopRoot, 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
 
-    expect(config).toContain('productName: lnwjud');
+    expect(config).toContain('productName: NexusPilot');
     expect(config).toContain('output: dist/installers');
     expect(config).toContain('target: nsis');
     expect(config).toContain('target: portable');
     expect(config).toContain('- x64');
-    expect(config).toContain('artifactName: lnwjud-Setup-${version}.${ext}');
+    expect(config).toContain('artifactName: NexusPilot-Setup-${version}.${ext}');
     expect(config).toContain('portable:');
-    expect(config).toContain('artifactName: lnwjud-Portable-${version}.${ext}');
+    expect(config).toContain('artifactName: NexusPilot-Portable-${version}.${ext}');
     expect(desktopPackage.scripts?.['package:windows']).toContain('--win nsis portable --x64');
     expect(desktopPackage.scripts?.['package:windows']).toContain('write-portable-update-manifest.mjs');
     expect(desktopPackage.scripts?.build).toContain('write-capability-integrity.mjs && corepack pnpm@10.15.0 --filter @nexuspilot/capabilities build && tsc');
@@ -121,7 +116,7 @@ describe('cross-platform desktop packaging', () => {
     const tunnelControllerSource = await readFile(path.join(desktopRoot, 'src', 'main', 'tunnel-controller.ts'), 'utf8');
     expect(tunnelControllerSource).not.toContain("'Downloads', 'tunnel', 'tunnel-client.exe'");
     const installerScript = await readFile(path.join(desktopRoot, 'build', 'installer.nsh'), 'utf8');
-    expect(installerScript).toContain('CreateShortCut "$SMPROGRAMS\\lnwjud.lnk" "$INSTDIR\\lnwjud.exe"');
+    expect(installerScript).toContain('CreateShortCut "$SMPROGRAMS\\NexusPilot.lnk" "$INSTDIR\\NexusPilot.exe"');
     expect(installerScript).toContain('SetOutPath "$INSTDIR"');
     expect(installerScript).not.toMatch(/[A-Z]:\\Users\\[^\r\n]+/i);
     expect(config).toContain('extraResources:');
@@ -135,9 +130,9 @@ describe('cross-platform desktop packaging', () => {
     expect(config).toContain('linux:');
     // Linux otherwise derives @lnwjuddesktop from the scoped package name,
     // breaking the lnwjud executable expected by the launcher and evidence.
-    expect(config).toMatch(/linux:\r?\n\s+executableName: lnwjud(?:\r?\n|$)/);
-    expect(config).toContain('maintainer: Adisorn <engasnm111@users.noreply.github.com>');
-    expect(config).toContain('artifactName: lnwjud-${version}-${env.LNWJUD_RUNTIME_ARCH}.${ext}');
+    expect(config).toMatch(/linux:\r?\n\s+executableName: nexuspilot(?:\r?\n|$)/);
+    expect(config).toContain('maintainer: NexusPilot contributors');
+    expect(config).toContain('artifactName: NexusPilot-${version}-${env.NEXUSPILOT_RUNTIME_ARCH}.${ext}');
     expect(config).toContain('target: dmg');
     expect(config).toContain('target: zip');
     expect(config).toContain('hardenedRuntime: true');
@@ -149,7 +144,7 @@ describe('cross-platform desktop packaging', () => {
     expect(config).toMatch(/target: AppImage[\s\S]*?arch:\s*\n\s*- x64\s*\n\s*- arm64/);
     expect(config).toMatch(/target: deb[\s\S]*?arch:\s*\n\s*- x64\s*\n\s*- arm64/);
     expect(config).toContain('category: Development');
-    expect(config).toContain('artifactName: lnwjud-${version}-${arch}.${ext}');
+    expect(config).toContain('artifactName: NexusPilot-${version}-${arch}.${ext}');
     expect(config).toContain('build/runtime-tools');
     expect(config).toContain('to: runtime-tools');
     expect(config).toContain('from: build/tunnel-client');
@@ -177,7 +172,7 @@ describe('cross-platform desktop packaging', () => {
     expect(nativePackagingScript).toContain('prepare-runtime-tools.mjs');
     expect(nativePackagingScript).toContain('build-macos-host.mjs');
     expect(nativePackagingScript).toContain('build-linux-host.mjs');
-    expect(nativePackagingScript).toContain('LNWJUD_RUNTIME_ARCH');
+    expect(nativePackagingScript).toContain('NEXUSPILOT_RUNTIME_ARCH');
     expect(nativePackagingScript).toContain('must be built on its target operating system');
     expect(nativePackagingScript).toContain('`--${architecture}`');
     expect(nativePackagingScript).toContain('write-release-evidence.mjs');
@@ -193,11 +188,12 @@ describe('cross-platform desktop packaging', () => {
     const registerOcr = await readFile(path.join(repositoryRoot, 'scripts', 'register-windows-ocr.ps1'), 'utf8');
     expect(registerOcr).toContain("GetEnvironmentVariable('ProgramFiles(x86)')");
     expect(registerOcr).not.toContain('C:\\Program Files (x86)\\Windows Kits');
-    const stdioLauncher = await readFile(path.join(desktopRoot, 'build', 'lnwjud-mcp-stdio.cmd'), 'utf8');
+    const stdioLauncher = await readFile(path.join(desktopRoot, 'build', 'nexuspilot-mcp-stdio.cmd'), 'utf8');
+    expect(stdioLauncher).toContain('set "APP=%BASE%NexusPilot.exe"');
     expect(stdioLauncher).toContain('set "APP=%BASE%lnwjud.exe"');
     expect(stdioLauncher).toContain('--mcp-stdio');
     expect(stdioLauncher).not.toContain('lnwjud-node.exe');
-    const posixLauncher = await readFile(path.join(desktopRoot, 'build', 'lnwjud-mcp-stdio.sh'), 'utf8');
+    const posixLauncher = await readFile(path.join(desktopRoot, 'build', 'nexuspilot-mcp-stdio.sh'), 'utf8');
     expect(posixLauncher).toContain('exec "$APP" --mcp-stdio "$@"');
     expect(stdioLauncher).not.toContain(path.win32.join('%ProgramFiles%', 'nodejs'));
     expect(stdioLauncher).not.toContain(path.win32.join('%LOCALAPPDATA%', 'Programs', 'nodejs'));
@@ -210,7 +206,7 @@ describe('cross-platform desktop packaging', () => {
     const tunnelBundle = await readFile(path.join(desktopRoot, 'dist', 'main', 'tunnel-controller.js'), 'utf8');
     expect(windowBundle).toContain('webSecurity: true');
     expect(windowBundle).not.toContain('webSecurity: false');
-    expect(mainBundle).toMatch(/setName\(["']lnwjud["']|setName\(APP_NAME\)/);
+    expect(mainBundle).toMatch(/setName\(["']NexusPilot["']|setName\(APP_NAME\)/);
     expect(tunnelBundle).toContain('delete env.LNWJUD_DATA_PATH');
     expect(tunnelBundle).toContain('delete env.LNWJUD_UNRESTRICTED');
     expect(mainBundle).toMatch(/setPath\(["']userData["']/);
@@ -280,10 +276,10 @@ describe('cross-platform desktop packaging', () => {
 
   it('defines a dedicated Portable update manifest instead of reusing the Installer feed', async () => {
     const manifestScript = await readFile(path.join(desktopRoot, 'scripts', 'write-portable-update-manifest.mjs'), 'utf8');
-    expect(manifestScript).toContain('lnwjud-Portable-${version}.exe');
+    expect(manifestScript).toContain('NexusPilot-Portable-${version}.exe');
     expect(manifestScript).toContain("createHash('sha512')");
     expect(manifestScript).toContain('size: ${metadata.size}');
     expect(manifestScript).toContain("'portable.yml'");
-    expect(manifestScript).not.toContain('lnwjud-Setup-${version}.exe');
+    expect(manifestScript).not.toContain('NexusPilot-Setup-${version}.exe');
   });
 });

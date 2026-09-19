@@ -37,16 +37,16 @@ The package script rebuilds the workspace, generates the current MCP stdio bundl
 - User-selectable installer directory (`allowToChangeInstallationDirectory: true`).
 - Branded `build/icon.ico` for the application, installer, and uninstaller.
 - `signAndEditExecutable: true` for executable metadata/icon editing.
-- `deleteAppDataOnUninstall: false`; uninstalling the application does **not** automatically remove lnwjud user data.
+- `deleteAppDataOnUninstall: false`; uninstalling the application does **not** automatically remove NexusPilot or inherited lnwjud user data.
 - NSIS renames electron-builder's generated uninstaller to the stable user-facing `uninstall.exe` and rewrites `UninstallString` / `QuietUninstallString` for the active per-user or per-machine install mode so Windows Settings and upgrades keep using the correct path.
-- Portable mode launches without installation but intentionally uses the same per-user lnwjud data/settings location as the installed build. It is portable as an executable, not a "keep every setting beside the EXE" mode.
-- Installer auto-update remains on electron-builder's normal `latest.yml` channel and installs `lnwjud-Setup-<version>.exe`.
-- Portable auto-update uses a separate generated `portable.yml` channel and downloads only `lnwjud-Portable-<version>.exe`.
+- Portable mode launches without installation and uses the same NexusPilot data-path selection as the installed build: canonical `nexuspilot` state for new installs, with bounded fallback to existing `lnwjud` state. It is portable as an executable, not a "keep every setting beside the EXE" mode.
+- Installer auto-update remains on electron-builder's normal `latest.yml` channel and installs `NexusPilot-Setup-<version>.exe`.
+- Portable auto-update uses a separate generated `portable.yml` channel and downloads only `NexusPilot-Portable-<version>.exe`.
 - Portable downloads are verified by electron-updater against the SHA-512/size in `portable.yml`, then replaced in place only after the running process exits. The helper keeps a rollback backup, restores it on replacement failure, restarts the exact outer Portable path, and cleans itself up.
 - The updater never crosses distribution types: an installed user remains on Setup/NSIS updates and a Portable user remains on Portable EXE updates.
-- Installer and Portable intentionally continue to share the same per-user lnwjud settings/data location.
+- Installer and Portable intentionally share the same per-user NexusPilot data-path selection and legacy-state fallback.
 - The Windows capability bridge is copied as an extra resource.
-- The generated `lnwjud-mcp-stdio.cmd` has one canonical packaged copy beside `lnwjud.exe` for local stdio use. POSIX packages use the matching executable shell launcher. The package also includes the hash-bound native Windows secret migrator for one-time legacy data migration; no PowerShell secret runtime is shipped.
+- The generated `nexuspilot-mcp-stdio.cmd` is the canonical packaged launcher beside `NexusPilot.exe`; `lnwjud-mcp-stdio.cmd` is shipped temporarily as a bounded compatibility alias. POSIX packages use the corresponding canonical shell launcher plus the legacy alias. The package also includes the hash-bound native Windows secret migrator for one-time legacy data migration; no PowerShell secret runtime is shipped.
 - Pinned ripgrep is shipped under `resources/runtime-tools/ripgrep`; both Desktop and the stdio launcher resolve this private `rg.exe` before any system PATH copy.
 - The repository's `lnwjud-scheduled-continuation` skill plus the six pinned Ponytail skills (`ponytail`, `ponytail-review`, `ponytail-audit`, `ponytail-debt`, `ponytail-gain`, `ponytail-help`) are shipped as sibling directories under `resources/agent-skills` in both Setup/NSIS and Portable. Their source-qualified bundled identities remain distinct from same-name machine-global or active-workspace Cursor, Claude, Agents, Codex, Codex-plugin, GitHub workspace, or configured skill roots; Native Ponytail activation accepts only the exact bundled primary/review identities.
 - The launcher never falls back to a system Node runtime; a missing packaged Electron executable fails closed.
@@ -75,9 +75,9 @@ The `makeappx.exe`/`signtool.exe` steps need the Windows SDK. No certificate or 
 For v5.2.2:
 
 ```text
-apps/desktop/dist/installers/lnwjud-Setup-5.2.2.exe
-apps/desktop/dist/installers/lnwjud-Setup-5.2.2.exe.blockmap
-apps/desktop/dist/installers/lnwjud-Portable-5.2.2.exe
+apps/desktop/dist/installers/NexusPilot-Setup-5.2.2.exe
+apps/desktop/dist/installers/NexusPilot-Setup-5.2.2.exe.blockmap
+apps/desktop/dist/installers/NexusPilot-Portable-5.2.2.exe
 apps/desktop/dist/installers/latest.yml
 apps/desktop/dist/installers/portable.yml
 apps/desktop/dist/installers/SHA256SUMS.txt
@@ -87,8 +87,8 @@ apps/desktop/dist/installers/PROVENANCE.json
 Generic patterns:
 
 ```text
-lnwjud-Setup-<version>.exe
-lnwjud-Portable-<version>.exe
+NexusPilot-Setup-<version>.exe
+NexusPilot-Portable-<version>.exe
 ```
 
 The NSIS installer produces its blockmap plus `latest.yml`. Portable has its own `portable.yml` and is an auto-updater target through the dedicated Portable channel; it is never installed through NSIS during a Portable update.
@@ -97,16 +97,16 @@ The NSIS installer produces its blockmap plus `latest.yml`. Portable has its own
 
 Use a clean Windows 10/11 x64 account or VM with no repository checkout:
 
-1. Install the generated `lnwjud-Setup-*.exe`.
-2. Launch lnwjud and confirm the dashboard opens with Electron security settings intact.
+1. Install the generated `NexusPilot-Setup-*.exe`.
+2. Launch NexusPilot and confirm the dashboard opens with Electron security settings intact.
 3. Confirm the branded executable/tray/installer icon is present.
 4. Add a disposable workspace and confirm its canonical path persists after restart.
 5. Confirm the loopback MCP endpoint auto-starts and the displayed endpoint is usable by a local MCP client.
 6. Run Doctor and confirm SQLite/platform dependency checks are reported truthfully.
-7. If stdio/Secure Tunnel is part of the smoke test, verify `lnwjud-mcp-stdio.cmd` works on the clean machine **without** installing system Node.js.
+7. If stdio/Secure Tunnel is part of the smoke test, verify canonical `nexuspilot-mcp-stdio.cmd` works on the clean machine **without** installing system Node.js; also verify the bounded legacy `lnwjud-mcp-stdio.cmd` alias during the migration window.
 8. Call `skills_list` and confirm it includes bundled `lnwjud-scheduled-continuation` plus all six sibling Ponytail skills, a test machine-global skill, and a test active-workspace skill; call `skills_read` with each source-qualified ID. With Ponytail FULL enabled, also verify code mutation is blocked before exact bundled primary load, succeeds after `bundled:agent-skills/ponytail` loads even when matching returns no result, and rejects a same-name workspace skill as activation evidence. Verify the same contract through Desktop HTTP MCP and the packaged stdio launcher.
 9. Close the app, uninstall it from Windows Settings, and confirm the application binaries are removed while user data remains according to `deleteAppDataOnUninstall: false`.
-10. Launch `lnwjud-Portable-*.exe` without installing it and repeat dashboard/workspace/Doctor/tunnel/skill smoke checks.
+10. Launch `NexusPilot-Portable-*.exe` without installing it and repeat dashboard/workspace/Doctor/tunnel/skill smoke checks.
 11. Confirm no visible CMD/PowerShell window flashes during normal internal operations. Short-lived hidden `conhost.exe` processes are acceptable; sustained high CPU is not.
 12. From an installed build, verify an available update resolves through `latest.yml` to the next Setup executable; from a Portable build, verify it resolves through `portable.yml` to the next Portable executable and never switches distribution type.
 13. For Portable replacement, verify the same outer EXE path restarts after update and that a forced replacement failure restores the backup instead of leaving the app missing.

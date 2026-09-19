@@ -1,4 +1,4 @@
-export const APP_NAME = 'lnwjud';
+export const APP_NAME = 'NexusPilot';
 export const APP_VERSION = '5.2.2';
 
 export const ipcChannels = {

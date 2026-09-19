@@ -9,7 +9,7 @@
   <em>NexusPilot is being developed from the MIT-licensed lnwjud foundation, preserving its mature local tooling while evolving the product identity, compatibility layer, observability, and multi-agent direction.</em>
 </p>
 
-> **Migration status:** NexusPilot currently inherits the lnwjud v5.2.2 runtime and many internal compatibility identifiers. Package names, environment variables, data paths, IPC identifiers, executables, installers, tunnel profiles, and native-host names remain unchanged until their staged migrations are completed.
+> **Migration status:** NexusPilot currently inherits the lnwjud v5.2.2 runtime foundation. NexusPilot branding, package namespace, environment compatibility, desktop/IPC identity, MCP runtime identity, app-data selection, executables, installers, release artifacts, and canonical stdio launcher have migrated. Bounded legacy compatibility remains for selected tunnel/profile, native-host, workspace-metadata, historical regression, and legacy-launcher identifiers.
 
 <p align="center">
   <em>อ่านที่เหลือใน Readme ได้เลยครับ ติดปัญหาทักมาได้ใน <a href="https://url.in.th/rEZiG"><strong>Line</strong></a> ได้ตลอดครับ / กำลังพัฒนาให้เรื่อยๆครับ ท่านที่ถามหาช่องสนับสนุนค่ากาแฟ แปะลิงก์ไว้ให้แล้วครับ ขอบคุณครับ — <a href="https://easydonate.app/abcz"><strong>Donate</strong></a></em>

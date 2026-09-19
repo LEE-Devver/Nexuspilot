@@ -47,7 +47,7 @@ case "$artifact" in
     staging="$(mktemp -d "${TMPDIR:-/tmp}/lnwjud-linux-verify.XXXXXX")"
     trap 'rm -rf "$staging"' EXIT
     dpkg-deb --extract "$artifact" "$staging"
-    root="$staging/opt/lnwjud"
+    if [[ -d "$staging/opt/NexusPilot" ]]; then root="$staging/opt/NexusPilot"; else root="$staging/opt/nexuspilot"; fi
     ;;
   *)
     echo "expected an AppImage or DEB artifact" >&2
@@ -55,13 +55,15 @@ case "$artifact" in
     ;;
 esac
 
-if [[ -x "$root/usr/bin/lnwjud" && ! -L "$root/usr/bin/lnwjud" ]]; then
-  require_regular_executable "$root/usr/bin/lnwjud"
+if [[ -x "$root/usr/bin/nexuspilot" && ! -L "$root/usr/bin/nexuspilot" ]]; then
+  require_regular_executable "$root/usr/bin/nexuspilot"
 else
-  require_regular_executable "$root/lnwjud"
+  require_regular_executable "$root/nexuspilot"
 fi
-launcher="$(find "$root" -type f -name 'lnwjud-mcp-stdio' -perm -u+x -print -quit)"
+launcher="$(find "$root" -type f -name 'nexuspilot-mcp-stdio' -perm -u+x -print -quit)"
 test -n "$launcher" && require_regular_executable "$launcher"
+legacy_launcher="$(find "$root" -type f -name 'lnwjud-mcp-stdio' -perm -u+x -print -quit)"
+test -n "$legacy_launcher" && require_regular_executable "$legacy_launcher"
 rg_binary="$(find "$root" -type f -name rg -perm -u+x -print -quit)"
 test -n "$rg_binary" && require_regular_executable "$rg_binary"
 tunnel_binary="$(find "$root" -type f -name tunnel-client -perm -u+x -print -quit)"

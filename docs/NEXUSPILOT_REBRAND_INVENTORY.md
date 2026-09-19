@@ -266,18 +266,18 @@ Legacy aliases should be documented, tested, and eventually removable rather tha
 - Stage 3 — compatibility and persistence scaffolding: complete (NexusPilot-first env compatibility with bounded lnwjud fallback; persisted defaults intentionally unchanged)
 - Stage 4 — desktop internal API / IPC migration: complete (`window.nexusPilot`, `nexuspilot:*`; temporary `window.lnwjud` preload alias retained)
 - Stage 5 — product runtime identity: complete (MCP server/bridge identity is NexusPilot; canonical health identity added with bounded lnwjud endpoint/product recognition)
-- Stage 6 — executables, installer, and persisted-state cutover: in progress (6A app-data selection implemented; executable/installer/launcher cutover next)
+- Stage 6 — executables, installer, and persisted-state cutover: complete (NexusPilot canonical app/installer/launcher identity, migration-safe app-data selection, legacy stdio launcher alias retained)
 
 ## Immediate next implementation step
-Start Stage 6 by inventorying executable/installer names and persisted-state locations before any cutover. Define tested migration rules for existing `lnwjud` app-data/workspace state, conflict precedence when both legacy and NexusPilot state exist, and launcher/update compatibility. Only after those migration readers are green should canonical executable, installer, app identifier, or persisted write locations switch to NexusPilot.
+Start Stage 7 with tunnel/native-host identity migration. Introduce canonical NexusPilot tunnel/profile/native-host names while retaining bounded readers/aliases for existing lnwjud profiles, manifests, filenames, and historical fixtures. Migrate one subsystem at a time and require compatibility tests before removing a legacy identifier.
 
 The following compatibility/runtime identities remain intentionally preserved until their later stages:
 - bounded `LNWJUD_*` environment fallbacks / dual-writes
 - `.lnwjud` persisted workspace metadata
 - deprecated `window.lnwjud` preload alias
-- executable / installer names
 - legacy MCP identity endpoint/header recognition retained for older listeners
-- native-host names
+- legacy stdio launcher alias
+- native-host names / manifests
 - tunnel profile compatibility names
 - historical documents
 

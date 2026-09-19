@@ -37,13 +37,13 @@ describe('Windows release trust evidence', () => {
     expect(evidenceWriter).toContain('workingTreeDirtyAtEvidence');
     expect(evidenceWriter).toContain("git(['rev-parse', 'HEAD'])");
     expect(evidenceWriter).toContain('capabilityBridge');
-    expect(evidenceVerifier).toContain('LNWJUD_RELEASE_ARTIFACT_ONLY');
+    expect(evidenceVerifier).toContain("readCompatEnv('RELEASE_ARTIFACT_ONLY')");
     expect(evidenceVerifier).toMatch(/const packagedBridgePath = releaseArtifactOnly\s+\? undefined\s+: path\.join\(installerDirectory, 'win-unpacked'/);
     expect(evidenceVerifier).toContain('compiledBundlePath');
     expect(evidenceVerifier).toContain('const releaseArtifactOnly');
     expect(evidenceVerifier).toContain('verifyCapabilityBridgeArtifacts');
     expect(bridgeVerifier).toContain('packaged bridge bytes differ from staged package bytes');
-    for (const name of ['lnwjud-mcp-stdio.cmd', 'windows-capability-bridge.ps1', 'windows-capability-bridge.sha256', 'windows-capability-bridge.integrity.json', 'windows-secret-migrator.exe', 'windows-secret-migrator.sha256', 'rg.exe', 'tunnel-client.exe']) {
+    for (const name of ['nexuspilot-mcp-stdio.cmd', 'lnwjud-mcp-stdio.cmd', 'windows-capability-bridge.ps1', 'windows-capability-bridge.sha256', 'windows-capability-bridge.integrity.json', 'windows-secret-migrator.exe', 'windows-secret-migrator.sha256', 'rg.exe', 'tunnel-client.exe']) {
       expect(captureHook).toContain(name);
     }
     expect(captureHook).not.toContain('lnwjud-mcp-stdio.cjs');

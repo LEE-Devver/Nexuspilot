@@ -1,4 +1,4 @@
-# Install lnwjud on macOS
+# Install NexusPilot on macOS
 
 This guide covers the v5.2.2 native macOS release target. macOS 13 or newer is
 supported on both Apple silicon (`arm64`) and Intel (`x64`). The package is
@@ -19,16 +19,16 @@ claim until every native helper and runtime has been verified as universal.
    Library Validation enabled, and require notarization/stapling when that
    release mode is configured. Wholly unsigned distributable macOS artifacts
    are rejected.
-3. Copy `lnwjud.app` to `Applications` and open it. macOS may ask for the
+3. Copy `NexusPilot.app` to `Applications` and open it. macOS may ask for the
    normal first-launch confirmation.
-4. Add an explicit project in Projects. lnwjud never treats `/`, `/Volumes`,
+4. Add an explicit project in Projects. NexusPilot never treats `/`, `/Volumes`,
    or a home directory as an implicit trusted project.
 
 Release CI builds the target-native DMG/ZIP on macOS 15, then verifies and launches the exact same artifact bytes on macOS 26 for arm64 and x64 before publication.
 
 The app contains Electron, the target-native ripgrep binary, and the official
 OpenAI `tunnel-client` selected for the artifact architecture. A system Node.js
-installation is not required for the packaged Desktop app or `lnwjud-mcp-stdio`.
+installation is not required for the packaged Desktop app or the canonical `nexuspilot-mcp-stdio` launcher. The legacy `lnwjud-mcp-stdio` alias remains available during migration.
 
 ## Permissions
 
@@ -54,7 +54,7 @@ For local MCP clients, use the packaged executable launcher shown in the app's
 MCP panel:
 
 ```text
-/Applications/lnwjud.app/Contents/Resources/lnwjud-mcp-stdio --workspace /path/to/project
+/Applications/NexusPilot.app/Contents/Resources/nexuspilot-mcp-stdio --workspace /path/to/project
 ```
 
 The launcher invokes the packaged Electron host with `--mcp-stdio`, preserves
@@ -65,7 +65,7 @@ For ChatGPT Secure MCP Tunnel:
 
 1. Create/authorize the Platform tunnel and runtime key using OpenAI's tunnel
    permissions.
-2. In lnwjud Settings, leave the `tunnel-client` override empty so the
+2. In NexusPilot Settings, leave the `tunnel-client` override empty so the
    verified bundled client is selected.
 3. Save the runtime key through the UI. It is stored using macOS secure
    storage; it is never written to a profile, argv, logs, or environment dump.
@@ -75,7 +75,7 @@ For ChatGPT Secure MCP Tunnel:
 The official release source is the
 [OpenAI tunnel-client release page](https://github.com/openai/tunnel-client/releases).
 If the target asset is absent or its hash/version check fails, tunnel readiness
-is dependency-gated and lnwjud does not use an unverified system binary.
+is dependency-gated and NexusPilot does not use an unverified system binary.
 
 ## What is intentionally not available
 

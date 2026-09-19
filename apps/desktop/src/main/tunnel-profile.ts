@@ -5,8 +5,8 @@ import path from 'node:path';
 // Tunnel itself targets the live Desktop loopback HTTP MCP so the host-selected
 // Active Project and native exact-action approval remain authoritative.
 const COMMAND_LINE = /(command:\s*)"[^"]*"/i;
-const PACKAGED_EXECUTABLE = 'lnwjud.exe';
-const PACKAGED_STDIO_LAUNCHER = 'lnwjud-mcp-stdio.cmd';
+const PACKAGED_EXECUTABLES = new Set(['nexuspilot.exe', 'lnwjud.exe']);
+const PACKAGED_STDIO_LAUNCHERS = new Set(['nexuspilot-mcp-stdio.cmd', 'lnwjud-mcp-stdio.cmd']);
 const RUNTIME_API_KEY_REF = 'env:CONTROL_PLANE_API_KEY';
 
 export function posixPath(filePath: string): string {
@@ -165,20 +165,20 @@ export function resolveStdioLauncherPath(candidates: readonly string[]): string 
  * This helper is for direct local stdio integrations only. Secure Tunnel uses the
  * Desktop loopback HTTP MCP and never spawns this launcher.
  *
- * An installed lnwjud.exe must never fall back to a launcher from a developer
- * repository. Installed builds accept only a canonical launcher beside
- * lnwjud.exe or inside that installation's canonical resources directory.
+ * An installed NexusPilot/lnwjud executable must never fall back to a launcher
+ * from a developer repository. Installed builds accept only canonical or bounded
+ * legacy launchers beside the executable or inside its canonical resources directory.
  * Junction or symlink escapes fail closed.
  */
 export function preferredTunnelMcpCommand(execPath: string, cmdFallback: string | null): string | null {
   if (cmdFallback === null) return null;
-  if (path.win32.basename(execPath).toLowerCase() !== PACKAGED_EXECUTABLE) return cmdFallback;
+  if (!PACKAGED_EXECUTABLES.has(path.win32.basename(execPath).toLowerCase())) return cmdFallback;
   if (!existsSync(execPath) || !existsSync(cmdFallback)) return null;
 
   try {
     const installDirectory = realpathSync.native(path.dirname(execPath));
     const launcher = realpathSync.native(cmdFallback);
-    if (path.win32.basename(launcher).toLowerCase() !== PACKAGED_STDIO_LAUNCHER) return null;
+    if (!PACKAGED_STDIO_LAUNCHERS.has(path.win32.basename(launcher).toLowerCase())) return null;
 
     const launcherDirectory = realpathSync.native(path.dirname(launcher));
     if (sameWindowsPath(launcherDirectory, installDirectory)) return launcher;
@@ -195,14 +195,17 @@ export function preferredTunnelMcpCommand(execPath: string, cmdFallback: string 
 
 export function packagedStdioLauncherCandidates(execPath: string, resourcesPath?: string, platform: NodeJS.Platform = process.platform): string[] {
   const execDir = path.dirname(execPath);
-  const launcher = platform === 'win32' ? 'lnwjud-mcp-stdio.cmd' : 'lnwjud-mcp-stdio';
-  const candidates = [
-    path.join(execDir, launcher),
-    path.join(execDir, 'resources', launcher),
-  ];
-  if (platform === 'darwin') candidates.push(path.join(execDir, '..', 'Resources', launcher));
-  if (typeof resourcesPath === 'string' && resourcesPath.trim().length > 0) {
-    candidates.push(path.join(resourcesPath, launcher));
+  const launchers = platform === 'win32'
+    ? ['nexuspilot-mcp-stdio.cmd', 'lnwjud-mcp-stdio.cmd']
+    : ['nexuspilot-mcp-stdio', 'lnwjud-mcp-stdio'];
+  const candidates: string[] = [];
+  for (const launcher of launchers) {
+    candidates.push(path.join(execDir, launcher));
+    candidates.push(path.join(execDir, 'resources', launcher));
+    if (platform === 'darwin') candidates.push(path.join(execDir, '..', 'Resources', launcher));
+    if (typeof resourcesPath === 'string' && resourcesPath.trim().length > 0) {
+      candidates.push(path.join(resourcesPath, launcher));
+    }
   }
   return candidates;
 }

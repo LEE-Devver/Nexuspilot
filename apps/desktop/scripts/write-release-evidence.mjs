@@ -45,12 +45,12 @@ for (const name of artifactNames) {
 
 const provenance = {
   schemaVersion: 1,
-  product: 'lnwjud',
+  product: 'nexuspilot',
   version,
   platform,
   arch: runtimeEvidence.arch,
   source: {
-    repository: 'https://github.com/engasnm111/lnwjud',
+    repository: process.env.GITHUB_REPOSITORY?.trim() ? `https://github.com/${process.env.GITHUB_REPOSITORY.trim()}` : null,
     commit,
     dirty,
   },
@@ -80,7 +80,7 @@ const sumLines = [
 ];
 await writeFile(path.join(installerDirectory, 'SHA256SUMS.txt'), `${sumLines.join('\n')}\n`, 'utf8');
 
-process.stdout.write(`Release evidence written for lnwjud ${version} ${platform}/${String(runtimeEvidence.arch)} commit ${commit}${dirty ? ' (dirty)' : ''}\n`);
+process.stdout.write(`Release evidence written for NexusPilot ${version} ${platform}/${String(runtimeEvidence.arch)} commit ${commit}${dirty ? ' (dirty)' : ''}\n`);
 
 function normalizePlatform(value) {
   if (value === 'win32' || value === 'darwin' || value === 'linux') return value;
@@ -89,20 +89,20 @@ function normalizePlatform(value) {
 
 function expectedArtifactNames(platformName, releaseVersion, releaseArch) {
   if (platformName === 'win32') return [
-    `lnwjud-Setup-${releaseVersion}.exe`,
-    `lnwjud-Setup-${releaseVersion}.exe.blockmap`,
-    `lnwjud-Portable-${releaseVersion}.exe`,
+    `NexusPilot-Setup-${releaseVersion}.exe`,
+    `NexusPilot-Setup-${releaseVersion}.exe.blockmap`,
+    `NexusPilot-Portable-${releaseVersion}.exe`,
     'latest.yml',
     'portable.yml',
   ];
   if (platformName === 'darwin') return [
-    `lnwjud-${releaseVersion}-${normalizeArtifactArch(releaseArch)}.dmg`,
-    `lnwjud-${releaseVersion}-${normalizeArtifactArch(releaseArch)}.zip`,
+    `NexusPilot-${releaseVersion}-${normalizeArtifactArch(releaseArch)}.dmg`,
+    `NexusPilot-${releaseVersion}-${normalizeArtifactArch(releaseArch)}.zip`,
     'latest-mac.yml',
   ];
   return [
-    `lnwjud-${releaseVersion}-${normalizeArtifactArch(releaseArch)}.AppImage`,
-    `lnwjud-${releaseVersion}-${normalizeArtifactArch(releaseArch)}.deb`,
+    `NexusPilot-${releaseVersion}-${normalizeArtifactArch(releaseArch)}.AppImage`,
+    `NexusPilot-${releaseVersion}-${normalizeArtifactArch(releaseArch)}.deb`,
     releaseArch === 'x64' ? 'latest-linux.yml' : `latest-linux-${normalizeArtifactArch(releaseArch)}.yml`,
   ];
 }
@@ -134,7 +134,7 @@ function validateMacSigning(evidence) {
     || signing.mode !== 'certificate' && signing.certificateSha1 !== undefined) {
     throw new Error('Packaged macOS signing evidence is missing or invalid');
   }
-  const rootExecutable = evidence.files.find((entry) => entry?.relativePath === 'Contents/MacOS/lnwjud');
+  const rootExecutable = evidence.files.find((entry) => entry?.relativePath === 'Contents/MacOS/NexusPilot');
   validateMacosSigningPolicyEvidence(signing.policy, {
     mode: signing.mode,
     arch: evidence.arch,

@@ -59,12 +59,12 @@ case "$artifact" in
     hdiutil verify "$artifact" >/dev/null
     mount_point="$(mktemp -d "$temporary_root_real/lnwjud-macos-verify.XXXXXX")"
     device="$(hdiutil attach -nobrowse -readonly -mountpoint "$mount_point" "$artifact" | awk 'END { print $1 }')"
-    app_path="$(find "$mount_point" -maxdepth 2 -name 'lnwjud.app' -type d -print -quit)"
+    app_path="$(find "$mount_point" -maxdepth 2 -name 'NexusPilot.app' -type d -print -quit)"
     ;;
   *.zip)
     mount_point="$(mktemp -d "$temporary_root_real/lnwjud-macos-verify.XXXXXX")"
     ditto -x -k "$artifact" "$mount_point"
-    app_path="$(find "$mount_point" -maxdepth 3 -name 'lnwjud.app' -type d -print -quit)"
+    app_path="$(find "$mount_point" -maxdepth 3 -name 'NexusPilot.app' -type d -print -quit)"
     ;;
   *)
     echo "expected a .dmg or .zip macOS artifact" >&2
@@ -73,10 +73,11 @@ case "$artifact" in
 esac
 
 if [[ -z "${app_path:-}" || ! -d "$app_path" || -L "$app_path" ]]; then
-  echo "lnwjud.app was not found in the artifact" >&2
+  echo "NexusPilot.app was not found in the artifact" >&2
   exit 1
 fi
-require_regular_executable "$app_path/Contents/MacOS/lnwjud"
+require_regular_executable "$app_path/Contents/MacOS/NexusPilot"
+require_regular_executable "$app_path/Contents/Resources/nexuspilot-mcp-stdio"
 require_regular_executable "$app_path/Contents/Resources/lnwjud-mcp-stdio"
 require_regular_executable "$app_path/Contents/Resources/runtime-tools/ripgrep/rg"
 require_regular_executable "$app_path/Contents/Resources/tunnel-client/tunnel-client"

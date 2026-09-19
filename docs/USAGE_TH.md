@@ -29,7 +29,7 @@ Outlook/COM ยังคงเป็น Windows-only และจะรายง
 สำหรับ v4.11.0 ตัวโปรแกรมแยก compatibility profile ตามระบบ: Windows 10 x64 ใช้ software rendering เป็นค่าเริ่มต้นเพื่อลดปัญหาหน้าจอ Electron/Chromium ค้าง, วาดไม่ครบ หรือบาง control กดไม่ได้บน GPU/driver รุ่นเก่า ส่วน Windows 11 x64 ยังใช้ hardware acceleration ตามปกติ
 
 งานภายในโปรแกรมที่ต้องเรียก PowerShell ใช้ `powershell.exe` ที่มากับ Windows ไม่บังคับให้ติดตั้ง PowerShell 7 และ child process ภายในถูกเปิดแบบซ่อนหน้าต่าง console. ระบบยังจำกัด durable background task พร้อมกันไว้ 16 งาน และ managed process พร้อมกันไว้ 24 งาน เพื่อกันกรณีหลายแชทสั่งงานพร้อมกันจนเกิด `conhost.exe` จำนวนมาก/CPU เต็ม
-- public release ล่าสุด `lnwjud-Setup-5.2.2.exe` หรือ `lnwjud-Portable-5.2.2.exe`
+- NexusPilot build ปัจจุบันใช้ artifact ชื่อ `NexusPilot-Setup-5.2.2.exe` หรือ `NexusPilot-Portable-5.2.2.exe`; public NexusPilot release ยังไม่ได้ประกาศ
 - OpenAI Platform tunnel ที่ผูกกับ ChatGPT workspace ที่จะใช้
 - Credential ตามโหมดที่เลือก: **OAuth** เมื่อ provider รองรับ Tunnel provisioning หรือ **Runtime API key** ที่มีสิทธิ์ **Tunnels Read + Use** สำหรับโหมดเดิม/สำรอง
 - อินเทอร์เน็ตขาออก HTTPS สำหรับ Secure MCP Tunnel
@@ -49,21 +49,21 @@ Node.js, pnpm และ Git จำเป็นเฉพาะกรณีพั�
 
 ### แบบแนะนำ: Installer
 
-1. ดาวน์โหลด public release ล่าสุด `lnwjud-Setup-5.2.2.exe` จาก GitHub Releases
+1. ใช้ NexusPilot installer `NexusPilot-Setup-5.2.2.exe` จาก release/build ที่ได้รับการยืนยันแล้ว
 2. ติดตั้งตามปกติ
-3. เปิด **lnwjud Agent Control Center**
+3. เปิด **NexusPilot Agent Control Center**
 4. เพิ่ม Project/Workspace ที่ต้องการใช้งาน
 5. ถ้าทำงานพร้อมกันหลายแชท/หลายโปรเจกต์ ให้ตั้ง Active Projects ได้มากกว่า 1 โปรเจกต์ และเลือก Primary Project สำหรับงานที่ต้องมีค่า default
 
 ### แบบไม่ต้องติดตั้ง: Portable EXE
 
-1. ดาวน์โหลด public release ล่าสุด `lnwjud-Portable-5.2.2.exe`
+1. ใช้ NexusPilot portable `NexusPilot-Portable-5.2.2.exe` จาก release/build ที่ได้รับการยืนยันแล้ว
 2. วางไว้ในโฟลเดอร์ที่ต้องการแล้วเปิดไฟล์ได้ทันที ไม่ต้องรัน installer
 3. เพิ่ม Project/Workspace และตั้ง Tunnel เหมือนเวอร์ชันติดตั้ง
 
-Portable ของ lnwjud หมายถึง **ตัวโปรแกรมเปิดได้โดยไม่ต้องติดตั้ง** แต่ตั้งใจใช้ข้อมูล/Settings ต่อผู้ใช้ Windows ชุดเดียวกับตัวติดตั้ง จึงไม่ใช่โหมดที่เก็บ database/settings ทุกอย่างไว้ข้างไฟล์ EXE ถ้าเคยใช้ตัวติดตั้งใน Windows account เดียวกัน Portable จะเห็นการตั้งค่าชุดเดียวกัน
+Portable ของ NexusPilot หมายถึง **ตัวโปรแกรมเปิดได้โดยไม่ต้องติดตั้ง** แต่ตั้งใจใช้ข้อมูล/Settings ต่อผู้ใช้ Windows ชุดเดียวกับตัวติดตั้ง จึงไม่ใช่โหมดที่เก็บ database/settings ทุกอย่างไว้ข้างไฟล์ EXE ถ้าเคยใช้ตัวติดตั้งใน Windows account เดียวกัน Portable จะเห็นการตั้งค่าชุดเดียวกัน
 
-ทั้ง Installer และ Portable รวม `tunnel-client` target-native ไว้ใน package โดย lnwjud จะเลือก path ภายใน package เองเมื่อช่อง Tunnel Client Override ว่าง
+ทั้ง Installer และ Portable รวม `tunnel-client` target-native ไว้ใน package โดย NexusPilot จะเลือก path ภายใน package เองเมื่อช่อง Tunnel Client Override ว่าง
 
 ### เปิดครั้งแรกและยังไม่มี Project
 
@@ -71,8 +71,8 @@ Portable ของ lnwjud หมายถึง **ตัวโปรแกรม
 
 ### Auto Update แยกตามชนิดที่ใช้อยู่
 
-- ถ้ากำลังใช้ **Installer** โปรแกรมจะอ่าน `latest.yml` และดาวน์โหลด/ติดตั้ง `lnwjud-Setup-<version>.exe` รุ่นใหม่
-- ถ้ากำลังใช้ **Portable** โปรแกรมจะอ่าน `portable.yml` และดาวน์โหลด `lnwjud-Portable-<version>.exe` รุ่นใหม่เท่านั้น
+- ถ้ากำลังใช้ **Installer** โปรแกรมจะอ่าน `latest.yml` และดาวน์โหลด/ติดตั้ง `NexusPilot-Setup-<version>.exe` รุ่นใหม่
+- ถ้ากำลังใช้ **Portable** โปรแกรมจะอ่าน `portable.yml` และดาวน์โหลด `NexusPilot-Portable-<version>.exe` รุ่นใหม่เท่านั้น
 - macOS ใช้ `latest-mac.yml` ซึ่งรวม zip ของ Intel และ Apple silicon แล้วเลือกไฟล์ตามสถาปัตยกรรมของเครื่อง
 - Linux AppImage ใช้ `latest-linux.yml` สำหรับ x64 และ `latest-linux-arm64.yml` สำหรับ arm64; DEB ยังคงให้ package manager จัดการ
 - Portable updater จะรอให้โปรแกรมเดิมปิด, สำรอง EXE เดิม, วาง EXE ใหม่ทับ **path เดิมที่ผู้ใช้เปิดอยู่**, เปิดโปรแกรมใหม่ และ rollback กลับ EXE เดิมถ้าการ replace ล้มเหลว
@@ -344,8 +344,8 @@ corepack pnpm@10.15.0 package:windows
 ไฟล์ที่ได้จะอยู่ที่:
 
 ```text
-apps/desktop/dist/installers/lnwjud-Setup-5.2.2.exe
-apps/desktop/dist/installers/lnwjud-Portable-5.2.2.exe
+apps/desktop/dist/installers/NexusPilot-Setup-5.2.2.exe
+apps/desktop/dist/installers/NexusPilot-Portable-5.2.2.exe
 apps/desktop/dist/installers/latest.yml
 apps/desktop/dist/installers/portable.yml
 ```

@@ -31,8 +31,8 @@ Signing reduces Unknown publisher/reputation problems but does not guarantee tha
 
 Every Windows package build produces:
 
-- `lnwjud-Setup-<version>.exe`
-- `lnwjud-Portable-<version>.exe`
+- `NexusPilot-Setup-<version>.exe`
+- `NexusPilot-Portable-<version>.exe`
 - `latest.yml`
 - `portable.yml`
 - Setup blockmap
@@ -41,8 +41,9 @@ Every Windows package build produces:
 
 `PROVENANCE.json` records the exact source commit and hashes/sizes for the distributed Setup/Portable artifacts plus critical installed runtime files, including:
 
-- `lnwjud.exe`
-- `lnwjud-mcp-stdio.cmd`
+- `NexusPilot.exe`
+- `nexuspilot-mcp-stdio.cmd`
+- `lnwjud-mcp-stdio.cmd` (temporary compatibility alias)
 - `windows-secret-migrator/lnwjud-windows-secret-migrator.exe`
 - bundled `rg.exe`
 - bundled `tunnel-client.exe`

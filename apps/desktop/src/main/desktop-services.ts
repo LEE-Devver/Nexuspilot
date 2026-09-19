@@ -2032,9 +2032,10 @@ function buildConnectionModes(input: {
   readonly fullBypassAll: boolean;
 }): ConnectionModes {
   const isWindows = process.platform === 'win32';
-  const launcherName = isWindows ? 'lnwjud-mcp-stdio.cmd' : 'lnwjud-mcp-stdio';
-  const executableName = isWindows ? path.win32.basename(process.execPath).toLowerCase() : path.basename(process.execPath);
-  const launcher = executableName === (isWindows ? 'lnwjud.exe' : 'lnwjud')
+  const launcherName = isWindows ? 'nexuspilot-mcp-stdio.cmd' : 'nexuspilot-mcp-stdio';
+  const executableName = (isWindows ? path.win32.basename(process.execPath) : path.basename(process.execPath)).toLowerCase();
+  const packagedExecutableNames = isWindows ? new Set(['nexuspilot.exe', 'lnwjud.exe']) : new Set(['nexuspilot', 'lnwjud']);
+  const launcher = packagedExecutableNames.has(executableName)
     ? path.join(path.dirname(process.execPath), ...(process.platform === 'darwin' ? ['..', 'Resources'] : []), launcherName)
     : launcherName;
   const args = [quoteCommandArgument(launcher)];
