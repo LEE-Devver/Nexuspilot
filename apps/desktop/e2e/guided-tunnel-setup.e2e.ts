@@ -55,10 +55,10 @@ test('Set up later closes Tips and the Home recovery entry reopens Secure Tunnel
 
 async function ensureThaiLocale(page: Page): Promise<void> {
   await page.evaluate(async () => {
-    await window.lnwjud.setLocale({ locale: 'th' });
+    await window.nexusPilot.setLocale({ locale: 'th' });
   });
   await expect.poll(async () => page.evaluate(async () => (
-    await window.lnwjud.getDashboard()
+    await window.nexusPilot.getDashboard()
   ).locale), { timeout: 15_000, intervals: [100, 250, 500] }).toBe('th');
 }
 

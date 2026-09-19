@@ -14,8 +14,8 @@ describe('titlebar update notification', () => {
     expect(shell).toContain('onClick={props.onUpdateAction}');
     expect(shell).toContain("status.phase === 'ready'");
     expect(shell).toContain("status.phase === 'downloading'");
-    expect(app).toContain('window.lnwjud.onUpdateStatus');
-    expect(app).toContain('window.lnwjud.installUpdate()');
+    expect(app).toContain('window.nexusPilot.onUpdateStatus');
+    expect(app).toContain('window.nexusPilot.installUpdate()');
     expect(app).toContain("updateStatus?.phase === 'installing'");
     expect(app).toContain('updateInstallTransitionRef.current');
     expect(app).toContain('refreshBusyRef.current || updateInstallTransitionRef.current');

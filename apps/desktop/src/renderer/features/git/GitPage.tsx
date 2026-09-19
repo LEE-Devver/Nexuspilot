@@ -46,7 +46,7 @@ export function GitPage({
     setSelectedStaged(staged);
     setDiffData({ patch: '', loading: true });
     try {
-      const res = await window.lnwjud.getGitDiff({
+      const res = await window.nexusPilot.getGitDiff({
         workspaceId: selectedWorkspace.id,
         path: entry.path,
         staged,

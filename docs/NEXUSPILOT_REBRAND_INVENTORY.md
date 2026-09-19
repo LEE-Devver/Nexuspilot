@@ -264,18 +264,18 @@ Legacy aliases should be documented, tested, and eventually removable rather tha
 - Stage 1 — visible branding: complete
 - Stage 2 — internal package namespace: complete (`@nexuspilot/*`, root package `nexuspilot`)
 - Stage 3 — compatibility and persistence scaffolding: complete (NexusPilot-first env compatibility with bounded lnwjud fallback; persisted defaults intentionally unchanged)
-- Stage 4 — desktop internal API / IPC migration: next
+- Stage 4 — desktop internal API / IPC migration: complete (`window.nexusPilot`, `nexuspilot:*`; temporary `window.lnwjud` preload alias retained)
+- Stage 5 — product runtime identity: next
 
 ## Immediate next implementation step
-Start Stage 4 desktop internal API / IPC migration. Make `window.nexusPilot` and `nexuspilot:*` the canonical internal desktop identities, with a temporary compatibility alias only where mixed-version preload/renderer behavior requires it. Do not rename executable/installer names, MCP runtime identity, persisted paths, tunnel profile/runtime aliases, or native-host names yet.
+Start Stage 5 product runtime identity migration. Update MCP/CLI product metadata and current runtime identity surfaces to NexusPilot while explicitly preserving legacy recognition where existing clients, launchers, tunnel profiles, or upgrade probes still require it. Do not rename executable/installer artifacts, default persisted paths, tunnel profile/runtime aliases, or native-host filenames yet.
 
-The following identities remain intentionally untouched until their later stages:
-- `LNWJUD_*`
-- `.lnwjud`
-- `window.lnwjud`
-- `lnwjud:*` IPC channels
+The following compatibility/runtime identities remain intentionally preserved until their later stages:
+- bounded `LNWJUD_*` environment fallbacks / dual-writes
+- `.lnwjud` persisted workspace metadata
+- deprecated `window.lnwjud` preload alias
 - executable / installer names
-- MCP runtime identity
+- MCP external runtime identity where Stage 5 has not migrated it yet
 - native-host names
 - tunnel profile compatibility names
 - historical documents

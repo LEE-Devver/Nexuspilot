@@ -38,15 +38,15 @@ export function StandaloneLogViewer(): ReactElement {
       logFlushTimer.current = window.setTimeout(flushPendingLogLines, 40);
     }
   }, [flushPendingLogLines]);
-  const resolveTargetDetail = useCallback(async (detailRef: string) => (await window.lnwjud.resolveActivityTargetDetail({ detailRef })).detail, []);
+  const resolveTargetDetail = useCallback(async (detailRef: string) => (await window.nexusPilot.resolveActivityTargetDetail({ detailRef })).detail, []);
   const searchTargetDetails = useCallback(async (
     query: string,
     candidates: readonly { readonly id: string; readonly detailRef: string | null }[],
-  ) => (await window.lnwjud.searchActivityTargetDetails({ query, candidates })).matchingIds, []);
+  ) => (await window.nexusPilot.searchActivityTargetDetails({ query, candidates })).matchingIds, []);
 
   useEffect(() => {
     let disposed = false;
-    void window.lnwjud.getLogSnapshot().then((snapshot) => {
+    void window.nexusPilot.getLogSnapshot().then((snapshot) => {
       if (disposed) return;
       setLines((previous) => {
         const merged = applyLogSnapshot(previous, logIds.current, snapshot.lines, MAX_CLIENT_LOG_LINES);
@@ -57,15 +57,15 @@ export function StandaloneLogViewer(): ReactElement {
       setTunnelLogExists(snapshot.tunnelLogExists);
       setTunnelAuth(snapshot.tunnelAuth);
     }).catch(() => undefined);
-    void window.lnwjud.listWorkspaces().then((nextWorkspaces) => {
+    void window.nexusPilot.listWorkspaces().then((nextWorkspaces) => {
       if (!disposed) setWorkspaces(nextWorkspaces);
     }).catch(() => undefined);
-    void window.lnwjud.getDashboard().then((dashboard) => {
+    void window.nexusPilot.getDashboard().then((dashboard) => {
       if (disposed) return;
       setLocale(dashboard.locale);
       setHostPlatform(dashboard.hostPlatform);
     }).catch(() => undefined);
-    const unsubscribe = window.lnwjud.onLogEvent((line) => {
+    const unsubscribe = window.nexusPilot.onLogEvent((line) => {
       appendLine(line);
       if (line.source === 'tunnel') setTunnelLogExists(true);
     });
@@ -86,13 +86,13 @@ export function StandaloneLogViewer(): ReactElement {
       ...(scope.workspaceId === null ? {} : { workspaceId: scope.workspaceId }),
       ...(scope.sessionId === null ? {} : { sessionId: scope.sessionId }),
     };
-    await window.lnwjud.clearLogBuffer(request).catch(() => undefined);
+    await window.nexusPilot.clearLogBuffer(request).catch(() => undefined);
     pendingLogLines.current = pendingLogLines.current.filter((line) => line.source !== source || !lineMatchesScope(line, scope, workspaces));
     setLines((previous) => previous.filter((line) => line.source !== source || !lineMatchesScope(line, scope, workspaces)));
   }
 
   async function clearAll(): Promise<void> {
-    await Promise.all(sources.map((source) => window.lnwjud.clearLogBuffer({ source }).catch(() => undefined)));
+    await Promise.all(sources.map((source) => window.nexusPilot.clearLogBuffer({ source }).catch(() => undefined)));
     if (logFlushTimer.current !== null) {
       window.clearTimeout(logFlushTimer.current);
       logFlushTimer.current = null;
@@ -103,7 +103,7 @@ export function StandaloneLogViewer(): ReactElement {
   }
 
   async function exportLogs(source: LogSource, scope: LogScopeSelection, query: string, lines: readonly LiveLogExportReference[]): Promise<void> {
-    await window.lnwjud.exportLogs({
+    await window.nexusPilot.exportLogs({
       source,
       filePath: '',
       locale,

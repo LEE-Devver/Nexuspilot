@@ -14,11 +14,11 @@ interface WorkLogPageProps {
 export function WorkLogPage(props: WorkLogPageProps): ReactElement {
   const t = createTranslator(props.locale);
   const [filter, setFilter] = useState<WorkLogFilter>('all');
-  const resolveTargetDetail = useCallback(async (detailRef: string) => (await window.lnwjud.resolveActivityTargetDetail({ detailRef })).detail, []);
+  const resolveTargetDetail = useCallback(async (detailRef: string) => (await window.nexusPilot.resolveActivityTargetDetail({ detailRef })).detail, []);
   const searchTargetDetails = useCallback(async (
     query: string,
     candidates: readonly { readonly id: string; readonly detailRef: string | null }[],
-  ) => (await window.lnwjud.searchActivityTargetDetails({ query, candidates })).matchingIds, []);
+  ) => (await window.nexusPilot.searchActivityTargetDetails({ query, candidates })).matchingIds, []);
   return (
     <div className="page-content viewport-list-page worklog-page">
       <WorkLogPanel

@@ -110,13 +110,13 @@ export function App(): ReactElement {
 
   useEffect(() => {
     let disposed = false;
-    void window.lnwjud.getUpdateStatus().then((status) => {
+    void window.nexusPilot.getUpdateStatus().then((status) => {
       if (!disposed) {
         updateInstallTransitionRef.current = status.phase === 'installing';
         setUpdateStatus(status);
       }
     }).catch(() => undefined);
-    const unsubscribe = window.lnwjud.onUpdateStatus((status) => {
+    const unsubscribe = window.nexusPilot.onUpdateStatus((status) => {
       if (!disposed) {
         updateInstallTransitionRef.current = status.phase === 'installing';
         setUpdateStatus(status);
@@ -130,7 +130,7 @@ export function App(): ReactElement {
 
   useEffect(() => {
     let disposed = false;
-    void window.lnwjud.getLogSnapshot().then((snapshot) => {
+    void window.nexusPilot.getLogSnapshot().then((snapshot) => {
       if (disposed) return;
       setLogLines((previous) => {
         const merged = applyLogSnapshot(previous, logIds.current, snapshot.lines, MAX_CLIENT_LOG_LINES);
@@ -140,7 +140,7 @@ export function App(): ReactElement {
       setTunnelLogPath(snapshot.tunnelLogPath);
       setTunnelLogExists(snapshot.tunnelLogExists);
     }).catch(() => undefined);
-    const unsubscribe = window.lnwjud.onLogEvent((line) => {
+    const unsubscribe = window.nexusPilot.onLogEvent((line) => {
       appendLogLine(line);
       if (line.source === 'tunnel') setTunnelLogExists(true);
     });
@@ -157,7 +157,7 @@ export function App(): ReactElement {
 
   async function clearLogSource(source: LogSource, scope: LogScopeSelection): Promise<void> {
     try {
-      await window.lnwjud.clearLogBuffer({
+      await window.nexusPilot.clearLogBuffer({
         source,
         ...(scope.workspaceId === null ? {} : { workspaceId: scope.workspaceId }),
         ...(scope.sessionId === null ? {} : { sessionId: scope.sessionId }),
@@ -171,7 +171,7 @@ export function App(): ReactElement {
 
   async function clearAllLogs(): Promise<void> {
     try {
-      await Promise.all((['tunnel', 'mcp', 'process'] as const).map((source) => window.lnwjud.clearLogBuffer({ source })));
+      await Promise.all((['tunnel', 'mcp', 'process'] as const).map((source) => window.nexusPilot.clearLogBuffer({ source })));
       if (logFlushTimer.current !== null) {
         window.clearTimeout(logFlushTimer.current);
         logFlushTimer.current = null;
@@ -186,7 +186,7 @@ export function App(): ReactElement {
 
   async function exportLogSource(source: LogSource, scope: LogScopeSelection, query: string, lines: readonly LiveLogExportReference[]): Promise<void> {
     try {
-      await window.lnwjud.exportLogs({
+      await window.nexusPilot.exportLogs({
         source,
         filePath: '',
         locale,
@@ -202,7 +202,7 @@ export function App(): ReactElement {
 
   async function popOutLogViewer(): Promise<void> {
     try {
-      await window.lnwjud.openLogViewer();
+      await window.nexusPilot.openLogViewer();
     } catch (cause: unknown) {
       setError(errorMessage(cause, t('error.logViewerOpen')));
     }
@@ -213,7 +213,7 @@ export function App(): ReactElement {
     incidentBusyRef.current = true;
     setIncidentBusy(true);
     try {
-      const result = await window.lnwjud.captureIncident();
+      const result = await window.nexusPilot.captureIncident();
       if (result.exported && !result.cancelled) {
         setIncidentClassification(result.classification);
         setIncidentCapturedAt(result.capturedAt);
@@ -234,8 +234,8 @@ export function App(): ReactElement {
     refreshBusyRef.current = true;
     try {
       const [dashboardResult, workspacesResult] = await Promise.allSettled([
-        window.lnwjud.getDashboard(),
-        window.lnwjud.listWorkspaces(),
+        window.nexusPilot.getDashboard(),
+        window.nexusPilot.listWorkspaces(),
       ]);
       const failures: string[] = [];
       if (dashboardResult.status === 'fulfilled') {
@@ -273,7 +273,7 @@ export function App(): ReactElement {
     }
     let disposed = false;
     setPonytailPolicyBusy(true);
-    void window.lnwjud.getPonytailPolicyContext({ workspaceId: selectedWorkspaceId }).then((context) => {
+    void window.nexusPilot.getPonytailPolicyContext({ workspaceId: selectedWorkspaceId }).then((context) => {
       if (disposed) return;
       setPonytailPolicyContext(context);
       setPonytailPolicyError(null);
@@ -319,8 +319,8 @@ export function App(): ReactElement {
 
     setStartupDoctorReady(false);
     void Promise.all([
-      window.lnwjud.runDoctor(),
-      window.lnwjud.getToolCatalog({ locale }),
+      window.nexusPilot.runDoctor(),
+      window.nexusPilot.getToolCatalog({ locale }),
     ]).then(([report, catalog]) => {
       setDoctor(report);
       setToolCatalog(catalog);
@@ -373,19 +373,19 @@ export function App(): ReactElement {
   }
 
   async function openExternalSetupPage(target: ExternalSetupTarget): Promise<void> {
-    await window.lnwjud.openExternalSetupPage({ target });
+    await window.nexusPilot.openExternalSetupPage({ target });
   }
 
   async function handleUpdateAction(): Promise<void> {
     try {
       if (updateStatus?.canInstall === true) {
         updateInstallTransitionRef.current = true;
-        const result = await window.lnwjud.installUpdate();
+        const result = await window.nexusPilot.installUpdate();
         updateInstallTransitionRef.current = result.status.phase === 'installing';
         setUpdateStatus(result.status);
         return;
       }
-      setUpdateStatus(await window.lnwjud.checkForUpdates());
+      setUpdateStatus(await window.nexusPilot.checkForUpdates());
     } catch (cause: unknown) {
       updateInstallTransitionRef.current = false;
       setError(errorMessage(cause, locale === 'th' ? 'ไม่สามารถตรวจอัปเดตได้' : 'Unable to check for updates'));
@@ -395,7 +395,7 @@ export function App(): ReactElement {
   async function addWorkspace(rootPath: string): Promise<boolean> {
     setError(null);
     try {
-      await window.lnwjud.addWorkspace({ rootPath });
+      await window.nexusPilot.addWorkspace({ rootPath });
       await refresh();
       await runDoctor();
       return true;
@@ -408,7 +408,7 @@ export function App(): ReactElement {
   async function selectWorkspace(workspaceId: string): Promise<void> {
     try {
       setMcpBusy(true);
-      await window.lnwjud.selectWorkspace({ workspaceId });
+      await window.nexusPilot.selectWorkspace({ workspaceId });
       await refresh();
     } catch (cause: unknown) {
       setError(errorMessage(cause, t('error.workspaceSelect')));
@@ -420,7 +420,7 @@ export function App(): ReactElement {
   async function setWorkspaceActive(workspaceId: string, active: boolean): Promise<void> {
     setError(null);
     try {
-      await window.lnwjud.setWorkspaceActive({ workspaceId, active });
+      await window.nexusPilot.setWorkspaceActive({ workspaceId, active });
       await refresh();
     } catch (cause: unknown) {
       setError(errorMessage(cause, propsText(locale, 'ไม่สามารถเปลี่ยน Active Project ได้', 'Could not change Active Project')));
@@ -431,7 +431,7 @@ export function App(): ReactElement {
   async function setWorkspaceArchived(workspaceId: string, archived: boolean): Promise<void> {
     setError(null);
     try {
-      await window.lnwjud.setWorkspaceArchived({ workspaceId, archived });
+      await window.nexusPilot.setWorkspaceArchived({ workspaceId, archived });
       await refresh();
     } catch (cause: unknown) {
       setError(errorMessage(cause, t('error.workspaceArchive')));
@@ -442,7 +442,7 @@ export function App(): ReactElement {
   async function deleteWorkspace(workspaceId: string): Promise<void> {
     setError(null);
     try {
-      await window.lnwjud.deleteWorkspace({ workspaceId, userConfirmed: true });
+      await window.nexusPilot.deleteWorkspace({ workspaceId, userConfirmed: true });
       await refresh();
     } catch (cause: unknown) {
       setError(errorMessage(cause, t('error.workspaceDelete')));
@@ -452,7 +452,7 @@ export function App(): ReactElement {
 
   async function setPermissionProfile(profile: PermissionProfileName): Promise<void> {
     try {
-      await window.lnwjud.setPermissionProfile({ profile });
+      await window.nexusPilot.setPermissionProfile({ profile });
       await refresh();
     } catch (cause: unknown) {
       setError(errorMessage(cause, t('error.permissionProfileChange')));
@@ -461,7 +461,7 @@ export function App(): ReactElement {
 
   async function setUnrestrictedMode(enabled: boolean): Promise<boolean> {
     try {
-      const result = await window.lnwjud.setUnrestrictedMode({ enabled });
+      const result = await window.nexusPilot.setUnrestrictedMode({ enabled });
       await refresh();
       return result.restartRequired;
     } catch (cause: unknown) {
@@ -472,7 +472,7 @@ export function App(): ReactElement {
 
   async function setDestructiveDeletePolicy(policy: DestructiveDeletePolicy): Promise<void> {
     try {
-      await window.lnwjud.setAiDeletePolicy({ policy });
+      await window.nexusPilot.setAiDeletePolicy({ policy });
       await refresh();
     } catch (cause: unknown) {
       setError(errorMessage(cause, propsText(locale, 'ไม่สามารถเปลี่ยนนโยบายการลบได้', 'Could not change destructive-action policy')));
@@ -481,7 +481,7 @@ export function App(): ReactElement {
 
   async function setStdioPolicy(profile: PermissionProfileName, strictRoots: boolean, allowedRoots: readonly string[]): Promise<boolean> {
     try {
-      const result = await window.lnwjud.setStdioPolicy({ profile, strictRoots, allowedRoots });
+      const result = await window.nexusPilot.setStdioPolicy({ profile, strictRoots, allowedRoots });
       await refresh();
       return result.restartRequired;
     } catch (cause: unknown) {
@@ -493,7 +493,7 @@ export function App(): ReactElement {
   async function stopMcp(): Promise<void> {
     try {
       setMcpBusy(true);
-      await window.lnwjud.stopMcp();
+      await window.nexusPilot.stopMcp();
       await refresh();
     } catch (cause: unknown) {
       setError(errorMessage(cause, t('error.mcpStop')));
@@ -505,7 +505,7 @@ export function App(): ReactElement {
   async function restartMcp(): Promise<void> {
     try {
       setMcpBusy(true);
-      await window.lnwjud.restartMcp();
+      await window.nexusPilot.restartMcp();
       await refresh();
     } catch (cause: unknown) {
       setError(errorMessage(cause, t('error.mcpRestart')));
@@ -516,7 +516,7 @@ export function App(): ReactElement {
 
   async function clearWorkLog(scope: LogScopeSelection): Promise<void> {
     try {
-      await window.lnwjud.clearWorkLog({
+      await window.nexusPilot.clearWorkLog({
         ...(scope.workspaceId === null ? {} : { workspaceId: scope.workspaceId }),
         ...(scope.sessionId === null ? {} : { sessionId: scope.sessionId }),
       });
@@ -528,7 +528,7 @@ export function App(): ReactElement {
 
   async function exportWorkLog(rowIds: readonly string[]): Promise<void> {
     try {
-      await window.lnwjud.exportWorkLog({ rowIds, locale });
+      await window.nexusPilot.exportWorkLog({ rowIds, locale });
     } catch (cause: unknown) {
       setError(errorMessage(cause, t('error.logExport')));
     }
@@ -537,7 +537,7 @@ export function App(): ReactElement {
   async function startTunnelWithStatus(): Promise<TunnelStatus> {
     setTunnelBusy(true);
     try {
-      const status = await window.lnwjud.startTunnel();
+      const status = await window.nexusPilot.startTunnel();
       await refresh();
       return status;
     } finally {
@@ -556,7 +556,7 @@ export function App(): ReactElement {
   async function stopTunnel(): Promise<void> {
     try {
       setTunnelBusy(true);
-      await window.lnwjud.stopTunnel();
+      await window.nexusPilot.stopTunnel();
       await refresh();
     } catch (cause: unknown) {
       setError(errorMessage(cause, t('error.tunnelStop')));
@@ -566,65 +566,65 @@ export function App(): ReactElement {
   }
 
   async function beginTunnelOAuthLogin(): Promise<TunnelOAuthLoginStatus> {
-    return window.lnwjud.beginTunnelOAuthLogin();
+    return window.nexusPilot.beginTunnelOAuthLogin();
   }
 
   async function getTunnelOAuthLoginStatus(): Promise<TunnelOAuthLoginStatus> {
-    return window.lnwjud.getTunnelOAuthLoginStatus();
+    return window.nexusPilot.getTunnelOAuthLoginStatus();
   }
 
   async function cancelTunnelOAuthLogin(): Promise<TunnelOAuthLoginStatus> {
-    return window.lnwjud.cancelTunnelOAuthLogin();
+    return window.nexusPilot.cancelTunnelOAuthLogin();
   }
 
   async function switchTunnelAuthToLegacy(): Promise<TunnelStatus> {
-    const status = await window.lnwjud.switchTunnelAuthToLegacy();
+    const status = await window.nexusPilot.switchTunnelAuthToLegacy();
     await refresh();
     return status;
   }
 
   async function logoutTunnelOAuth(): Promise<TunnelStatus> {
-    const status = await window.lnwjud.logoutTunnelOAuth();
+    const status = await window.nexusPilot.logoutTunnelOAuth();
     await refresh();
     return status;
   }
 
   async function createBackup(): Promise<void> {
-    await window.lnwjud.createBackup();
+    await window.nexusPilot.createBackup();
     await refresh();
   }
 
   async function scheduleRestoreBackup(backupId: string): Promise<boolean> {
-    const result = await window.lnwjud.scheduleRestoreBackup({ backupId });
+    const result = await window.nexusPilot.scheduleRestoreBackup({ backupId });
     await refresh();
     return result.restartRequired;
   }
 
   async function restoreRecoveryItem(workspaceId: string, recoveryId: string): Promise<void> {
-    await window.lnwjud.restoreRecoveryItem({ workspaceId, recoveryId });
+    await window.nexusPilot.restoreRecoveryItem({ workspaceId, recoveryId });
     await refresh();
   }
 
   async function restoreCheckpoint(workspaceId: string, checkpointId: string): Promise<void> {
-    await window.lnwjud.restoreCheckpoint({ workspaceId, checkpointId });
+    await window.nexusPilot.restoreCheckpoint({ workspaceId, checkpointId });
     await refresh();
   }
 
   async function saveTunnelApiKey(apiKey: string): Promise<void> {
-    await window.lnwjud.saveTunnelApiKey({ apiKey });
+    await window.nexusPilot.saveTunnelApiKey({ apiKey });
     await refresh();
   }
 
   async function setTunnelClientPath(clientPath: string): Promise<void> {
-    await window.lnwjud.setTunnelClientPath({ clientPath });
+    await window.nexusPilot.setTunnelClientPath({ clientPath });
     await refresh();
   }
 
   async function changeLocale(next: UiLocale): Promise<void> {
-    await window.lnwjud.setLocale({ locale: next });
+    await window.nexusPilot.setLocale({ locale: next });
     setLocale(next);
-    const catalogPromise = screen === 'tools' || screen === 'doctor' ? window.lnwjud.getToolCatalog({ locale: next }) : null;
-    const doctorPromise = screen === 'doctor' ? window.lnwjud.runDoctor() : null;
+    const catalogPromise = screen === 'tools' || screen === 'doctor' ? window.nexusPilot.getToolCatalog({ locale: next }) : null;
+    const doctorPromise = screen === 'doctor' ? window.nexusPilot.runDoctor() : null;
     await refresh();
     if (catalogPromise !== null) setToolCatalog(await catalogPromise);
     if (doctorPromise !== null) setDoctor(await doctorPromise);
@@ -632,7 +632,7 @@ export function App(): ReactElement {
 
   async function setUserSettings(settings: UserSettings): Promise<boolean> {
     try {
-      const result = await window.lnwjud.setUserSettings({ settings });
+      const result = await window.nexusPilot.setUserSettings({ settings });
       await refresh();
       return result.restartRequired;
     } catch (cause: unknown) {
@@ -646,7 +646,7 @@ export function App(): ReactElement {
     setPonytailPolicyBusy(true);
     setPonytailPolicyError(null);
     try {
-      const context = await window.lnwjud.setWorkspacePonytailMode({ workspaceId: selectedWorkspaceId, mode });
+      const context = await window.nexusPilot.setWorkspacePonytailMode({ workspaceId: selectedWorkspaceId, mode });
       setPonytailPolicyContext(context);
     } catch (cause: unknown) {
       const message = errorMessage(cause, propsText(locale, 'บันทึก Ponytail policy ของโปรเจกต์ไม่สำเร็จ', 'Could not save the project Ponytail policy'));
@@ -662,7 +662,7 @@ export function App(): ReactElement {
     setPonytailPolicyBusy(true);
     setPonytailPolicyError(null);
     try {
-      const context = await window.lnwjud.setGoalPonytailMode({ workspaceId: selectedWorkspaceId, goalId, expectedRevision, mode });
+      const context = await window.nexusPilot.setGoalPonytailMode({ workspaceId: selectedWorkspaceId, goalId, expectedRevision, mode });
       setPonytailPolicyContext(context);
     } catch (cause: unknown) {
       const message = errorMessage(cause, propsText(locale, 'บันทึก Ponytail policy ของ goal ไม่สำเร็จ', 'Could not save the goal Ponytail policy'));
@@ -674,14 +674,14 @@ export function App(): ReactElement {
   }
 
   async function chooseTunnelClientPath(): Promise<string | null> {
-    const result = await window.lnwjud.chooseTunnelClientPath();
+    const result = await window.nexusPilot.chooseTunnelClientPath();
     return result.clientPath;
   }
 
   async function installPdfProvider(): Promise<PdfProviderInstallResult> {
     setError(null);
     try {
-      const result = await window.lnwjud.installPdfProvider();
+      const result = await window.nexusPilot.installPdfProvider();
       await refresh();
       await loadToolCatalog(['local_pdf_provider']);
       return result;
@@ -693,7 +693,7 @@ export function App(): ReactElement {
   }
 
   async function configureTunnelProfile(tunnelId: string): Promise<string> {
-    const result = await window.lnwjud.configureTunnelProfile({ tunnelId });
+    const result = await window.nexusPilot.configureTunnelProfile({ tunnelId });
     await refresh();
     return result.profilePath;
   }
@@ -702,9 +702,9 @@ export function App(): ReactElement {
     setToolCatalogLoading(true);
     try {
       if (forceRequirementIds === undefined) {
-        setToolCatalog(await window.lnwjud.getToolCatalog({ locale }));
+        setToolCatalog(await window.nexusPilot.getToolCatalog({ locale }));
       } else {
-        const result = await window.lnwjud.recheckToolCatalog({ locale, requirementIds: forceRequirementIds });
+        const result = await window.nexusPilot.recheckToolCatalog({ locale, requirementIds: forceRequirementIds });
         setToolCatalog(result.catalog);
         setDoctor(result.doctor);
       }
@@ -726,7 +726,7 @@ export function App(): ReactElement {
   async function setToolAvailability(name: string, enabled: boolean): Promise<void> {
     setError(null);
     try {
-      const result = await window.lnwjud.setToolAvailability({ locale, name, enabled });
+      const result = await window.nexusPilot.setToolAvailability({ locale, name, enabled });
       mergeToolCatalogItem(result.item);
       setToolHostSyncNotice(result.hostSyncMessage);
     } catch (cause: unknown) {
@@ -739,7 +739,7 @@ export function App(): ReactElement {
   async function resetToolAvailability(name: string): Promise<void> {
     setError(null);
     try {
-      const result = await window.lnwjud.resetToolAvailability({ locale, name });
+      const result = await window.nexusPilot.resetToolAvailability({ locale, name });
       mergeToolCatalogItem(result.item);
       setToolHostSyncNotice(result.hostSyncMessage);
     } catch (cause: unknown) {
@@ -751,12 +751,12 @@ export function App(): ReactElement {
 
   async function handleToolRemediation(action: ResolvedRemediation['actions'][number]): Promise<void> {
     if (action.kind === 'recheck') { await loadToolCatalog(action.requirementIds); return; }
-    if (action.kind === 'open_official_url' || action.kind === 'open_system_settings') { await window.lnwjud.openToolSetupTarget({ target: action.target }); return; }
-    if (action.kind === 'copy_command') { await window.lnwjud.copyToolCommand({ commandId: action.commandId }); return; }
+    if (action.kind === 'open_official_url' || action.kind === 'open_system_settings') { await window.nexusPilot.openToolSetupTarget({ target: action.target }); return; }
+    if (action.kind === 'copy_command') { await window.nexusPilot.copyToolCommand({ commandId: action.commandId }); return; }
     if (action.kind === 'launch_managed_browser') {
       setError(null);
       try {
-        const status = await window.lnwjud.launchManagedBrowser();
+        const status = await window.nexusPilot.launchManagedBrowser();
         if (!status.ready) throw new Error(propsText(locale, 'Managed Browser เปิดแล้วแต่ CDP ยังไม่พร้อม', 'Managed Browser started but CDP is not ready'));
         await loadToolCatalog(['browser_cdp']);
       } catch (cause: unknown) {
@@ -773,7 +773,7 @@ export function App(): ReactElement {
       if (restartRequired) {
         try {
           setMcpBusy(true);
-          await window.lnwjud.restartMcp();
+          await window.nexusPilot.restartMcp();
           await refresh();
         } catch (cause: unknown) {
           setError(errorMessage(cause, t('error.mcpRestart')));
@@ -797,8 +797,8 @@ export function App(): ReactElement {
   async function runDoctor(): Promise<void> {
     try {
       const [report, catalog] = await Promise.all([
-        window.lnwjud.runDoctor(),
-        window.lnwjud.getToolCatalog({ locale }),
+        window.nexusPilot.runDoctor(),
+        window.nexusPilot.getToolCatalog({ locale }),
       ]);
       setDoctor(report);
       setToolCatalog(catalog);

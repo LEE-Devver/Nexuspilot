@@ -71,8 +71,8 @@ test.describe('Tools catalog and Doctor real Electron acceptance', () => {
       await expect(toolCard(app.page, 'lsp_diagnostics')).toHaveClass(/tool-needs_setup/);
       const nodePath = process.execPath;
       await app.page.evaluate(async (configuredNodePath) => {
-        const dashboard = await window.lnwjud.getDashboard();
-        await window.lnwjud.setUserSettings({
+        const dashboard = await window.nexusPilot.getDashboard();
+        await window.nexusPilot.setUserSettings({
           settings: { ...dashboard.settings, lspCommands: { typescript: JSON.stringify([configuredNodePath, '--version']) } },
         });
       }, nodePath);
@@ -90,15 +90,15 @@ test.describe('Tools catalog and Doctor real Electron acceptance', () => {
   test('permission deny blocks dangerous tools without invoking their runtime', async () => {
     const app = await launchDesktop();
     try {
-      await app.page.evaluate(async () => { await window.lnwjud.setPermissionProfile({ profile: 'safe' }); });
-      const before = await app.page.evaluate(async () => (await window.lnwjud.getDashboard()).auditEventCount);
+      await app.page.evaluate(async () => { await window.nexusPilot.setPermissionProfile({ profile: 'safe' }); });
+      const before = await app.page.evaluate(async () => (await window.nexusPilot.getDashboard()).auditEventCount);
       await openTools(app.page);
       const card = toolCard(app.page, 'delete_file');
       await expect(card).toHaveClass(/tool-blocked/);
       await card.locator('button.tool-card-open').click();
       await expect(app.page.getByRole('dialog')).toContainText('DENY');
       await app.page.getByRole('button', { name: /ปิดรายละเอียดเครื่องมือ|Close tool details/ }).click();
-      const after = await app.page.evaluate(async () => (await window.lnwjud.getDashboard()).auditEventCount);
+      const after = await app.page.evaluate(async () => (await window.nexusPilot.getDashboard()).auditEventCount);
       expect(after).toBe(before);
     } finally { await closeDesktop(app); }
   });
@@ -108,8 +108,8 @@ test.describe('Tools catalog and Doctor real Electron acceptance', () => {
     const { dataRoot, fixtureRoot } = first;
     try {
       await first.page.evaluate(async (missingCommand) => {
-        const dashboard = await window.lnwjud.getDashboard();
-        await window.lnwjud.setUserSettings({
+        const dashboard = await window.nexusPilot.getDashboard();
+        await window.nexusPilot.setUserSettings({
           settings: {
             ...dashboard.settings,
             extensions: {
@@ -129,7 +129,7 @@ test.describe('Tools catalog and Doctor real Electron acceptance', () => {
       await openTools(second.page, true);
       await second.page.getByRole('tab', { name: /External MCP \(\d+\)/ }).click();
       const external = await second.page.evaluate(async () => {
-        const snapshot = await window.lnwjud.getToolCatalog({ locale: 'th' });
+        const snapshot = await window.nexusPilot.getToolCatalog({ locale: 'th' });
         const item = snapshot.items.find((candidate) => candidate.origin === 'external_mcp' && candidate.name === '@offline-fixture');
         return item === undefined ? null : {
           readiness: item.readiness,
@@ -155,14 +155,14 @@ test.describe('Tools catalog and Doctor real Electron acceptance', () => {
     try {
       await openTools(app.page);
       const before = await app.page.evaluate(async () => {
-        const snapshot = await window.lnwjud.getToolCatalog({ locale: 'th' });
+        const snapshot = await window.nexusPilot.getToolCatalog({ locale: 'th' });
         const tool = snapshot.items.find((item) => item.name === 'lsp_diagnostics');
         return { checkedAt: tool?.checkedAt, shortDescription: tool?.shortDescription };
       });
       await app.page.getByRole('button', { name: 'English' }).click();
       await expect(app.page.getByRole('heading', { name: 'Tools' })).toBeVisible();
       const after = await app.page.evaluate(async () => {
-        const snapshot = await window.lnwjud.getToolCatalog({ locale: 'en' });
+        const snapshot = await window.nexusPilot.getToolCatalog({ locale: 'en' });
         const tool = snapshot.items.find((item) => item.name === 'lsp_diagnostics');
         return { checkedAt: tool?.checkedAt, shortDescription: tool?.shortDescription };
       });
@@ -274,31 +274,31 @@ async function openTools(page: Page, bypassStartupDoctor = false): Promise<void>
 }
 
 async function dismissFirstRunTip(page: Page, bypassStartupDoctor = false): Promise<void> {
-  const mcpRunning = await page.evaluate(async () => (await window.lnwjud.getDashboard()).mcp.running);
-  if (!mcpRunning) await page.evaluate(async () => { await window.lnwjud.restartMcp(); });
+  const mcpRunning = await page.evaluate(async () => (await window.nexusPilot.getDashboard()).mcp.running);
+  if (!mcpRunning) await page.evaluate(async () => { await window.nexusPilot.restartMcp(); });
 
   if (bypassStartupDoctor) {
     await page.evaluate(async () => {
-      const dashboard = await window.lnwjud.getDashboard();
+      const dashboard = await window.nexusPilot.getDashboard();
       window.localStorage.setItem('lnwjud.startup-doctor.passed-version.v1', dashboard.appVersion);
     });
     await page.reload();
   } else {
     try {
       await expect.poll(async () => page.evaluate(async () => {
-        const dashboard = await window.lnwjud.getDashboard();
+        const dashboard = await window.nexusPilot.getDashboard();
         return window.localStorage.getItem('lnwjud.startup-doctor.passed-version.v1') === dashboard.appVersion;
       }), { timeout: 30_000, intervals: [100, 250, 500] }).toBe(true);
     } catch (cause: unknown) {
       const diagnostics = await page.evaluate(async () => {
-        const report = await window.lnwjud.runDoctor();
+        const report = await window.nexusPilot.runDoctor();
         const coreIds = new Set(['os', 'database', 'executable_ripgrep', 'mcp-port']);
         const coreChecks = report.checks
           .filter((check) => coreIds.has(check.id))
           .map((check) => ({ id: check.id, required: check.required, status: check.status, message: check.message }));
         let catalog: { ok: true; itemCount: number } | { ok: false; error: string };
         try {
-          const snapshot = await window.lnwjud.getToolCatalog({ locale: (await window.lnwjud.getDashboard()).locale });
+          const snapshot = await window.nexusPilot.getToolCatalog({ locale: (await window.nexusPilot.getDashboard()).locale });
           catalog = { ok: true, itemCount: snapshot.items.length };
         } catch (error: unknown) {
           catalog = { ok: false, error: error instanceof Error ? error.message : String(error) };

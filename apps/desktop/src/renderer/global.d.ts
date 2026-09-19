@@ -1,8 +1,10 @@
-import type { LnwjudApi } from '@nexuspilot/ipc-contracts';
+import type { NexusPilotApi } from '@nexuspilot/ipc-contracts';
 
 declare global {
   interface Window {
-    readonly lnwjud: LnwjudApi;
+    readonly nexusPilot: NexusPilotApi;
+    /** @deprecated temporary preload compatibility alias */
+    readonly lnwjud: NexusPilotApi;
   }
 }
 

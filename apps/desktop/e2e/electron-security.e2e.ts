@@ -43,7 +43,7 @@ test('renderer cannot access Node globals', async ({ browserName }, testInfo) =>
     await expect.poll(() => renderer.evaluate(() => ({
       process: typeof Reflect.get(window, 'process'),
       require: typeof Reflect.get(window, 'require'),
-      api: typeof window.lnwjud?.listWorkspaces,
+      api: typeof window.nexusPilot?.listWorkspaces,
     }))).toEqual({ process: 'undefined', require: 'undefined', api: 'function' });
     const browserWindow = await app.browserWindow(page);
     expect(await browserWindow.evaluate((window) => window.webContents.getLastWebPreferences().sandbox)).toBe(true);

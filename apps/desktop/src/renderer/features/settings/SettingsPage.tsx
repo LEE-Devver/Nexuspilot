@@ -398,18 +398,18 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
     setRemoteMcpBusy(true);
     setRemoteMcpMessage(null);
     try {
-      if (action === 'install') await window.lnwjud.installRemoteMcpProvider();
+      if (action === 'install') await window.nexusPilot.installRemoteMcpProvider();
       if (action === 'save') {
-        await window.lnwjud.saveRemoteMcpAuthtoken({ authtoken: remoteMcpAuthtoken });
+        await window.nexusPilot.saveRemoteMcpAuthtoken({ authtoken: remoteMcpAuthtoken });
         setRemoteMcpAuthtoken('');
       }
       if (action === 'domain') {
-        const status = await window.lnwjud.setRemoteMcpPublicOrigin({ publicOrigin: remoteMcpPublicOrigin });
+        const status = await window.nexusPilot.setRemoteMcpPublicOrigin({ publicOrigin: remoteMcpPublicOrigin });
         setRemoteMcpPublicOrigin(status.configuredPublicOrigin ?? '');
       }
-      if (action === 'start') await window.lnwjud.startRemoteMcp();
-      if (action === 'stop') await window.lnwjud.stopRemoteMcp();
-      if (action === 'regenerate') await window.lnwjud.regenerateRemoteMcpPairingCode();
+      if (action === 'start') await window.nexusPilot.startRemoteMcp();
+      if (action === 'stop') await window.nexusPilot.stopRemoteMcp();
+      if (action === 'regenerate') await window.nexusPilot.regenerateRemoteMcpPairingCode();
       await props.onRefresh();
       setRemoteMcpMessage(props.locale === 'th' ? 'อัปเดต Remote MCP เรียบร้อยแล้ว' : 'Remote MCP updated.');
     } catch (cause: unknown) {

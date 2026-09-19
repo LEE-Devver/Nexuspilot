@@ -34,7 +34,7 @@ import {
   type ExportWorkLogRequest,
   type IncidentExportResult,
   type InFlightWorkItem,
-  type LnwjudApi,
+  type NexusPilotApi,
   type LogLine,
   type OpenExternalSetupPageRequest,
   type LogSnapshot,
@@ -1326,7 +1326,7 @@ function onLogEvent(callback: (line: LogLine) => void): () => void {
   };
 }
 
-const api: LnwjudApi = {
+const api: NexusPilotApi = {
   listWorkspaces: () => invoke(ipcChannels.listWorkspaces).then(workspaceList),
   addWorkspace,
   selectWorkspace,
@@ -1417,4 +1417,5 @@ const api: LnwjudApi = {
   onUpdateStatus,
 };
 
+contextBridge.exposeInMainWorld('nexusPilot', api);
 contextBridge.exposeInMainWorld('lnwjud', api);

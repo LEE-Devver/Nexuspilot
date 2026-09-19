@@ -44,7 +44,7 @@ export async function settleFirstRunAndOpenHome(page: Page): Promise<void> {
   }
 
   await expect.poll(async () => page.evaluate(async (key) => {
-    const dashboard = await window.lnwjud.getDashboard();
+    const dashboard = await window.nexusPilot.getDashboard();
     return window.localStorage.getItem(key) === dashboard.appVersion;
   }, STARTUP_DOCTOR_STORAGE_KEY), {
     timeout: 30_000,
@@ -57,7 +57,7 @@ export async function settleFirstRunAndOpenHome(page: Page): Promise<void> {
   await expect.poll(async () => {
     if (await tipDialog.isVisible() || await guidedSetup.isVisible()) return true;
     return page.evaluate(async (guidedKey) => {
-      const dashboard = await window.lnwjud.getDashboard();
+      const dashboard = await window.nexusPilot.getDashboard();
       const state = window.localStorage.getItem(guidedKey);
       const configured = dashboard.tunnel.profileExists
         || dashboard.tunnel.hasApiKey
@@ -93,7 +93,7 @@ async function startupCoreFailures(page: Page): Promise<readonly {
 }[]> {
   return page.evaluate(async () => {
     const coreIds = new Set(['os', 'database', 'executable_ripgrep', 'mcp-port']);
-    const report = await window.lnwjud.runDoctor();
+    const report = await window.nexusPilot.runDoctor();
     return report.checks
       .filter((check) => coreIds.has(check.id) && (check.status === 'fail' || check.status === 'unknown'))
       .map(({ id, status, message, detail, durationMs }) => ({

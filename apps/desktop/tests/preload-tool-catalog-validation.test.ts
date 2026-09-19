@@ -1,14 +1,18 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { ipcChannels, type LnwjudApi, type ToolCatalogItem, type ToolCatalogSnapshot, type UserSettings } from '@nexuspilot/ipc-contracts';
+import { ipcChannels, type NexusPilotApi, type ToolCatalogItem, type ToolCatalogSnapshot, type UserSettings } from '@nexuspilot/ipc-contracts';
 
 const electron = vi.hoisted(() => ({
-  exposed: undefined as LnwjudApi | undefined,
+  exposed: undefined as NexusPilotApi | undefined,
+  exposedNames: [] as string[],
   invoke: vi.fn(),
 }));
 
 vi.mock('electron', () => ({
   contextBridge: {
-    exposeInMainWorld: (_name: string, api: LnwjudApi): void => { electron.exposed = api; },
+    exposeInMainWorld: (name: string, api: NexusPilotApi): void => {
+      electron.exposedNames.push(name);
+      electron.exposed = api;
+    },
   },
   ipcRenderer: {
     invoke: electron.invoke,
@@ -60,6 +64,10 @@ const userSettingsFixture: UserSettings = {
 
 describe('preload Tool Catalog validation', () => {
   beforeAll(async () => { await import('../src/preload/index.js'); });
+
+  it('exposes NexusPilot as canonical and keeps the temporary lnwjud alias', () => {
+    expect(electron.exposedNames).toEqual(['nexusPilot', 'lnwjud']);
+  });
 
   it('preserves ECC opt-in state through the preload settings parser', async () => {
     const enabled = { ...userSettingsFixture, eccEnabled: true };
