@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { resolveLnwjudDataPath } from './data-path.js';
+import { resolveLnwjudDataPath, resolveNexusPilotDataPath, selectNexusPilotDataPath } from './data-path.js';
 
 describe('resolveLnwjudDataPath', () => {
   it('uses the NexusPilot data-path override when configured', () => {
@@ -54,5 +54,42 @@ describe('resolveLnwjudDataPath', () => {
       .toBe('/Users/alice/Library/Application Support/lnwjud');
     expect(resolveLnwjudDataPath({ HOME: '/home/alice' }, 'relative-appdata', 'linux'))
       .toBe('/home/alice/.local/share/lnwjud');
+  });
+});
+
+
+describe('resolveNexusPilotDataPath', () => {
+  const winEnv = { APPDATA: 'C:\\Users\\u\\AppData\\Roaming' };
+
+  it('uses canonical nexuspilot state for a fresh install', () => {
+    expect(resolveNexusPilotDataPath(winEnv, undefined, 'win32', () => false))
+      .toBe('C:\\Users\\u\\AppData\\Roaming\\nexuspilot');
+  });
+
+  it('continues using legacy lnwjud state when canonical state does not exist', () => {
+    expect(resolveNexusPilotDataPath(winEnv, undefined, 'win32', (candidate) => candidate.endsWith('\\lnwjud')))
+      .toBe('C:\\Users\\u\\AppData\\Roaming\\lnwjud');
+  });
+
+  it('prefers canonical state when both canonical and legacy directories exist', () => {
+    expect(resolveNexusPilotDataPath(winEnv, undefined, 'win32', () => true))
+      .toBe('C:\\Users\\u\\AppData\\Roaming\\nexuspilot');
+  });
+
+  it('reports why a path was selected for diagnostics', () => {
+    expect(selectNexusPilotDataPath(winEnv, undefined, 'win32', (candidate) => candidate.endsWith('\\lnwjud')))
+      .toMatchObject({
+        selected: 'C:\\Users\\u\\AppData\\Roaming\\lnwjud',
+        canonical: 'C:\\Users\\u\\AppData\\Roaming\\nexuspilot',
+        legacy: 'C:\\Users\\u\\AppData\\Roaming\\lnwjud',
+        source: 'legacy-existing',
+      });
+  });
+
+  it('still lets explicit NexusPilot or legacy overrides win over directory discovery', () => {
+    expect(resolveNexusPilotDataPath({ ...winEnv, NEXUSPILOT_DATA_PATH: 'D:\\explicit' }, undefined, 'win32', () => true))
+      .toBe('D:\\explicit');
+    expect(resolveNexusPilotDataPath({ ...winEnv, LNWJUD_DATA_PATH: 'D:\\legacy-explicit' }, undefined, 'win32', () => false))
+      .toBe('D:\\legacy-explicit');
   });
 });

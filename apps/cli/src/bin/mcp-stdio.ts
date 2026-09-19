@@ -12,7 +12,7 @@ import {
   parseBooleanSetting,
   parseStdioPermissionProfile,
   readCompatEnv,
-  resolveLnwjudDataPath,
+  resolveNexusPilotDataPath,
 } from '@nexuspilot/shared';
 import { applyPendingSqliteRestoreSync, SqliteBackupService, SqliteDatabase, SqliteSettingsRepository, SqliteWorkspaceRepository } from '@nexuspilot/storage';
 import { comparableHostPath, hostPathApi, isMachineRootPath, normalizeWorkspaceRoot, WorkspaceService, type Workspace } from '@nexuspilot/workspace';
@@ -43,7 +43,7 @@ function hasFlag(flag: string): boolean {
 }
 
 function resolveDataPath(): string {
-  return resolveLnwjudDataPath(process.env);
+  return resolveNexusPilotDataPath(process.env);
 }
 
 async function main(): Promise<void> {

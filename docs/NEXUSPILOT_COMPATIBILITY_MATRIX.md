@@ -86,13 +86,14 @@ Stage 3 public/runtime environment compatibility is complete. The remaining `LNW
 Do not mechanically rename those internal probe variables; migrate them only with the child protocol that consumes them.
 ## Persisted paths
 
-These stay unchanged in Stage 3:
+Stage 6A introduces compatibility-first app-data selection. Fresh installs use the canonical `nexuspilot` directory, while existing legacy-only installs continue using `lnwjud` in place. No automatic copy is performed.
 
 ```text
-<platform app data>/lnwjud
-<workspace>/.lnwjud/
-lnwjud tunnel/profile/log names
-legacy secret/checkpoint locations
+fresh install: <platform app data>/nexuspilot
+legacy-only install: <platform app data>/lnwjud
+workspace metadata: <workspace>/.lnwjud/ (unchanged for now)
+tunnel/profile/log names: lnwjud-compatible (unchanged for now)
+legacy secret/checkpoint locations: unchanged
 ```
 
 Reason: changing them before migration readers exist can silently split state between old and new installations.
