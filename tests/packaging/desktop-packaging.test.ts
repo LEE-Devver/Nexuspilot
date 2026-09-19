@@ -212,6 +212,21 @@ describe('cross-platform desktop packaging', () => {
     expect(mainBundle).toMatch(/setPath\(["']userData["']/);
   });
 
+  it('keeps Windows helper filenames on their bounded legacy identities until OS registration migration exists', async () => {
+    const ocrProject = await readFile(path.join(repositoryRoot, 'native', 'windows-ocr', 'lnwjud-windows-ocr.csproj'), 'utf8');
+    const sparseManifest = await readFile(path.join(repositoryRoot, 'native', 'windows-ocr', 'sparse-package.appxmanifest'), 'utf8');
+    const desktopRuntime = await readFile(path.join(desktopRoot, 'src', 'main', 'capability-runtime.ts'), 'utf8');
+    const cliRuntime = await readFile(path.join(repositoryRoot, 'apps', 'cli', 'src', 'runtime', 'stdio-mcp-runtime.ts'), 'utf8');
+    const migratorReadme = await readFile(path.join(repositoryRoot, 'native', 'windows-secret-migrator', 'README.md'), 'utf8');
+
+    expect(ocrProject).toContain('<AssemblyName>lnwjud-windows-ocr</AssemblyName>');
+    expect(sparseManifest).toContain('Executable="lnwjud-windows-ocr.exe"');
+    expect(desktopRuntime).toContain("'lnwjud-windows-ocr.exe'");
+    expect(cliRuntime).toContain("'lnwjud-windows-ocr.exe'");
+    expect(migratorReadme).toContain('one-time, Windows-only compatibility');
+    expect(migratorReadme).toContain('lnwjud-windows-secret-migrator.exe');
+  });
+
   it('targets Windows 10 OCR through the .NET 8 Windows TFM without the legacy SDK contracts package', async () => {
     const ocrProject = await readFile(path.join(repositoryRoot, 'native', 'windows-ocr', 'lnwjud-windows-ocr.csproj'), 'utf8');
     expect(ocrProject).toContain('<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>');

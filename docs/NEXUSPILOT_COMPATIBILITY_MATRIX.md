@@ -116,4 +116,6 @@ A legacy alias may be removed only after:
 - telemetry/support evidence shows the old name is no longer required, or a major-version policy explicitly removes it,
 - tests for legacy import are updated accordingly.
 
+Windows native-helper compatibility is intentionally asymmetric: macOS/Linux native hosts have canonical NexusPilot binary names plus legacy aliases, while `lnwjud-windows-ocr.exe` remains the active Windows OCR filename because existing sparse AppX registrations bind package identity to that exact executable. `lnwjud-windows-secret-migrator.exe` also remains legacy by design because it exists only to import legacy lnwjud secrets. Rename either Windows helper only after a tested OS-registration/data-migration handoff exists.
+
 Historical upstream documentation may continue to contain lnwjud identifiers permanently.
