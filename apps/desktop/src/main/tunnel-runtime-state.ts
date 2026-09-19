@@ -1,4 +1,5 @@
-export const TUNNEL_RUNTIME_ALIAS = 'lnwjud';
+export const TUNNEL_RUNTIME_ALIAS = 'nexuspilot';
+export const LEGACY_TUNNEL_RUNTIME_ALIAS = 'lnwjud';
 
 export type TunnelRuntimeMode = 'native-managed' | 'profile-child';
 export type TunnelFailureClass = 'none' | 'transient' | 'auth' | 'operator';

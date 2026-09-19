@@ -4,6 +4,7 @@ import { request as httpRequest } from 'node:http';
 import { promisify } from 'node:util';
 import type { ExecFileOptionsWithStringEncoding } from 'node:child_process';
 import {
+  LEGACY_TUNNEL_RUNTIME_ALIAS,
   TUNNEL_RUNTIME_ALIAS,
   type NativeTunnelRuntimeStatus,
   type TunnelRuntimeCapabilities,
@@ -46,15 +47,17 @@ export class TunnelRuntimeAdapter {
   private capabilitiesCache: TunnelRuntimeCapabilities | null = null;
   private lastStatus: NativeTunnelRuntimeStatus | null = null;
   private readonly alias: string;
+  private activeAlias: string;
   private readonly execute: TunnelRuntimeExecutor;
 
   public constructor(private readonly options: TunnelRuntimeAdapterOptions) {
     this.alias = options.alias?.trim() || TUNNEL_RUNTIME_ALIAS;
+    this.activeAlias = this.alias;
     this.execute = options.execute ?? defaultExecutor;
   }
 
   public runtimeAlias(): string {
-    return this.alias;
+    return this.activeAlias;
   }
 
   public async capabilities(force = false): Promise<TunnelRuntimeCapabilities> {
@@ -107,15 +110,27 @@ export class TunnelRuntimeAdapter {
         return local;
       }
     }
-    const result = await this.capture(['runtimes', 'status', this.alias, '--json'], 15_000);
+    let alias = this.activeAlias;
+    let result = await this.capture(['runtimes', 'status', alias, '--json'], 15_000);
     if (!result.ok) {
       const message = normalizedCliMessage(result.stderr, result.stdout);
-      if (isUnknownAliasMessage(message)) {
-        this.lastStatus = missingRuntime(message);
-        return this.lastStatus;
+      const canTryLegacy = isUnknownAliasMessage(message)
+        && alias === TUNNEL_RUNTIME_ALIAS;
+      if (canTryLegacy) {
+        alias = LEGACY_TUNNEL_RUNTIME_ALIAS;
+        result = await this.capture(['runtimes', 'status', alias, '--json'], 15_000);
       }
-      throw new Error(message || `tunnel-client runtimes status ${this.alias} failed`);
+      if (!result.ok) {
+        const fallbackMessage = normalizedCliMessage(result.stderr, result.stdout);
+        if (isUnknownAliasMessage(fallbackMessage)) {
+          this.activeAlias = this.alias;
+          this.lastStatus = missingRuntime(fallbackMessage);
+          return this.lastStatus;
+        }
+        throw new Error(fallbackMessage || `tunnel-client runtimes status ${alias} failed`);
+      }
     }
+    this.activeAlias = alias;
     this.lastStatus = parseNativeRuntimeStatus(result.stdout, result.stderr);
     return this.lastStatus;
   }
@@ -139,12 +154,14 @@ export class TunnelRuntimeAdapter {
     if (parsed.tunnelId !== null && parsed.tunnelId !== tunnelId) {
       throw new Error(`Native runtime tunnel ID mismatch: expected ${tunnelId}`);
     }
+    this.activeAlias = this.alias;
     this.lastStatus = parsed;
     return parsed;
   }
 
   public async stop(): Promise<NativeTunnelRuntimeStatus> {
-    const result = await this.capture(['runtimes', 'stop', this.alias, '--json'], 30_000);
+    const alias = this.activeAlias;
+    const result = await this.capture(['runtimes', 'stop', alias, '--json'], 30_000);
     if (!result.ok) {
       const message = normalizedCliMessage(result.stderr, result.stdout);
       if (isUnknownAliasMessage(message)) return missingRuntime(message);
@@ -159,7 +176,7 @@ export class TunnelRuntimeAdapter {
       if (!current.exists || !current.running) return current;
       if (attempt + 1 < attempts && intervalMs > 0) await sleep(intervalMs);
     }
-    throw new Error(`Tunnel runtime ${this.alias} is still running after stop`);
+    throw new Error(`Tunnel runtime ${alias} is still running after stop`);
   }
 
   private async capture(args: readonly string[], timeout: number): Promise<{ readonly ok: boolean; readonly stdout: string; readonly stderr: string }> {
