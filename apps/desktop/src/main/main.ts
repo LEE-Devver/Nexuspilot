@@ -290,6 +290,7 @@ const defaultDesktopServices: DesktopIpcServices = {
     connectionModes: { httpUrl: null, stdioCommand: defaultStdioCommand('full') },
     workLog: [],
     inFlight: [],
+    agentSwarms: [],
     tunnel: emptyTunnel,
     remoteMcp: emptyRemoteMcp,
     settings: defaultUserSettings,

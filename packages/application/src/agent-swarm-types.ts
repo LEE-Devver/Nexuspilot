@@ -51,3 +51,8 @@ export interface AgentSwarmListPage {
   readonly items: readonly AgentSwarmSnapshot[];
   readonly nextCursor?: string;
 }
+
+export interface AgentSwarmMonitorSnapshot extends AgentSwarmSnapshot {
+  readonly ownerClientId: string;
+  readonly ownerSessionId: string;
+}

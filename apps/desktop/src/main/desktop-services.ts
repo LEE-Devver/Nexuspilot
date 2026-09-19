@@ -1182,6 +1182,7 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
       const mcp = mcpLifecycle.status();
       const workLog = await buildWorkLog(auditRepository, workLogViewState);
       const inFlight = activityTracker.listInFlight().map(toInFlightItem);
+      const agentSwarms = agentSwarmService.monitorSnapshot(20);
       const tunnel = await observedTunnelStatus();
       const remoteMcp = await remoteMcpController.status();
       const backups = await backupService.list();
@@ -1239,6 +1240,7 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
         }),
         workLog,
         inFlight,
+        agentSwarms,
         tunnel,
         remoteMcp,
         settings: readSettings(),

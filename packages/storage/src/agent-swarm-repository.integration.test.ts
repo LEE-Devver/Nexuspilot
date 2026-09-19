@@ -106,6 +106,31 @@ describe('SqliteAgentSwarmRepository', () => {
     }
   });
 
+  it('lists recent swarm metadata across owners for the host monitor without changing owner-scoped reads', async () => {
+    const { database, repository } = await fixture();
+    try {
+      repository.create(createInput('swarm-a'));
+      repository.create({
+        ...createInput('swarm-b'),
+        ownerClientId: 'client-b',
+        ownerSessionId: 'session-b',
+        workspaceId: 'workspace-b',
+        idempotencyKey: '33333333-3333-4333-8333-333333333333',
+        createdAt: '2026-08-31T00:00:01.000Z',
+      });
+      repository.updateSwarmState('swarm-a', 'running', '2026-08-31T00:00:02.000Z');
+
+      expect(repository.listRecent(20).map((swarm) => [swarm.id, swarm.ownerClientId, swarm.ownerSessionId])).toEqual([
+        ['swarm-a', 'client-a', 'session-a'],
+        ['swarm-b', 'client-b', 'session-b'],
+      ]);
+      expect(repository.listOwned('client-a', 'session-a', 'workspace-a', 20, 0).map((swarm) => swarm.id)).toEqual(['swarm-a']);
+      expect(repository.listOwned('client-b', 'session-b', 'workspace-b', 20, 0).map((swarm) => swarm.id)).toEqual(['swarm-b']);
+    } finally {
+      database.close();
+    }
+  });
+
   it('round-trips bounded terminal result metadata without changing ownership', async () => {
     const { database, repository } = await fixture();
     try {

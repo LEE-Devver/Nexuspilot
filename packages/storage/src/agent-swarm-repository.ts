@@ -100,6 +100,13 @@ export class SqliteAgentSwarmRepository {
     return rows.map((row) => this.fromRow(row));
   }
 
+  public listRecent(limit: number): readonly StoredAgentSwarm[] {
+    const boundedLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+    const rows = this.database.connection.prepare('SELECT * FROM agent_swarms ORDER BY updated_at DESC, created_at DESC, id DESC LIMIT ?')
+      .all(boundedLimit) as unknown as SwarmRow[];
+    return rows.map((row) => this.fromRow(row));
+  }
+
   public updateSwarmState(id: string, state: StoredAgentSwarmState, updatedAt: string): void {
     this.database.connection.prepare('UPDATE agent_swarms SET state = ?, updated_at = ? WHERE id = ?').run(state, updatedAt, id);
   }

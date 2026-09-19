@@ -512,6 +512,7 @@ function dashboard(value: unknown): DashboardSnapshot {
     },
     workLog: workLogEntries(value.workLog),
     inFlight: inFlightItems(value.inFlight),
+    agentSwarms: agentMonitorSwarms(value.agentSwarms),
     tunnel: tunnelStatus(value.tunnel),
     remoteMcp: remoteMcpStatus(value.remoteMcp),
     settings: userSettings(value.settings),
@@ -519,6 +520,42 @@ function dashboard(value: unknown): DashboardSnapshot {
     hostArch,
     appVersion: stringField(value, 'appVersion'),
   };
+}
+
+function agentMonitorSwarms(value: unknown): NonNullable<DashboardSnapshot['agentSwarms']> {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw new Error('Invalid IPC response');
+  return value.map((entry) => {
+    if (!isRecord(entry) || !Array.isArray(entry.tasks)) throw new Error('Invalid IPC response');
+    const state = entry.state;
+    if (!['queued', 'running', 'completed', 'failed', 'cancelled', 'termination_unverified'].includes(String(state))) throw new Error('Invalid IPC response');
+    return {
+      swarmId: stringField(entry, 'swarmId'),
+      workspaceId: stringField(entry, 'workspaceId'),
+      ownerClientId: stringField(entry, 'ownerClientId'),
+      ownerSessionId: stringField(entry, 'ownerSessionId'),
+      state: state as NonNullable<DashboardSnapshot['agentSwarms']>[number]['state'],
+      maxConcurrency: numberField(entry, 'maxConcurrency'),
+      createdAt: stringField(entry, 'createdAt'),
+      updatedAt: stringField(entry, 'updatedAt'),
+      tasks: entry.tasks.map((task) => {
+        if (!isRecord(task)) throw new Error('Invalid IPC response');
+        const taskState = task.state;
+        if (!['blocked', 'queued', 'running', 'completed', 'failed', 'cancelled', 'termination_unverified'].includes(String(taskState))) throw new Error('Invalid IPC response');
+        return {
+          id: stringField(task, 'id'),
+          dependsOn: stringList(task.dependsOn),
+          state: taskState as NonNullable<DashboardSnapshot['agentSwarms']>[number]['tasks'][number]['state'],
+          createdAt: stringField(task, 'createdAt'),
+          ...(typeof task.startedAt === 'string' ? { startedAt: task.startedAt } : {}),
+          ...(typeof task.finishedAt === 'string' ? { finishedAt: task.finishedAt } : {}),
+          resultAvailable: booleanField(task, 'resultAvailable'),
+          outputTruncated: booleanField(task, 'outputTruncated'),
+          ...(typeof task.error === 'string' ? { error: task.error } : {}),
+        };
+      }),
+    };
+  });
 }
 
 function backupSummaries(value: unknown): readonly BackupSummary[] {

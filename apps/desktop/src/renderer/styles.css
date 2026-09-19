@@ -3080,3 +3080,133 @@ h2 {
     flex-direction: column;
   }
 }
+
+
+/* NexusPilot multi-agent monitor */
+.agent-monitor-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.agent-monitor-header,
+.agent-monitor-swarm-heading,
+.agent-monitor-task-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.agent-monitor-header > div,
+.agent-monitor-swarm-heading > div {
+  min-width: 0;
+}
+
+.agent-monitor-header h2 {
+  margin: 0 0 4px;
+}
+
+.agent-monitor-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.agent-monitor-metric {
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.agent-monitor-metric span,
+.agent-monitor-swarm-heading span,
+.agent-monitor-task-meta {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.agent-monitor-metric strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 20px;
+}
+
+.agent-monitor-metric.is-active,
+.agent-monitor-task.task-running {
+  border-color: var(--accent);
+}
+
+.agent-monitor-empty {
+  border: 1px dashed var(--border-subtle);
+  border-radius: 10px;
+  padding: 16px;
+  color: var(--text-muted);
+}
+
+.agent-monitor-swarms {
+  display: grid;
+  gap: 10px;
+}
+
+.agent-monitor-swarm {
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.agent-monitor-swarm-heading > div {
+  display: grid;
+  gap: 2px;
+}
+
+.agent-monitor-state {
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.agent-monitor-state.state-running,
+.agent-monitor-state.state-queued {
+  border-color: var(--accent);
+}
+
+.agent-monitor-task-graph {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.agent-monitor-task {
+  border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+  padding: 9px 10px;
+  min-width: 0;
+}
+
+.agent-monitor-task-main strong,
+.agent-monitor-task-main span,
+.agent-monitor-task-meta {
+  overflow-wrap: anywhere;
+}
+
+.agent-monitor-task-main span {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.agent-monitor-task-meta {
+  margin-top: 5px;
+}
+
+@media (max-width: 900px) {
+  .agent-monitor-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

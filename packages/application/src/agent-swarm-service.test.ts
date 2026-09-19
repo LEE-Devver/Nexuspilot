@@ -149,6 +149,47 @@ describe('AgentSwarmService', () => {
     }
   });
 
+  it('exposes a host monitor snapshot across owner sessions without prompt or result bodies', async () => {
+    const fake = runningCodex();
+    const { database, repository, service } = await fixture(fake.codex);
+    try {
+      repository.create({
+        id: 'swarm-monitor-a',
+        ownerClientId: 'client-a',
+        ownerSessionId: 'session-a',
+        workspaceId: 'workspace-a',
+        idempotencyKey: '44444444-4444-4444-8444-444444444444',
+        maxConcurrency: 1,
+        createdAt: '2026-08-31T00:00:01.000Z',
+        tasks: [{ id: 'inspect', promptDigest: 'a'.repeat(64), promptLength: 99, dependsOn: [], state: 'running' }],
+      });
+      repository.create({
+        id: 'swarm-monitor-b',
+        ownerClientId: 'client-b',
+        ownerSessionId: 'session-b',
+        workspaceId: 'workspace-b',
+        idempotencyKey: '55555555-5555-4555-8555-555555555555',
+        maxConcurrency: 1,
+        createdAt: '2026-08-31T00:00:02.000Z',
+        tasks: [{ id: 'review', promptDigest: 'b'.repeat(64), promptLength: 77, dependsOn: ['inspect'], state: 'blocked' }],
+      });
+      repository.updateTask('swarm-monitor-a', 'inspect', { resultText: 'sensitive-result-body' }, '2026-08-31T00:00:03.000Z');
+
+      const snapshot = service.monitorSnapshot(20);
+      expect(snapshot.map((swarm) => [swarm.swarmId, swarm.ownerClientId, swarm.ownerSessionId])).toEqual([
+        ['swarm-monitor-a', 'client-a', 'session-a'],
+        ['swarm-monitor-b', 'client-b', 'session-b'],
+      ]);
+      const serialized = JSON.stringify(snapshot);
+      expect(serialized).not.toContain('sensitive-result-body');
+      expect(serialized).not.toContain('promptDigest');
+      expect(serialized).not.toContain('promptLength');
+      expect(snapshot[0]?.tasks[0]).toMatchObject({ id: 'inspect', resultAvailable: true });
+    } finally {
+      database.close();
+    }
+  });
+
   it('isolates a child launch failure while keeping running and independent siblings alive', async () => {
     let sequence = 0;
     const stop = vi.fn<AgentSwarmCodexPort['stop']>(async () => ok(undefined));

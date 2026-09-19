@@ -56,6 +56,35 @@ function render(dashboard: DashboardSnapshot, locale: 'th' | 'en' = 'en'): strin
 }
 
 describe('Security Overview', () => {
+  it('renders the host-wide Agent Monitor without exposing prompt or result bodies', () => {
+    const markup = render({
+      ...baseDashboard,
+      agentSwarms: [{
+        swarmId: 'swarm-a',
+        workspaceId: 'workspace-a',
+        ownerClientId: 'chatgpt',
+        ownerSessionId: 'session-1234567890abcdef',
+        state: 'running',
+        maxConcurrency: 2,
+        createdAt: '2026-09-19T00:00:00.000Z',
+        updatedAt: '2026-09-19T00:00:01.000Z',
+        tasks: [
+          { id: 'design', dependsOn: [], state: 'running', createdAt: '2026-09-19T00:00:00.000Z', resultAvailable: false, outputTruncated: false },
+          { id: 'review', dependsOn: ['design'], state: 'blocked', createdAt: '2026-09-19T00:00:00.000Z', resultAvailable: false, outputTruncated: false },
+        ],
+      }],
+    });
+
+    expect(markup).toContain('Agent Monitor');
+    expect(markup).toContain('chatgpt · session-…cdef');
+    expect(markup).toContain('design');
+    expect(markup).toContain('depends on: design');
+    expect(markup).toContain('Running tasks');
+    expect(markup).toContain('Blocked tasks');
+    expect(markup).not.toContain('promptDigest');
+    expect(markup).not.toContain('resultText');
+  });
+
   it('shows a restricted posture when STDIO uses strict roots and risky switches are off', () => {
     const markup = render(baseDashboard);
     expect(markup).toContain('Security Overview');

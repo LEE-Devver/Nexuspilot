@@ -12,6 +12,7 @@ import {
 import type { FileActor } from './file-service.js';
 import type {
   AgentSwarmListPage,
+  AgentSwarmMonitorSnapshot,
   AgentSwarmResultPage,
   AgentSwarmSnapshot,
   AgentSwarmStartRequest,
@@ -174,6 +175,10 @@ export class AgentSwarmService {
     return ok({ items: items.slice(0, boundedLimit).map(toSnapshot), ...(hasMore ? { nextCursor: String(offset + boundedLimit) } : {}) });
   }
 
+  public monitorSnapshot(limit = 20): readonly AgentSwarmMonitorSnapshot[] {
+    return this.repository.listRecent(limit).map(toMonitorSnapshot);
+  }
+
   private async monitor(swarmId: string, live: LiveSwarm, outerSignal?: AbortSignal): Promise<void> {
     while (!live.abortController.signal.aborted && outerSignal?.aborted !== true) {
       const swarm = this.repository.getOwned(swarmId, live.actor.clientId, actorSessionId(live.actor), live.workspaceId);
@@ -304,6 +309,14 @@ function toSnapshot(swarm: StoredAgentSwarm): AgentSwarmSnapshot {
     createdAt: swarm.createdAt,
     updatedAt: swarm.updatedAt,
     tasks: swarm.tasks.map(toTaskSnapshot),
+  };
+}
+
+function toMonitorSnapshot(swarm: StoredAgentSwarm): AgentSwarmMonitorSnapshot {
+  return {
+    ...toSnapshot(swarm),
+    ownerClientId: swarm.ownerClientId,
+    ownerSessionId: swarm.ownerSessionId,
   };
 }
 

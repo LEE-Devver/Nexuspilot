@@ -699,6 +699,30 @@ export interface RecoveryCenterSummary {
   readonly checkpoints: readonly RecoveryCheckpointSummary[];
 }
 
+export interface AgentMonitorTaskSummary {
+  readonly id: string;
+  readonly dependsOn: readonly string[];
+  readonly state: 'blocked' | 'queued' | 'running' | 'completed' | 'failed' | 'cancelled' | 'termination_unverified';
+  readonly createdAt: string;
+  readonly startedAt?: string;
+  readonly finishedAt?: string;
+  readonly resultAvailable: boolean;
+  readonly outputTruncated: boolean;
+  readonly error?: string;
+}
+
+export interface AgentMonitorSwarmSummary {
+  readonly swarmId: string;
+  readonly workspaceId: string;
+  readonly ownerClientId: string;
+  readonly ownerSessionId: string;
+  readonly state: 'queued' | 'running' | 'completed' | 'failed' | 'cancelled' | 'termination_unverified';
+  readonly maxConcurrency: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly tasks: readonly AgentMonitorTaskSummary[];
+}
+
 export interface DashboardSnapshot {
   /** Primary workspace used when a tool call omits workspaceId. */
   readonly selectedWorkspace: WorkspaceSummary | null;
@@ -737,6 +761,8 @@ export interface DashboardSnapshot {
   readonly connectionModes: ConnectionModes;
   readonly workLog: readonly WorkLogEntry[];
   readonly inFlight: readonly InFlightWorkItem[];
+  /** Host-only read model of recent agent swarms across client sessions. Prompt/result bodies are never included. */
+  readonly agentSwarms?: readonly AgentMonitorSwarmSummary[];
   readonly tunnel: TunnelStatus;
   readonly remoteMcp: RemoteMcpStatus;
   readonly settings: UserSettings;

@@ -37,6 +37,11 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
   const [projectBusyId, setProjectBusyId] = useState<string | null>(null);
   const activeWorkspaceIds = new Set(dashboard.activeWorkspaces.map((workspace) => workspace.id));
   const activeProjects = props.workspaces.filter((workspace) => activeWorkspaceIds.has(workspace.id));
+  const agentSwarms = dashboard.agentSwarms ?? [];
+  const activeAgentSwarms = agentSwarms.filter((swarm) => swarm.state === 'queued' || swarm.state === 'running');
+  const monitoredTasks = agentSwarms.flatMap((swarm) => swarm.tasks);
+  const runningAgentTasks = monitoredTasks.filter((task) => task.state === 'running').length;
+  const blockedAgentTasks = monitoredTasks.filter((task) => task.state === 'blocked').length;
   const tunnelCredentialAvailable = tunnelRuntimeCredentialAvailable(dashboard.tunnel);
   const tunnelPresentation = tunnelAuthPresentation(dashboard.tunnel);
   const remoteMcp = dashboard.remoteMcp ?? {
@@ -135,6 +140,65 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
             {dashboard.unrestricted ? ` • ${t('badge.unrestricted')}` : ''}
           </p>
         </div>
+      </section>
+
+      <section className="panel agent-monitor-panel" aria-label={props.locale === 'th' ? 'Agent Monitor' : 'Agent Monitor'} data-testid="agent-monitor">
+        <div className="agent-monitor-header">
+          <div>
+            <h2>Agent Monitor</h2>
+            <p className="hint">{props.locale === 'th'
+              ? 'ดู Agent swarm และ task dependency จากทุก client session บน NexusPilot เครื่องนี้ โดยไม่แสดง prompt หรือ result body'
+              : 'Read-only swarm and task dependency view across client sessions on this NexusPilot host. Prompt and result bodies are never shown.'}</p>
+          </div>
+          <span className={`connection-count-chip ${activeAgentSwarms.length > 0 ? 'is-online' : ''}`}>
+            {activeAgentSwarms.length} {props.locale === 'th' ? 'กำลังทำงาน' : 'active'}
+          </span>
+        </div>
+        <div className="agent-monitor-metrics">
+          <AgentMonitorMetric label={props.locale === 'th' ? 'Swarm ล่าสุด' : 'Recent swarms'} value={String(agentSwarms.length)} />
+          <AgentMonitorMetric label={props.locale === 'th' ? 'Task กำลังรัน' : 'Running tasks'} value={String(runningAgentTasks)} active={runningAgentTasks > 0} />
+          <AgentMonitorMetric label={props.locale === 'th' ? 'Task รอ dependency' : 'Blocked tasks'} value={String(blockedAgentTasks)} />
+          <AgentMonitorMetric label={props.locale === 'th' ? 'Client sessions' : 'Client sessions'} value={String(new Set(agentSwarms.map((swarm) => `${swarm.ownerClientId}:${swarm.ownerSessionId}`)).size)} />
+        </div>
+        {agentSwarms.length === 0 ? (
+          <div className="agent-monitor-empty">
+            {props.locale === 'th' ? 'ยังไม่มี Agent swarm — เมื่อมีการ delegate งานผ่าน agent_swarm_run รายการจะขึ้นที่นี่' : 'No agent swarms yet. Delegated agent_swarm_run work will appear here.'}
+          </div>
+        ) : (
+          <div className="agent-monitor-swarms">
+            {agentSwarms.slice(0, 5).map((swarm) => {
+              const workspace = props.workspaces.find((candidate) => candidate.id === swarm.workspaceId);
+              return (
+                <article className="agent-monitor-swarm" key={swarm.swarmId} data-swarm-state={swarm.state}>
+                  <div className="agent-monitor-swarm-heading">
+                    <div>
+                      <strong>{workspace?.displayName ?? swarm.workspaceId}</strong>
+                      <span>{shortAgentIdentity(swarm.ownerClientId, swarm.ownerSessionId)}</span>
+                    </div>
+                    <span className={`agent-monitor-state state-${swarm.state}`}>{swarm.state.replaceAll('_', ' ')}</span>
+                  </div>
+                  <div className="agent-monitor-task-graph" aria-label={props.locale === 'th' ? 'Task dependency graph' : 'Task dependency graph'}>
+                    {swarm.tasks.map((task) => (
+                      <div className={`agent-monitor-task task-${task.state}`} key={task.id}>
+                        <div className="agent-monitor-task-main">
+                          <strong>{task.id}</strong>
+                          <span>{task.state.replaceAll('_', ' ')}</span>
+                        </div>
+                        <div className="agent-monitor-task-meta">
+                          {task.dependsOn.length === 0
+                            ? (props.locale === 'th' ? 'เริ่มได้ทันที' : 'root task')
+                            : `${props.locale === 'th' ? 'รอ' : 'depends on'}: ${task.dependsOn.join(', ')}`}
+                          {task.resultAvailable ? ` • ${props.locale === 'th' ? 'มีผลลัพธ์' : 'result ready'}` : ''}
+                          {task.outputTruncated ? ' • truncated' : ''}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <section className={`panel security-overview ${broadAccess ? 'security-risk-broad' : 'security-risk-restricted'}`} aria-label={t('security.title')}>
@@ -353,6 +417,20 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
 
     </div>
   );
+}
+
+function AgentMonitorMetric(props: { readonly label: string; readonly value: string; readonly active?: boolean }): ReactElement {
+  return (
+    <article className={`agent-monitor-metric ${props.active === true ? 'is-active' : ''}`}>
+      <span>{props.label}</span>
+      <strong>{props.value}</strong>
+    </article>
+  );
+}
+
+function shortAgentIdentity(clientId: string, sessionId: string): string {
+  const shortSession = sessionId.length > 12 ? `${sessionId.slice(0, 8)}…${sessionId.slice(-4)}` : sessionId;
+  return `${clientId} · ${shortSession}`;
 }
 
 function SecurityMetric(props: { readonly label: string; readonly value: string; readonly state?: 'safe' | 'warn' | 'active' | 'neutral' }): ReactElement {
