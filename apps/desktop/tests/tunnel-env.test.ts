@@ -7,7 +7,7 @@ describe('Secure Tunnel Desktop HTTP wiring', () => {
   it('passes only tunnel-client runtime state and does not leak headless lnwjud scope switches', () => {
     const env = tunnelClientEnv('key', 'C:/Users/me/AppData/Roaming/tunnel-client');
     expect(env.CONTROL_PLANE_API_KEY).toBe('key');
-    expect(env.TUNNEL_CLIENT_PROFILE).toBe('lnwjud');
+    expect(env.TUNNEL_CLIENT_PROFILE).toBe('nexuspilot');
     expect(env.TUNNEL_CLIENT_PROFILE_DIR).toBe('C:/Users/me/AppData/Roaming/tunnel-client');
     expect(env.LNWJUD_DATA_PATH).toBeUndefined();
     expect(env.LNWJUD_UNRESTRICTED).toBeUndefined();

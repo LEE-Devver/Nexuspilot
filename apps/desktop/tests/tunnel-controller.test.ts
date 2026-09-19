@@ -1,5 +1,5 @@
 import { isolateTunnelProfile } from './tunnel-profile-fixture.js';
-import { mkdtemp, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -28,6 +28,30 @@ afterEach(async () => {
 });
 
 describe('TunnelController lifecycle', () => {
+  it('uses canonical NexusPilot tunnel profile and log names for a fresh profile directory', async () => {
+    const controller = new TunnelController({
+      getClientPath: (): string | null => null,
+      setClientPath: (): void => undefined,
+      getDataPath: (): string => process.cwd(),
+    });
+    expect(controller.profileName()).toBe('nexuspilot');
+    expect(controller.profilePath()).toBe(path.join(controller.profileDirectory(), 'nexuspilot.yaml'));
+    expect(controller.logPath()).toBe(path.join(controller.profileDirectory(), 'nexuspilot-tunnel.log'));
+  });
+
+  it('keeps using an existing legacy lnwjud profile and log name when no canonical profile exists', async () => {
+    const controller = new TunnelController({
+      getClientPath: (): string | null => null,
+      setClientPath: (): void => undefined,
+      getDataPath: (): string => process.cwd(),
+    });
+    await mkdir(controller.profileDirectory(), { recursive: true });
+    await writeFile(path.join(controller.profileDirectory(), 'lnwjud.yaml'), 'mcp:\n  server_urls: []\n', 'utf8');
+    expect(controller.profileName()).toBe('lnwjud');
+    expect(controller.profilePath()).toBe(path.join(controller.profileDirectory(), 'lnwjud.yaml'));
+    expect(controller.logPath()).toBe(path.join(controller.profileDirectory(), 'lnwjud-tunnel.log'));
+  });
+
   it('replaces a redirected secret path without touching the link target', async () => {
     const dataPath = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-tunnel-secret-atomic-'));
     temporaryRoots.push(dataPath);

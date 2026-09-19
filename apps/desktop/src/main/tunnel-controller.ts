@@ -16,11 +16,12 @@ import { extractTunnelId, extractTunnelMcpServerUrl, normalizeLoopbackMcpUrl, re
 import { TunnelRuntimeAdapter, type TunnelRuntimeAdapterOptions } from './tunnel-runtime-adapter.js';
 import { TunnelRuntimeReconciler, type TunnelRuntimeDesiredState, type TunnelRuntimeReconcilerAdapter } from './tunnel-runtime-reconciler.js';
 import { TunnelRuntimeSupervisor } from './tunnel-runtime-supervisor.js';
-import { maskTunnelId, TUNNEL_RUNTIME_ALIAS, type TunnelRuntimeSnapshot } from './tunnel-runtime-state.js';
+import { maskTunnelId, type TunnelRuntimeSnapshot } from './tunnel-runtime-state.js';
 
 const execFileAsync = promisify(execFile);
 
-const PROFILE_NAME = 'lnwjud';
+const PROFILE_NAME = 'nexuspilot';
+const LEGACY_PROFILE_NAME = 'lnwjud';
 export const TUNNEL_SECRET_FILE_NAME = 'lnwjud.runtime.secret';
 const CLIENT_PATH_SETTING = 'tunnel_client_path';
 const MCP_CONNECTION_MAX_TTL = '168h0m0s';
@@ -193,12 +194,18 @@ export class TunnelController {
     return path.join(this.profileDirectory(), TUNNEL_SECRET_FILE_NAME);
   }
 
+  public profileName(): string {
+    const canonical = path.join(this.profileDirectory(), `${PROFILE_NAME}.yaml`);
+    const legacy = path.join(this.profileDirectory(), `${LEGACY_PROFILE_NAME}.yaml`);
+    return existsSync(canonical) || !existsSync(legacy) ? PROFILE_NAME : LEGACY_PROFILE_NAME;
+  }
+
   public profilePath(): string {
-    return path.join(this.profileDirectory(), `${PROFILE_NAME}.yaml`);
+    return path.join(this.profileDirectory(), `${this.profileName()}.yaml`);
   }
 
   public logPath(): string {
-    return path.join(this.profileDirectory(), 'lnwjud-tunnel.log');
+    return path.join(this.profileDirectory(), `${this.profileName()}-tunnel.log`);
   }
 
   public resolveClientPath(): string | null {
@@ -244,7 +251,7 @@ export class TunnelController {
     await mkdir(this.profileDirectory(), { recursive: true });
     try {
       await execFileAsync(clientPath, buildTunnelInitArgs(normalizedTunnelId, mcpServerUrl, this.profileDirectory()), {
-        env: tunnelClientEnv(apiKey, this.profileDirectory(), this.options.platform ?? process.platform),
+        env: tunnelClientEnv(apiKey, this.profileDirectory(), this.options.platform ?? process.platform, PROFILE_NAME),
         windowsHide: true,
         encoding: 'utf8',
         timeout: 60_000,
@@ -254,7 +261,7 @@ export class TunnelController {
       throw new Error(detail.length > 0 ? detail : 'tunnel-client init failed');
     }
     await this.repairDesktopTunnelProfile();
-    await runTunnelDoctor(clientPath, apiKey, this.profileDirectory(), this.options.platform ?? process.platform);
+    await runTunnelDoctor(clientPath, apiKey, this.profileDirectory(), this.options.platform ?? process.platform, PROFILE_NAME);
     this.options.setTunnelId?.(normalizedTunnelId);
     this.runtimeConfigurationDirty = true;
     this.disposeRuntimeSupervisor();
@@ -547,7 +554,7 @@ export class TunnelController {
       const auth = await this.authStatus();
       throwIfStartCancelled(signal);
       if (!auth.runtimeCredentialAvailable) throw new Error(auth.message ?? 'Save a Runtime API key first');
-      if (!existsSync(this.profilePath())) throw new Error('Missing tunnel profile lnwjud.yaml');
+      if (!existsSync(this.profilePath())) throw new Error(`Missing tunnel profile ${this.profileName()}.yaml`);
 
       const credential = await this.authProvider.getRuntimeCredential();
       throwIfStartCancelled(signal);
@@ -561,7 +568,7 @@ export class TunnelController {
       throwIfStartCancelled(signal);
       await this.repairDesktopTunnelProfile();
       throwIfStartCancelled(signal);
-      await runTunnelDoctor(clientPath, apiKey, this.profileDirectory(), this.options.platform ?? process.platform);
+      await runTunnelDoctor(clientPath, apiKey, this.profileDirectory(), this.options.platform ?? process.platform, this.profileName());
       throwIfStartCancelled(signal);
       this.runtimeMode = 'profile-child';
       this.spawnRun(clientPath, apiKey);
@@ -920,13 +927,13 @@ export class TunnelController {
       clientPath,
       [
         'run',
-        '--profile', PROFILE_NAME,
+        '--profile', this.profileName(),
         '--profile-dir', this.profileDirectory(),
         '--log.file', this.logPath(),
         '--mcp.connection-max-ttl', MCP_CONNECTION_MAX_TTL,
       ],
       {
-        env: tunnelClientEnv(apiKey, this.profileDirectory(), this.options.platform ?? process.platform),
+        env: tunnelClientEnv(apiKey, this.profileDirectory(), this.options.platform ?? process.platform, this.profileName()),
         windowsHide: true,
         // detached:true on Windows gives the child its own console window.
         detached: (this.options.platform ?? process.platform) !== 'win32',
@@ -1130,12 +1137,6 @@ export class TunnelController {
     if (clientPath === null || !existsSync(clientPath)) return false;
 
     const adapter = this.createRuntimeAdapter(clientPath, '');
-    if (storedTunnelId === null && adapter.runtimeAlias() !== TUNNEL_RUNTIME_ALIAS) {
-      if (recordedOwner !== null) {
-        return this.clearRecordedRuntimeOwnerOnlyWhenExternalGone('its dedicated lnwjud alias is unavailable');
-      }
-      return false;
-    }
     let capabilities;
     try {
       capabilities = await adapter.capabilities();
@@ -1194,7 +1195,7 @@ export class TunnelController {
     const options: TunnelRuntimeAdapterOptions = {
       clientPath,
       profileDirectory: this.profileDirectory(),
-      environment: tunnelClientEnv(apiKey, this.profileDirectory(), this.options.platform ?? process.platform),
+      environment: tunnelClientEnv(apiKey, this.profileDirectory(), this.options.platform ?? process.platform, this.profileName()),
     };
     return this.options.createRuntimeAdapter?.(options) ?? new TunnelRuntimeAdapter(options);
   }
@@ -1380,7 +1381,7 @@ export class TunnelController {
     return {
       enabled: this.autoReconnectEnabled(),
       tunnelIdMasked: maskTunnelId(tunnelId),
-      runtimeAlias: PROFILE_NAME,
+      runtimeAlias: this.profileName(),
       mode: source === 'external' ? 'external' : 'profile-child',
       state: this.state === 'running' ? 'running' : this.state === 'starting' ? 'starting' : this.state === 'error' ? 'error' : 'stopped',
       healthy: null,
@@ -1443,7 +1444,7 @@ export function buildTunnelInitArgs(tunnelId: string, mcpServerUrl: string, prof
   ];
 }
 
-export function tunnelClientEnv(apiKey: string, profileDirectory: string, platform: NodeJS.Platform = process.platform): NodeJS.ProcessEnv {
+export function tunnelClientEnv(apiKey: string, profileDirectory: string, platform: NodeJS.Platform = process.platform, profileName: string = PROFILE_NAME): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = { ...process.env };
   env.CONTROL_PLANE_API_KEY = apiKey.trim();
   env.MCP_CONNECTION_MAX_TTL = MCP_CONNECTION_MAX_TTL;
@@ -1456,7 +1457,7 @@ export function tunnelClientEnv(apiKey: string, profileDirectory: string, platfo
   // headless lnwjud authorization/scope settings to the transport-only child.
   delete env.LNWJUD_DATA_PATH;
   delete env.LNWJUD_UNRESTRICTED;
-  env.TUNNEL_CLIENT_PROFILE = PROFILE_NAME;
+  env.TUNNEL_CLIENT_PROFILE = profileName;
   env.TUNNEL_CLIENT_PROFILE_DIR = profileDirectory;
   if (platform === 'win32') {
     const userProfile = process.env.USERPROFILE ?? os.homedir();
@@ -1473,10 +1474,10 @@ export function tunnelClientEnv(apiKey: string, profileDirectory: string, platfo
   return env;
 }
 
-async function runTunnelDoctor(clientPath: string, apiKey: string, profileDirectory: string, platform: NodeJS.Platform = process.platform): Promise<void> {
+async function runTunnelDoctor(clientPath: string, apiKey: string, profileDirectory: string, platform: NodeJS.Platform = process.platform, profileName: string = PROFILE_NAME): Promise<void> {
   try {
-    await execFileAsync(clientPath, ['doctor', '--profile', PROFILE_NAME, '--profile-dir', profileDirectory, '--explain'], {
-      env: tunnelClientEnv(apiKey, profileDirectory, platform),
+    await execFileAsync(clientPath, ['doctor', '--profile', profileName, '--profile-dir', profileDirectory, '--explain'], {
+      env: tunnelClientEnv(apiKey, profileDirectory, platform, profileName),
       windowsHide: true,
       encoding: 'utf8',
       timeout: 60_000,
