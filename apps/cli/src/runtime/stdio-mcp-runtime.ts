@@ -32,7 +32,7 @@ import {
   WINDOWS_CAPABILITY_BRIDGE_SHA256,
   WINDOWS_CAPABILITY_BRIDGE_SIZE_BYTES,
 } from '@nexuspilot/capabilities';
-import { ALLOW_AI_DELETE_SETTING_KEY, DESTRUCTIVE_AUTO_APPROVAL_SETTING_KEY, DEFAULT_CODEX_TOOLS_ENABLED, DEFAULT_MCP_CALL_TIMEOUT_MS, DEFAULT_MCP_IDLE_TIMEOUT_MS, DEFAULT_PROCESS_TIMEOUT_MS, DEFAULT_MCP_POLL_WAIT_SECONDS, DEFAULT_PONYTAIL_MODE, DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS, USER_SETTING_KEYS, parseBooleanSetting, parseCustomPermissionSettings, parseDestructiveAutoApprovalPolicy, parseIntegerSetting, parsePathList, parsePonytailMode, parseStringRecordSetting, type DestructiveAutoApprovalPolicy, type PonytailMode } from '@nexuspilot/shared';
+import { ALLOW_AI_DELETE_SETTING_KEY, DESTRUCTIVE_AUTO_APPROVAL_SETTING_KEY, DEFAULT_CODEX_TOOLS_ENABLED, DEFAULT_MCP_CALL_TIMEOUT_MS, DEFAULT_MCP_IDLE_TIMEOUT_MS, DEFAULT_PROCESS_TIMEOUT_MS, DEFAULT_MCP_POLL_WAIT_SECONDS, DEFAULT_PONYTAIL_MODE, DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS, USER_SETTING_KEYS, readCompatEnv, parseBooleanSetting, parseCustomPermissionSettings, parseDestructiveAutoApprovalPolicy, parseIntegerSetting, parsePathList, parsePonytailMode, parseStringRecordSetting, type DestructiveAutoApprovalPolicy, type PonytailMode } from '@nexuspilot/shared';
 import {
   EXTENSIONS_SETTINGS_KEY,
   createLocalExtensionsService,
@@ -280,12 +280,12 @@ export function resolveStdioCheckpointKey(configured: Uint8Array | undefined = u
     if (configured.byteLength !== 32) throw new Error('Stdio checkpoint encryption key must be 32 bytes');
     return Buffer.from(configured);
   }
-  const encoded = process.env.LNWJUD_CHECKPOINT_KEY_BASE64?.trim();
+  const encoded = readCompatEnv('CHECKPOINT_KEY_BASE64').value?.trim();
   if (encoded === undefined || encoded.length === 0) {
-    throw new Error('Pure Node STDIO requires an explicit 32-byte LNWJUD_CHECKPOINT_KEY_BASE64; packaged STDIO must use Electron --mcp-stdio');
+    throw new Error('Pure Node STDIO requires an explicit 32-byte NEXUSPILOT_CHECKPOINT_KEY_BASE64 (legacy LNWJUD_CHECKPOINT_KEY_BASE64 is also supported); packaged STDIO must use Electron --mcp-stdio');
   }
   const key = Buffer.from(encoded, 'base64');
-  if (key.byteLength !== 32 || key.toString('base64') !== encoded) throw new Error('LNWJUD_CHECKPOINT_KEY_BASE64 must decode to 32 bytes');
+  if (key.byteLength !== 32 || key.toString('base64') !== encoded) throw new Error('NEXUSPILOT_CHECKPOINT_KEY_BASE64 must decode to 32 bytes (legacy LNWJUD_CHECKPOINT_KEY_BASE64 is also supported)');
   return key;
 }
 
@@ -332,7 +332,7 @@ function createStdioCapabilityService(
     dataPath,
     workspaceRootsProvider,
     unrestricted,
-    configuredRootsProvider: () => strictAllowedRoots ?? [...readCapabilityRoots(process.env.LNWJUD_CAPABILITY_ROOTS), ...configuredRootsProvider(), restrictedRoot],
+    configuredRootsProvider: () => strictAllowedRoots ?? [...readCapabilityRoots(readCompatEnv('CAPABILITY_ROOTS').value), ...configuredRootsProvider(), restrictedRoot],
     synchronousWaitSecondsProvider,
     ...(windows === undefined ? {} : { windows }),
   });
@@ -345,7 +345,7 @@ function readCapabilityRoots(value: string | undefined): readonly string[] {
 }
 
 function capabilityBridgeScriptPath(): string {
-  const configured = process.env.LNWJUD_CAPABILITY_BRIDGE_SCRIPT;
+  const configured = readCompatEnv('CAPABILITY_BRIDGE_SCRIPT').value;
   if (configured !== undefined && configured.trim().length > 0) return path.resolve(configured);
 
   const scriptDir = resolveScriptDirectory();
@@ -383,21 +383,21 @@ function resolveScriptDirectory(): string | undefined {
 }
 
 function capabilityBridgeExpectedSha256(): string {
-  const configuredScript = process.env.LNWJUD_CAPABILITY_BRIDGE_SCRIPT;
+  const configuredScript = readCompatEnv('CAPABILITY_BRIDGE_SCRIPT').value;
   if (configuredScript === undefined || configuredScript.trim().length === 0) return WINDOWS_CAPABILITY_BRIDGE_SHA256;
-  const configuredHash = process.env.LNWJUD_CAPABILITY_BRIDGE_SHA256?.trim().toLowerCase();
+  const configuredHash = readCompatEnv('CAPABILITY_BRIDGE_SHA256').value?.trim().toLowerCase();
   return configuredHash !== undefined && /^[0-9a-f]{64}$/.test(configuredHash) ? configuredHash : 'missing';
 }
 
 function capabilityBridgeExpectedSizeBytes(): number | undefined {
-  const configuredScript = process.env.LNWJUD_CAPABILITY_BRIDGE_SCRIPT;
+  const configuredScript = readCompatEnv('CAPABILITY_BRIDGE_SCRIPT').value;
   if (configuredScript === undefined || configuredScript.trim().length === 0) return WINDOWS_CAPABILITY_BRIDGE_SIZE_BYTES;
-  const configuredSize = Number.parseInt(process.env.LNWJUD_CAPABILITY_BRIDGE_SIZE_BYTES ?? '', 10);
+  const configuredSize = Number.parseInt(readCompatEnv('CAPABILITY_BRIDGE_SIZE_BYTES').value ?? '', 10);
   return Number.isSafeInteger(configuredSize) && configuredSize > 0 ? configuredSize : undefined;
 }
 
 function windowsOcrHelperPath(): string | undefined {
-  const configured = process.env.LNWJUD_WINDOWS_OCR_HELPER;
+  const configured = readCompatEnv('WINDOWS_OCR_HELPER').value;
   if (configured !== undefined && configured.trim().length > 0) return path.resolve(configured);
   const resourcesPath = (process as NodeJS.Process & { resourcesPath?: string }).resourcesPath;
   const scriptDir = resolveScriptDirectory();

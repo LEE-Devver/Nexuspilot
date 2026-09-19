@@ -16,7 +16,7 @@ import {
 } from '@nexuspilot/capabilities';
 import { createProcessTreeTerminator } from '@nexuspilot/process';
 import type { DashboardSnapshot } from '@nexuspilot/ipc-contracts';
-import { DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS } from '@nexuspilot/shared';
+import { DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS, readCompatEnv } from '@nexuspilot/shared';
 import { createElectronNativeCapabilityBackends, type ElectronNativeCapabilityApi } from './electron-native-capability-backend.js';
 
 export interface LocalCapabilityRuntime {
@@ -49,7 +49,7 @@ export function createLocalCapabilityRuntime(
     dataPath,
     workspaceRootsProvider,
     unrestricted,
-    configuredRootsProvider: () => [...readCapabilityRoots(process.env.LNWJUD_CAPABILITY_ROOTS), ...configuredRootsProvider()],
+    configuredRootsProvider: () => [...readCapabilityRoots(readCompatEnv('CAPABILITY_ROOTS').value), ...configuredRootsProvider()],
     synchronousWaitSecondsProvider,
     ...(nativeApi === undefined ? {} : { shared: createElectronNativeCapabilityBackends({ platform: process.platform, api: nativeApi, allowedRootsProvider: workspaceRootsProvider }) }),
     ...(windows === undefined ? {} : { windows }),
@@ -112,7 +112,7 @@ function readCapabilityRoots(value: string | undefined): readonly string[] {
 }
 
 function capabilityBridgeScriptPath(): string {
-  const configured = process.env.LNWJUD_CAPABILITY_BRIDGE_SCRIPT;
+  const configured = readCompatEnv('CAPABILITY_BRIDGE_SCRIPT').value;
   if (configured !== undefined && configured.trim().length > 0) return path.resolve(configured);
   const resourcesPath = (process as NodeJS.Process & { resourcesPath?: string }).resourcesPath;
   const candidates = [
@@ -126,21 +126,21 @@ function capabilityBridgeScriptPath(): string {
 }
 
 function capabilityBridgeExpectedSha256(): string {
-  const configuredScript = process.env.LNWJUD_CAPABILITY_BRIDGE_SCRIPT;
+  const configuredScript = readCompatEnv('CAPABILITY_BRIDGE_SCRIPT').value;
   if (configuredScript === undefined || configuredScript.trim().length === 0) return WINDOWS_CAPABILITY_BRIDGE_SHA256;
-  const configuredHash = process.env.LNWJUD_CAPABILITY_BRIDGE_SHA256?.trim().toLowerCase();
+  const configuredHash = readCompatEnv('CAPABILITY_BRIDGE_SHA256').value?.trim().toLowerCase();
   return configuredHash !== undefined && /^[0-9a-f]{64}$/.test(configuredHash) ? configuredHash : 'missing';
 }
 
 function capabilityBridgeExpectedSizeBytes(): number | undefined {
-  const configuredScript = process.env.LNWJUD_CAPABILITY_BRIDGE_SCRIPT;
+  const configuredScript = readCompatEnv('CAPABILITY_BRIDGE_SCRIPT').value;
   if (configuredScript === undefined || configuredScript.trim().length === 0) return WINDOWS_CAPABILITY_BRIDGE_SIZE_BYTES;
-  const configuredSize = Number.parseInt(process.env.LNWJUD_CAPABILITY_BRIDGE_SIZE_BYTES ?? '', 10);
+  const configuredSize = Number.parseInt(readCompatEnv('CAPABILITY_BRIDGE_SIZE_BYTES').value ?? '', 10);
   return Number.isSafeInteger(configuredSize) && configuredSize > 0 ? configuredSize : undefined;
 }
 
 function windowsOcrHelperPath(): string | undefined {
-  const configured = process.env.LNWJUD_WINDOWS_OCR_HELPER;
+  const configured = readCompatEnv('WINDOWS_OCR_HELPER').value;
   if (configured !== undefined && configured.trim().length > 0) return path.resolve(configured);
   const resourcesPath = (process as NodeJS.Process & { resourcesPath?: string }).resourcesPath;
   const candidates = [

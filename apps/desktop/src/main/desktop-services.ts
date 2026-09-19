@@ -1641,10 +1641,10 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
 /** Direct DesktopRuntime construction is test-only; production injects safeStorage output. */
 function resolveTestCheckpointEncryptionKey(): Buffer | undefined {
   if (process.env.NODE_ENV !== 'test' && process.env.VITEST !== 'true') return undefined;
-  const encoded = process.env.LNWJUD_CHECKPOINT_KEY_BASE64?.trim();
+  const encoded = readCompatEnv('CHECKPOINT_KEY_BASE64').value?.trim();
   if (encoded === undefined || encoded.length === 0) return undefined;
   const key = Buffer.from(encoded, 'base64');
-  if (key.byteLength !== 32 || key.toString('base64') !== encoded) throw new Error('LNWJUD_CHECKPOINT_KEY_BASE64 must decode to 32 bytes');
+  if (key.byteLength !== 32 || key.toString('base64') !== encoded) throw new Error('NEXUSPILOT_CHECKPOINT_KEY_BASE64 must decode to 32 bytes (legacy LNWJUD_CHECKPOINT_KEY_BASE64 is also supported)');
   return key;
 }
 

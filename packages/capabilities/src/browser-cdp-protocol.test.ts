@@ -2,7 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { NodeBrowserCdpProtocol } from './browser-cdp-protocol.js';
 
 describe('NodeBrowserCdpProtocol readiness', () => {
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
 
   it('distinguishes a missing browser executable from a stopped browser', async (): Promise<void> => {
     const missing = new NodeBrowserCdpProtocol({
@@ -27,6 +30,14 @@ describe('NodeBrowserCdpProtocol readiness', () => {
       browserInstalled: true,
       readinessReason: 'browser_not_running',
     });
+  });
+
+  it('prefers NexusPilot browser env configuration over the legacy prefix', () => {
+    vi.stubEnv('LNWJUD_BROWSER_CDP_PORT', '9229');
+    vi.stubEnv('NEXUSPILOT_BROWSER_CDP_PORT', '9233');
+
+    const browser = new NodeBrowserCdpProtocol({ platform: 'linux' });
+    expect(browser.port).toBe(9233);
   });
 
   it('fails closed on an unsupported host before launching a configured browser', async (): Promise<void> => {

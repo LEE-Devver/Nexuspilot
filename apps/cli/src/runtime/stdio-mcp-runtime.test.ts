@@ -29,11 +29,12 @@ async function waitUntil(predicate: () => boolean, timeoutMs: number = 2_000): P
 }
 
 beforeEach(() => {
-  process.env.LNWJUD_CHECKPOINT_KEY_BASE64 = TEST_CHECKPOINT_KEY;
+  process.env.NEXUSPILOT_CHECKPOINT_KEY_BASE64 = TEST_CHECKPOINT_KEY;
 });
 
 afterEach(async () => {
   delete process.env.TUNNEL_CLIENT_PROFILE_DIR;
+  delete process.env.NEXUSPILOT_CHECKPOINT_KEY_BASE64;
   delete process.env.LNWJUD_CHECKPOINT_KEY_BASE64;
   await Promise.all(temporaryRoots.splice(0).map((root) => rm(root, {
     recursive: true,

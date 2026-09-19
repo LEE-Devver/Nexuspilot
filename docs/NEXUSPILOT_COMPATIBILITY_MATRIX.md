@@ -63,11 +63,15 @@ The following groups now use NexusPilot-first compatibility reads:
 - workspace selection and reset flags
 - MCP port and stdio policy variables
 
-The following groups still read inherited names directly and must move through the compatibility helper in later Stage 3 checkpoints:
-
+The following groups now also use NexusPilot-first compatibility reads:
 - capability roots and helper paths
 - checkpoint encryption key variables
 - browser/CDP configuration
+
+`CAPABILITY_ROOTS` is temporarily dual-written to both `NEXUSPILOT_CAPABILITY_ROOTS` and `LNWJUD_CAPABILITY_ROOTS` so inherited host/native consumers continue to work during migration.
+
+The following groups still read inherited names directly and must move through the compatibility helper in later Stage 3 checkpoints:
+
 - tunnel client/profile configuration
 - native runtime/build/release variables
 - E2E-only variables

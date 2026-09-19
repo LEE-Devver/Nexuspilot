@@ -140,7 +140,9 @@ async function main(): Promise<void> {
     // This environment variable is consumed by the host-native runtime. Use
     // the platform delimiter so POSIX roots remain independently addressable
     // while Windows drive-letter paths continue to use `;`.
-    process.env.LNWJUD_CAPABILITY_ROOTS = strictAllowedRoots.join(path.delimiter);
+    const capabilityRoots = strictAllowedRoots.join(path.delimiter);
+    process.env.NEXUSPILOT_CAPABILITY_ROOTS = capabilityRoots;
+    process.env.LNWJUD_CAPABILITY_ROOTS = capabilityRoots;
     for (const root of strictAllowedRoots) {
       const normalized = comparableWorkspaceRoot(root);
       const existing = normalized === null ? undefined : (await workspaceService.list()).find((entry) => comparableWorkspaceRoot(entry.realRootPath) === normalized);
@@ -154,8 +156,10 @@ async function main(): Promise<void> {
     if (selected === undefined) throw new Error(`Strict allowed root was not registered: ${selectedAllowedRoot}`);
     workspace = selected;
   } else {
-    process.env.LNWJUD_CAPABILITY_ROOTS = process.env.LNWJUD_CAPABILITY_ROOTS?.trim()
+    const capabilityRoots = readCompatEnv('CAPABILITY_ROOTS').value?.trim()
       || requestedPath.replace(/\\/g, '/');
+    process.env.NEXUSPILOT_CAPABILITY_ROOTS = capabilityRoots;
+    process.env.LNWJUD_CAPABILITY_ROOTS = capabilityRoots;
 
     const requestedNorm = comparableWorkspaceRoot(requestedPath);
     const workspaces = await workspaceService.list();

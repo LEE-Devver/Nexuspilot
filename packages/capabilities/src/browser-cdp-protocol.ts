@@ -5,6 +5,7 @@ import path from 'node:path';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { appError, err, ok, type Result } from '@nexuspilot/domain';
 import { createProcessTreeTerminator, type ProcessTreeTerminator } from '@nexuspilot/process';
+import { readCompatEnv } from '@nexuspilot/shared';
 import type { BrowserCdpProtocol, BrowserCdpTab } from './browser-cdp-backend.js';
 
 interface BrowserCdpProtocolOptions {
@@ -29,9 +30,9 @@ export class NodeBrowserCdpProtocol implements BrowserCdpProtocol {
 
   public constructor(options: BrowserCdpProtocolOptions = {}) {
     this.platform = options.platform ?? process.platform;
-    this.port = options.port ?? readPort(process.env.LNWJUD_BROWSER_CDP_PORT);
-    this.profileDir = options.profileDir ?? process.env.LNWJUD_BROWSER_PROFILE ?? path.join(os.tmpdir(), 'lnwjud-browser-profile');
-    this.chromeExecutable = options.chromeExecutable ?? process.env.LNWJUD_BROWSER_EXECUTABLE;
+    this.port = options.port ?? readPort(readCompatEnv('BROWSER_CDP_PORT').value);
+    this.profileDir = options.profileDir ?? readCompatEnv('BROWSER_PROFILE').value ?? path.join(os.tmpdir(), 'lnwjud-browser-profile');
+    this.chromeExecutable = options.chromeExecutable ?? readCompatEnv('BROWSER_EXECUTABLE').value;
     this.terminator = options.terminator ?? (isSupportedBrowserPlatform(this.platform)
       ? createProcessTreeTerminator(this.platform)
       : unsupportedBrowserTerminator());
