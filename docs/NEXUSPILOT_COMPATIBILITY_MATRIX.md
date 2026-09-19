@@ -79,12 +79,11 @@ Tunnel profile names, runtime aliases, secret filenames, and persisted tunnel st
 
 Build/release scripts now use NexusPilot-first compatibility reads for runtime target/arch, tunnel target/arch, signing/notarization controls, release evidence/provenance settings, verification target/arch, and related release paths. Cross-process `SOURCE_DIRTY_AT_START` is temporarily dual-written under both prefixes for old/new release-script interoperability.
 
-The following groups still read inherited names directly and must move through the compatibility helper in later Stage 3 checkpoints:
+E2E-only configuration now uses NexusPilot-first compatibility reads and canonical `NEXUSPILOT_*` fixture variables. External MCP fixtures and Windows secret-migrator tests retain bounded legacy fallback where needed.
 
-- E2E-only variables
-- Windows-only runtime probe variables that are intentionally injected into child PowerShell processes
+Stage 3 public/runtime environment compatibility is complete. The remaining `LNWJUD_*` references are intentional compatibility writes/fallbacks or internal child-process probe variables, including Windows PowerShell event/acceptance probes that are not public configuration surface.
 
-Do not mechanically rename them. Migrate one group at a time with precedence tests.
+Do not mechanically rename those internal probe variables; migrate them only with the child protocol that consumes them.
 ## Persisted paths
 
 These stay unchanged in Stage 3:

@@ -9,11 +9,12 @@ import { fileURLToPath } from 'node:url';
 import { electronExecutablePath, terminateProcessTree } from './electron-runtime.js';
 import { ToolRegistry } from '@nexuspilot/mcp-server';
 import { chromium, expect, test, type Browser, type Locator, type Page } from '@playwright/test';
+import { readCompatEnv } from '@nexuspilot/shared';
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mainEntry = path.join(desktopRoot, 'dist', 'main', 'main.js');
 const electronExecutable = electronExecutablePath(desktopRoot);
-const packagedExecutable = process.env.LNWJUD_PACKAGED_EXECUTABLE?.trim() || undefined;
+const packagedExecutable = readCompatEnv('PACKAGED_EXECUTABLE').value?.trim() || undefined;
 const FIRST_PARTY_TOOL_COUNT = new ToolRegistry({}, { clientId: 'desktop-e2e', clientName: 'desktop-e2e' }).listAll().length;
 
 type LaunchedDesktop = {
@@ -236,8 +237,8 @@ async function launchDesktop(options: { readonly dataRoot?: string; readonly fix
       LNWJUD_WORKSPACE: fixtureRoot,
       LNWJUD_MCP_PORT: String(mcpPort),
       LNWJUD_UNRESTRICTED: '1',
-      LNWJUD_E2E_FIXTURE: '1',
-      LNWJUD_E2E_NODE_PATH: globalThis.process.execPath,
+      NEXUSPILOT_E2E_FIXTURE: '1',
+      NEXUSPILOT_E2E_NODE_PATH: globalThis.process.execPath,
       ...(options.legacyCheckpoint && packagedExecutable === undefined ? {
         LNWJUD_WINDOWS_SECRET_MIGRATOR: path.join(desktopRoot, '../../native/windows-secret-migrator/bin/win-x64/lnwjud-windows-secret-migrator.exe'),
       } : {}),

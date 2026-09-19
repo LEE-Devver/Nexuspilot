@@ -9,7 +9,7 @@ async function connectFixture(era: 'legacy' | 'modern' | 'schema-error'): Return
   return defaultMcpClientFactory.connect({
     command: process.execPath,
     args: [fixturePath],
-    env: { LNWJUD_EXTERNAL_MCP_FIXTURE_ERA: era },
+    env: { NEXUSPILOT_EXTERNAL_MCP_FIXTURE_ERA: era },
   });
 }
 
@@ -59,7 +59,7 @@ describe('default External MCP client protocol negotiation', () => {
     const config = {
       command: process.execPath,
       args: [fixturePath],
-      env: { LNWJUD_EXTERNAL_MCP_FIXTURE_ERA: 'schema-error' },
+      env: { NEXUSPILOT_EXTERNAL_MCP_FIXTURE_ERA: 'schema-error' },
     } as const;
     try {
       await expect(manager.call('schema-fixture', config, 'schema_error_demo', { mode: 'error-no-structured' })).resolves.toMatchObject({

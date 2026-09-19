@@ -616,7 +616,7 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
       const status = await mcpLifecycle.start();
       return status.url;
     },
-    ...(process.env.LNWJUD_E2E_FIXTURE === '1'
+    ...(readCompatEnv('E2E_FIXTURE').value === '1'
       ? { isExternalTunnelRunning: async (): Promise<boolean> => false }
       : {}),
     autoReconnect: (): boolean => readSettings().tunnelAutoReconnect,
@@ -1301,7 +1301,7 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
     },
     listProcesses: async (): Promise<readonly ProcessSummary[]> => listTrackedProcesses(processService, trackedProcesses),
     startProcess: async (request: StartProcessRequest): Promise<ProcessSummary> => {
-      if (request.mode === 'fixture' && process.env.LNWJUD_E2E_FIXTURE !== '1') {
+      if (request.mode === 'fixture' && readCompatEnv('E2E_FIXTURE').value !== '1') {
         throw new Error('Fixture process is only available in the desktop test harness');
       }
       const started = request.mode === 'fixture'
@@ -1735,7 +1735,7 @@ function isTrustedBundledFile(filePath: string): boolean {
 }
 
 function fixtureNodeExecutable(): string {
-  const executable = process.env.LNWJUD_E2E_NODE_PATH;
+  const executable = readCompatEnv('E2E_NODE_PATH').value;
   if (typeof executable !== 'string' || executable.trim().length === 0) {
     throw new Error('Fixture Node executable is not configured');
   }

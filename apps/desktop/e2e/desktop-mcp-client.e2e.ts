@@ -11,12 +11,13 @@ import { promisify } from 'node:util';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { isAdvertisedDeliveryState, isCodexDelegationTool, UPGRADE_TOOL_CATALOG } from '@nexuspilot/mcp-server';
 import { chromium, expect, test, type Page } from '@playwright/test';
+import { readCompatEnv } from '@nexuspilot/shared';
 
 const execFileAsync = promisify(execFile);
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mainEntry = path.join(desktopRoot, 'dist', 'main', 'main.js');
 const electronExecutable = electronExecutablePath(desktopRoot);
-const packagedExecutable = process.env.LNWJUD_PACKAGED_EXECUTABLE;
+const packagedExecutable = readCompatEnv('PACKAGED_EXECUTABLE').value;
 
 test('desktop serves the real MCP client development workflow', async () => {
   test.setTimeout(180_000);
@@ -45,8 +46,8 @@ test('desktop serves the real MCP client development workflow', async () => {
         LNWJUD_DATA_PATH: dataRoot,
         LNWJUD_WORKSPACE: fixtureRoot,
         LNWJUD_UNRESTRICTED: '1',
-        LNWJUD_E2E_FIXTURE: '1',
-        LNWJUD_E2E_NODE_PATH: process.execPath,
+        NEXUSPILOT_E2E_FIXTURE: '1',
+        NEXUSPILOT_E2E_NODE_PATH: process.execPath,
       },
     });
     const stderr: string[] = [];

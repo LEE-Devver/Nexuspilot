@@ -9,11 +9,12 @@ import { settleFirstRunAndOpenHome } from './first-run-helpers.js';
 import { chromium, expect, test, type Page } from '@playwright/test';
 import { AuditService, redactActivityTargetDetail } from '@nexuspilot/audit';
 import { SqliteAuditRepository, SqliteDatabase } from '@nexuspilot/storage';
+import { readCompatEnv } from '@nexuspilot/shared';
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mainEntry = path.join(desktopRoot, 'dist', 'main', 'main.js');
 const electronExecutable = electronExecutablePath(desktopRoot);
-const packagedExecutable = process.env.LNWJUD_PACKAGED_EXECUTABLE;
+const packagedExecutable = readCompatEnv('PACKAGED_EXECUTABLE').value;
 
 test('control center auto-starts MCP and supports project + doctor journey', async ({ browserName }, testInfo) => {
   void browserName;
@@ -39,8 +40,8 @@ test('control center auto-starts MCP and supports project + doctor journey', asy
       LNWJUD_DATA_PATH: dataRoot,
       LNWJUD_WORKSPACE: fixtureRoot,
       LNWJUD_UNRESTRICTED: '1',
-      LNWJUD_E2E_FIXTURE: '1',
-      LNWJUD_E2E_NODE_PATH: process.execPath,
+      NEXUSPILOT_E2E_FIXTURE: '1',
+      NEXUSPILOT_E2E_NODE_PATH: process.execPath,
       GIT_CEILING_DIRECTORIES: gitCeilingDirectories,
     },
   });

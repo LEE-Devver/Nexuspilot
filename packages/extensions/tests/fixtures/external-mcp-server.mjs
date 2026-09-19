@@ -1,7 +1,7 @@
 /* global process */
 import readline from 'node:readline';
 
-const fixtureMode = process.env.LNWJUD_EXTERNAL_MCP_FIXTURE_ERA ?? 'legacy';
+const fixtureMode = process.env.NEXUSPILOT_EXTERNAL_MCP_FIXTURE_ERA ?? process.env.LNWJUD_EXTERNAL_MCP_FIXTURE_ERA ?? 'legacy';
 const era = fixtureMode === 'modern' ? 'modern' : 'legacy';
 const rl = readline.createInterface({ input: process.stdin, crlfDelay: Infinity });
 

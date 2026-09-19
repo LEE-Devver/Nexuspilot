@@ -263,10 +263,11 @@ Legacy aliases should be documented, tested, and eventually removable rather tha
 ## Migration status
 - Stage 1 — visible branding: complete
 - Stage 2 — internal package namespace: complete (`@nexuspilot/*`, root package `nexuspilot`)
-- Stage 3 — compatibility and persistence scaffolding: in progress (shared env precedence + DATA_PATH + UNRESTRICTED migrated)
+- Stage 3 — compatibility and persistence scaffolding: complete (NexusPilot-first env compatibility with bounded lnwjud fallback; persisted defaults intentionally unchanged)
+- Stage 4 — desktop internal API / IPC migration: next
 
 ## Immediate next implementation step
-Start Stage 3 compatibility/persistence scaffolding. Before changing canonical external runtime identifiers, add migration helpers and tests for legacy environment/config/data discovery.
+Start Stage 4 desktop internal API / IPC migration. Make `window.nexusPilot` and `nexuspilot:*` the canonical internal desktop identities, with a temporary compatibility alias only where mixed-version preload/renderer behavior requires it. Do not rename executable/installer names, MCP runtime identity, persisted paths, tunnel profile/runtime aliases, or native-host names yet.
 
 The following identities remain intentionally untouched until their later stages:
 - `LNWJUD_*`

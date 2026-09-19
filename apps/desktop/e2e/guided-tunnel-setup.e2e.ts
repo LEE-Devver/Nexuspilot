@@ -81,8 +81,8 @@ async function withFreshDesktop(run: (page: Page) => Promise<void>): Promise<voi
         APPDATA: dataRoot,
         LNWJUD_DATA_PATH: dataRoot,
         LNWJUD_WORKSPACE: workspaceRoot,
-        LNWJUD_E2E_FIXTURE: '1',
-        LNWJUD_E2E_NODE_PATH: process.execPath,
+        NEXUSPILOT_E2E_FIXTURE: '1',
+        NEXUSPILOT_E2E_NODE_PATH: process.execPath,
       },
     },
   );

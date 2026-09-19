@@ -1929,8 +1929,8 @@ async function resolveDesktopRuntimeSecrets(dataPath: string): Promise<{
     arch: process.arch,
     release: os.release(),
     isPackaged: app.isPackaged,
-    e2eFixture: process.env.LNWJUD_E2E_FIXTURE === '1',
-    ephemeralSecrets: process.env.LNWJUD_E2E_EPHEMERAL_SECRETS === '1',
+    e2eFixture: readCompatEnv('E2E_FIXTURE').value === '1',
+    ephemeralSecrets: readCompatEnv('E2E_EPHEMERAL_SECRETS').value === '1',
   });
   let secretProtector: SecretProtector;
   if (useMacos26E2eSecrets) {

@@ -39,12 +39,12 @@ describe('legacy Windows secret migration', () => {
   it.skipIf(process.platform !== 'win32')('migrates real Windows DPAPI and SecureString values with the shipped native helper', async () => {
     const exec = promisify(execFile);
     const repositoryRoot = path.resolve(import.meta.dirname, '../../..');
-    const helperPath = process.env.LNWJUD_TEST_WINDOWS_SECRET_MIGRATOR
+    const helperPath = process.env.NEXUSPILOT_TEST_WINDOWS_SECRET_MIGRATOR ?? process.env.LNWJUD_TEST_WINDOWS_SECRET_MIGRATOR
       ?? path.join(repositoryRoot, 'native/windows-secret-migrator/bin/win-x64/lnwjud-windows-secret-migrator.exe');
     const powershell = path.join(process.env.SystemRoot ?? 'C:\\Windows', 'System32/WindowsPowerShell/v1.0/powershell.exe');
     const powershellEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) => key.toLowerCase() !== 'psmodulepath'));
     if (!existsSync(helperPath)) {
-      if (process.env.LNWJUD_TEST_WINDOWS_SECRET_MIGRATOR !== undefined) throw new Error('Configured test helper does not exist');
+      if ((process.env.NEXUSPILOT_TEST_WINDOWS_SECRET_MIGRATOR ?? process.env.LNWJUD_TEST_WINDOWS_SECRET_MIGRATOR) !== undefined) throw new Error('Configured test helper does not exist');
       await exec(powershell, ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(repositoryRoot, 'scripts/build-windows-secret-migrator.ps1')], { windowsHide: true, timeout: process.env.CI ? 300_000 : 120_000, env: powershellEnv });
     }
     const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'lnwjud-native-migration-')));

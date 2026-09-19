@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { copyFile, lstat, mkdir, open, readFile, realpath, rename, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { assertSecretPlaintext, SECRET_ENVELOPE_PREFIX, type SecretProtector } from '@nexuspilot/shared';
+import { assertSecretPlaintext, readCompatEnv, SECRET_ENVELOPE_PREFIX, type SecretProtector } from '@nexuspilot/shared';
 
 const MAX_LEGACY_FILE_BYTES = 64 * 1024;
 const MAX_HELPER_OUTPUT_BYTES = 64 * 1024;
@@ -341,7 +341,7 @@ function sha256(value: string): string {
 }
 
 function resolveHelperPath(): string {
-  const configured = process.env.LNWJUD_WINDOWS_SECRET_MIGRATOR?.trim();
+  const configured = readCompatEnv('WINDOWS_SECRET_MIGRATOR').value?.trim();
   if (configured) return path.resolve(configured);
   const resourcesPath = (process as NodeJS.Process & { readonly resourcesPath?: string }).resourcesPath;
   const candidates = [

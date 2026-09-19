@@ -4,10 +4,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { _electron, expect, test, type ElectronApplication, type Page } from '@playwright/test';
 import { electronExecutablePath } from './electron-runtime.js';
+import { readCompatEnv } from '@nexuspilot/shared';
 
 const desktopRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mainEntry = path.join(desktopRoot, 'dist', 'main', 'main.js');
-const packagedExecutable = process.env.LNWJUD_PACKAGED_EXECUTABLE?.trim() || undefined;
+const packagedExecutable = readCompatEnv('PACKAGED_EXECUTABLE').value?.trim() || undefined;
 
 function launchElectron(dataRoot: string): Promise<ElectronApplication> {
   return _electron.launch({
@@ -16,7 +17,7 @@ function launchElectron(dataRoot: string): Promise<ElectronApplication> {
       ? [`--user-data-dir=${dataRoot}`, mainEntry]
       : [`--user-data-dir=${dataRoot}`],
     cwd: desktopRoot,
-    env: { ...process.env, LNWJUD_DATA_PATH: dataRoot, LNWJUD_E2E_FIXTURE: '1', LNWJUD_E2E_NODE_PATH: process.execPath },
+    env: { ...process.env, NEXUSPILOT_DATA_PATH: dataRoot, NEXUSPILOT_E2E_FIXTURE: '1', NEXUSPILOT_E2E_NODE_PATH: process.execPath },
     timeout: 40_000,
   });
 }
