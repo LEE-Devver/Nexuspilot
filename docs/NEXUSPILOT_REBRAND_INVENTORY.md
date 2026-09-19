@@ -269,7 +269,7 @@ Legacy aliases should be documented, tested, and eventually removable rather tha
 - Stage 6 — executables, installer, and persisted-state cutover: complete (NexusPilot canonical app/installer/launcher identity, migration-safe app-data selection, legacy stdio launcher alias retained)
 
 ## Immediate next implementation step
-Stage 7 is in progress. Stage 7A1 migrated the managed tunnel runtime alias to canonical `nexuspilot`, with automatic adoption of an existing legacy `lnwjud` alias. Stage 7A2 migrated fresh tunnel profile/log names to `nexuspilot.yaml` and `nexuspilot-tunnel.log`, while legacy-only installs continue using `lnwjud.yaml` and `lnwjud-tunnel.log` in place. Tunnel lock/mutex names intentionally remain in the legacy namespace to preserve cross-version mutual exclusion. Continue with Stage 7B native-host identities.
+Stage 7 is in progress. Stage 7A migrated tunnel runtime/profile/log identity to NexusPilot with bounded legacy adoption; tunnel lock/mutex names intentionally remain in the legacy namespace for cross-version mutual exclusion. Stage 7B1 migrated macOS/Linux native-host binaries to canonical `nexuspilot-macos-host` and `nexuspilot-linux-host`, while packages still ship `lnwjud-*` compatibility aliases and runtime resolution prefers canonical but falls back to legacy. Continue with Stage 7B2 Windows native-host/helper identity review.
 
 The following compatibility/runtime identities remain intentionally preserved until their later stages:
 - bounded `LNWJUD_*` environment fallbacks / dual-writes

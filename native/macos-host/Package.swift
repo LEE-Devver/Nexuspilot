@@ -2,10 +2,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "LnwjudMacHost",
+    name: "NexusPilotMacHost",
     platforms: [.macOS(.v13)],
     products: [
-        .executable(name: "lnwjud-macos-host", targets: ["LnwjudMacHost"]),
+        .executable(name: "nexuspilot-macos-host", targets: ["LnwjudMacHost"]),
     ],
     targets: [
         .executableTarget(name: "LnwjudMacHost"),

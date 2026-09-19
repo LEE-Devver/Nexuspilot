@@ -54,8 +54,7 @@ make_payload() {
   local root="$1" runtime
   mkdir -p "$root/resources/runtime-tools" "$root/resources/tunnel-client" \
     "$root/resources/native-host/linux"
-  for runtime in lnwjud lnwjud-mcp-stdio resources/runtime-tools/rg \
-    resources/tunnel-client/tunnel-client resources/native-host/linux/lnwjud-linux-host; do
+  for runtime in nexuspilot nexuspilot-mcp-stdio lnwjud-mcp-stdio resources/runtime-tools/rg     resources/tunnel-client/tunnel-client resources/native-host/linux/nexuspilot-linux-host     resources/native-host/linux/lnwjud-linux-host; do
     # These ELF executables are inert stand-ins, not the packaged application.
     cp -- /bin/true "$root/$runtime"
     chmod 755 "$root/$runtime"
@@ -71,14 +70,14 @@ run_case() {
   make_payload "$root"
   case "$missing" in
     complete) ;;
-    app) rm -- "$root/lnwjud" ;;
-    native-host) rm -- "$root/resources/native-host/linux/lnwjud-linux-host" ;;
+    app) rm -- "$root/nexuspilot" ;;
+    native-host) rm -- "$root/resources/native-host/linux/nexuspilot-linux-host" ;;
     manifest) rm -- "$root/resources/native-host/linux/NATIVE_HOST.json" ;;
   esac
   artifact="artifacts with spaces/$name fixture.$format"
   if [[ "$format" == deb ]]; then
     mkdir -p "$scratch/deb-$name/DEBIAN" "$scratch/deb-$name/opt"
-    cp -a -- "$root" "$scratch/deb-$name/opt/lnwjud"
+    cp -a -- "$root" "$scratch/deb-$name/opt/NexusPilot"
     printf '%s\n' 'Package: lnwjud-layout-fixture' 'Version: 1.0.0' \
       'Architecture: all' 'Maintainer: Layout Test <test@example.invalid>' \
       'Description: Layout-only test fixture, not the lnwjud application' \

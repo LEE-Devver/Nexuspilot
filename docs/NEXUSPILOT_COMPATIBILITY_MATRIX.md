@@ -9,7 +9,7 @@ Canonical future identity:
 
 Inherited compatibility identity:
 - environment prefix: `LNWJUD_`
-- persisted/default data directory: `lnwjud`
+- legacy persisted data directory: `lnwjud` (fresh installs now use `nexuspilot`)
 - workspace metadata directory: `.lnwjud`
 - desktop IPC API: `window.lnwjud`
 - IPC channels: `lnwjud:*`
@@ -46,7 +46,7 @@ Precedence:
 2. `LNWJUD_DATA_PATH`
 3. existing platform default
 
-Important: the platform default directory is still named `lnwjud`. This checkpoint does not move existing data.
+Fresh installs now use the canonical `nexuspilot` platform data directory. Existing legacy-only installs continue using `lnwjud` in place; no automatic copy/move is performed.
 
 ### UNRESTRICTED
 Supported:
@@ -75,7 +75,7 @@ Tunnel launcher compatibility now prefers:
 - `NEXUSPILOT_TUNNEL_CLIENT_PATH` over `LNWJUD_TUNNEL_CLIENT_PATH`
 - `NEXUSPILOT_TUNNEL_STOP` over `LNWJUD_TUNNEL_STOP`
 
-Tunnel profile names, runtime aliases, secret filenames, and persisted tunnel state intentionally remain on the inherited lnwjud identity until the later runtime/persistence cutover.
+Tunnel runtime aliases and fresh profile/log names are now canonical NexusPilot (`nexuspilot`, `nexuspilot.yaml`, `nexuspilot-tunnel.log`) with bounded adoption of existing `lnwjud` aliases/profiles/logs. Secret filenames and lock/mutex coordination remain legacy where required for safe cross-version interoperability.
 
 Build/release scripts now use NexusPilot-first compatibility reads for runtime target/arch, tunnel target/arch, signing/notarization controls, release evidence/provenance settings, verification target/arch, and related release paths. Cross-process `SOURCE_DIRTY_AT_START` is temporarily dual-written under both prefixes for old/new release-script interoperability.
 
@@ -92,7 +92,7 @@ Stage 6A introduces compatibility-first app-data selection. Fresh installs use t
 fresh install: <platform app data>/nexuspilot
 legacy-only install: <platform app data>/lnwjud
 workspace metadata: <workspace>/.lnwjud/ (unchanged for now)
-tunnel/profile/log names: lnwjud-compatible (unchanged for now)
+tunnel runtime/profile/log: canonical NexusPilot with legacy in-place fallback; lock/mutex namespace remains legacy
 legacy secret/checkpoint locations: unchanged
 ```
 

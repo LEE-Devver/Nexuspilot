@@ -269,8 +269,8 @@ describe('cross-platform desktop packaging', () => {
     expect(captureRuntimeEvidence).toContain('tunnel-client-provenance');
     expect(captureRuntimeEvidence).toContain('Packaged tunnel-client evidence identity mismatch');
     expect(verifyReleaseEvidence).toContain('BUNDLED_TUNNEL_CLIENT_VERSION');
-    expect(await readFile(path.join(repositoryRoot, 'native', 'macos-host', 'Package.swift'), 'utf8')).toContain('LnwjudMacHost');
-    expect(await readFile(path.join(repositoryRoot, 'native', 'linux-host', 'Cargo.toml'), 'utf8')).toContain('lnwjud-linux-host');
+    expect(await readFile(path.join(repositoryRoot, 'native', 'macos-host', 'Package.swift'), 'utf8')).toContain('nexuspilot-macos-host');
+    expect(await readFile(path.join(repositoryRoot, 'native', 'linux-host', 'Cargo.toml'), 'utf8')).toContain('nexuspilot-linux-host');
     expect(config).toContain('from: ../../native/windows-secret-migrator/bin/win-x64');
   });
 

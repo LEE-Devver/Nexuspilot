@@ -40,7 +40,8 @@ const TARGETS = Object.freeze({
       ['rg-manifest', 'Contents/Resources/runtime-tools/ripgrep/BUNDLED_RIPGREP.json'],
       ['tunnel-client', 'Contents/Resources/tunnel-client/tunnel-client'],
       ['tunnel-client-manifest', 'Contents/Resources/tunnel-client/BUNDLED_TUNNEL_CLIENT.json'],
-      ['native-host', 'Contents/Resources/native-host/macos/{arch}/lnwjud-macos-host'],
+      ['native-host', 'Contents/Resources/native-host/macos/{arch}/nexuspilot-macos-host'],
+      ['legacy-native-host', 'Contents/Resources/native-host/macos/{arch}/lnwjud-macos-host'],
       ['native-host-manifest', 'Contents/Resources/native-host/macos/{arch}/NATIVE_HOST.json'],
     ]),
   }),
@@ -53,7 +54,8 @@ const TARGETS = Object.freeze({
       ['rg-manifest', 'resources/runtime-tools/ripgrep/BUNDLED_RIPGREP.json'],
       ['tunnel-client', 'resources/tunnel-client/tunnel-client'],
       ['tunnel-client-manifest', 'resources/tunnel-client/BUNDLED_TUNNEL_CLIENT.json'],
-      ['native-host', 'resources/native-host/linux/{arch}/lnwjud-linux-host'],
+      ['native-host', 'resources/native-host/linux/{arch}/nexuspilot-linux-host'],
+      ['legacy-native-host', 'resources/native-host/linux/{arch}/lnwjud-linux-host'],
       ['native-host-manifest', 'resources/native-host/linux/{arch}/NATIVE_HOST.json'],
     ]),
   }),
@@ -164,7 +166,7 @@ function resolvePackagedPath(appOutDir, platform, relativePath) {
 }
 
 function isExecutablePath(relativePath) {
-  return ['NexusPilot', 'nexuspilot', 'nexuspilot-mcp-stdio', 'lnwjud-mcp-stdio', 'rg', 'tunnel-client', 'lnwjud-macos-host', 'lnwjud-linux-host']
+  return ['NexusPilot', 'nexuspilot', 'nexuspilot-mcp-stdio', 'lnwjud-mcp-stdio', 'rg', 'tunnel-client', 'nexuspilot-macos-host', 'lnwjud-macos-host', 'nexuspilot-linux-host', 'lnwjud-linux-host']
     .includes(path.posix.basename(relativePath));
 }
 
@@ -242,7 +244,7 @@ async function verifyNativeHostManifest(filePath, platform, arch, relativePath) 
   } catch {
     throw new Error(`Packaged native-host manifest is not valid JSON: ${relativePath}`);
   }
-  const expectedName = platform === 'darwin' ? 'lnwjud-macos-host' : 'lnwjud-linux-host';
+  const expectedName = platform === 'darwin' ? 'nexuspilot-macos-host' : 'nexuspilot-linux-host';
   if (manifest?.schemaVersion !== 1 || manifest?.name !== expectedName || manifest.platform !== platform || manifest.arch !== arch || manifest.verified !== true
     || typeof manifest.sha256 !== 'string' || !/^[0-9a-f]{64}$/i.test(manifest.sha256)
     || !Number.isSafeInteger(manifest.sizeBytes) || manifest.sizeBytes < 1) {

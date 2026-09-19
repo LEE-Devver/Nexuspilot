@@ -163,6 +163,7 @@ export async function discoverMacosSignableCode(appPath, { arch }) {
   const runtimePaths = [
     'Contents/Resources/runtime-tools/ripgrep/rg',
     'Contents/Resources/tunnel-client/tunnel-client',
+    `Contents/Resources/native-host/macos/${arch}/nexuspilot-macos-host`,
     `Contents/Resources/native-host/macos/${arch}/lnwjud-macos-host`,
   ];
   for (const relativePath of runtimePaths) add(path.join(root, relativePath), relativePath, 'executable');

@@ -64,14 +64,18 @@ function nativeHostBridge(): NativeHostProcessBridge | undefined {
   if (arch === undefined) return undefined;
   const resourcesPath = (process as NodeJS.Process & { resourcesPath?: string }).resourcesPath;
   const platformDirectory = process.platform === 'darwin' ? 'macos' : 'linux';
-  const executableName = process.platform === 'darwin' ? 'lnwjud-macos-host' : 'lnwjud-linux-host';
-  const candidates = [
-    resourcesPath === undefined ? undefined : path.join(resourcesPath, 'native-host', platformDirectory, arch, executableName),
-    path.resolve(process.cwd(), 'build', 'native-host', platformDirectory, arch, executableName),
-    path.resolve(process.cwd(), 'apps', 'desktop', 'build', 'native-host', platformDirectory, arch, executableName),
+  const executableNames = process.platform === 'darwin'
+    ? ['nexuspilot-macos-host', 'lnwjud-macos-host']
+    : ['nexuspilot-linux-host', 'lnwjud-linux-host'];
+  const roots = [
+    resourcesPath === undefined ? undefined : path.join(resourcesPath, 'native-host', platformDirectory, arch),
+    path.resolve(process.cwd(), 'build', 'native-host', platformDirectory, arch),
+    path.resolve(process.cwd(), 'apps', 'desktop', 'build', 'native-host', platformDirectory, arch),
   ].filter((candidate): candidate is string => candidate !== undefined);
-  const executable = candidates.find((candidate) => existsSync(candidate));
-  if (executable === undefined) return undefined;
+  const selected = resolveNativeHostCandidate(roots, executableNames);
+  if (selected === undefined) return undefined;
+  const executable = selected.path;
+  const executableName = selected.name;
   const manifestPath = path.join(path.dirname(executable), 'NATIVE_HOST.json');
   let manifest: Record<string, unknown>;
   try {
@@ -92,6 +96,20 @@ function nativeHostBridge(): NativeHostProcessBridge | undefined {
     terminator: createProcessTreeTerminator(process.platform),
   };
   return process.platform === 'darwin' ? new MacosProcessBridge(options) : new LinuxProcessBridge(options);
+}
+
+export function resolveNativeHostCandidate(
+  roots: readonly string[],
+  executableNames: readonly string[],
+  fileExists: (candidate: string) => boolean = existsSync,
+): { readonly path: string; readonly name: string } | undefined {
+  for (const root of roots) {
+    for (const name of executableNames) {
+      const candidate = path.join(root, name);
+      if (fileExists(candidate)) return { path: candidate, name };
+    }
+  }
+  return undefined;
 }
 
 export async function buildCapabilitySummary(health: HealthCapabilityBackend): Promise<DashboardSnapshot['capabilities']> {

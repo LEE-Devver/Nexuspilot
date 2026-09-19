@@ -95,6 +95,7 @@ case "$runtime_arch/$machine_arch" in
   arm64/arm64|x64/x86_64) ;;
   *) echo "macOS artifact architecture does not match verifier host: artifact=$runtime_arch host=$machine_arch" >&2; exit 1 ;;
 esac
+require_regular_executable "$app_path/Contents/Resources/native-host/macos/$runtime_arch/nexuspilot-macos-host"
 require_regular_executable "$app_path/Contents/Resources/native-host/macos/$runtime_arch/lnwjud-macos-host"
 require_regular_file "$app_path/Contents/Resources/native-host/macos/$runtime_arch/NATIVE_HOST.json"
 
