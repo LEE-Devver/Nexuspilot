@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ActivityTracker } from './activity-tracker.js';
 import { ToolRegistry, type McpApplicationServices } from './tool-registry.js';
 import { BUNDLED_PONYTAIL_SKILL_ID } from './ponytail-runtime.js';
-import { LNWJUD_MCP_IDENTITY_PATH, startMcpHttp, type McpHttpServerHandle } from './http.js';
+import { LNWJUD_MCP_IDENTITY_PATH, NEXUSPILOT_MCP_IDENTITY_PATH, startMcpHttp, type McpHttpServerHandle } from './http.js';
 
 const TEST_PNG_640X480 = 'iVBORw0KGgoAAAANSUhEUgAAAoAAAAHgCAIAAAC6s0uzAAAF9klEQVR42u3VoQEAMAjAsDGJRvP/mXwBJjmhppHVDwDY9SUAAAMGAAMGAAwYAAwYADBgADBgAMCAAcCAAQADBgADBgADBgAMGAAMGAAwYAAwYADAgAHAgAEAAwYAAwYAAwYADBgADBgAMGAAMGAAwIABwIABAAMGAAMGAAMGAAwYAAwYADBgADBgAMCAAcCAAQADBgADBgADBgAMGAAMGAAwYAAwYADAgAHAgAEAAwYAAwYAAwYADBgADBgAMGAAMGAAwIABwIABAAMGAAMGAAMGAAwYAAwYADBgADBgAMCAAcCAAQADBgADBgADBgAMGAAMGAAwYAAwYADAgAHAgAEAAwYAAwYAAwYADBgADBgAMGAAMGAAwIABwIABAAMGAAMGAAMGAAwYAAwYADBgADBgAMCAAcCAAQADBgADBgADBgAMGAAMGAAwYAAwYADAgAHAgAEAAwYAAwYAAwYADBgADBgAMGAAMGAAwIABwIABAAMGAAMGAAMGAAwYAAwYADBgADBgAMCAAcCAAQADBgADBgAMGAAMGAAMGAAwYAAwYADAgAHAgAEAAwYAAwYADBgADBgADBgAMGAAMGAAwIABwIABAAMGAAMGAAwYAAwYAAwYADBgADBgAMCAAcCAAQADBgADBgAMGAAMGAAMGAAwYAAwYADAgAHAgAEAAwYAAwYADBgADBgADBgAMGAAMGAAwIABwIABAAMGAAMGAAwYAAwYAAwYADBgADBgAMCAAcCAAQADBgADBgAMGAAMGAAMGAAwYAAwYADAgAHAgAEAAwYAAwYADBgADBgADBgAMGAAMGAAwIABwIABAAMGAAMGAAwYAAwYAAwYADBgADBgAMCAAcCAAQADBgADBgAMGAAMGAAwYAAwYAAwYADAgAHAgAEAAwYAAwYADBgADBgAMGAAMGAAMGAAwIABwIABAAMGAAMGAAwYAAwYADBgADBgADBgAMCAAcCAAQADBgADBgAMGAAMGAAwYAAwYAAwYADAgAHAgAEAAwYAAwYADBgADBgAMGAAMGAAMGAAwIABwIABAAMGAAMGAAwYAAwYADBgADBgADBgAMCAAcCAAQADBgADBgAMGAAMGAAwYAAwYAAwYADAgAHAgAEAAwYAAwYADBgADBgAMGAAMGAAMGAAwIABwIABAAMGAAMGAAwYAAwYADBgADBgADBgAMCAAcCAAQADBgADBgAMGAAMGAAwYAAwYAAwYADAgAHAgAEAAwYAAwYADBgADBgAMGAAMGAAMGAAwIABwIABAAMGAAMGAAwYAAwYADBgADBgADBgAMCAAcCAAQADBgADBgAMGAAMGAAwYAAwYAAwYADAgAHAgAEAAwYAAwYADBgADBgAMGAAMGAAMGAAwIABwIABAAMGAAMGAAwYAO4Ng+cD/NAAns4AAAAASUVORK5CYII=';
 const expectedAdvertisedToolCount = new ToolRegistry({}, { clientId: 'count-test', clientName: 'count-test' }).list().length;
@@ -52,6 +52,7 @@ describe('MCP localhost HTTP transport', () => {
 
     try {
       await client.connect(transport);
+      expect(client.getServerVersion()).toMatchObject({ name: 'nexuspilot' });
       const first = await client.listTools();
       const second = await client.listTools();
 
@@ -365,12 +366,17 @@ describe('MCP localhost HTTP transport', () => {
   });
 
   it('serves a loopback identity document that Doctor can distinguish from an unrelated listener', async () => {
-    const identityUrl = new URL(LNWJUD_MCP_IDENTITY_PATH, handle.endpoint);
+    const identityUrl = new URL(NEXUSPILOT_MCP_IDENTITY_PATH, handle.endpoint);
     const response = await fetch(identityUrl);
 
     expect(response.status).toBe(200);
+    expect(response.headers.get('x-nexuspilot-service')).toBe('desktop-mcp');
     expect(response.headers.get('x-lnwjud-service')).toBe('desktop-mcp');
-    await expect(response.json()).resolves.toMatchObject({ product: 'lnwjud', service: 'desktop-mcp', protocol: 1 });
+    await expect(response.json()).resolves.toMatchObject({ product: 'nexuspilot', service: 'desktop-mcp', protocol: 1 });
+
+    const legacyResponse = await fetch(new URL(LNWJUD_MCP_IDENTITY_PATH, handle.endpoint));
+    expect(legacyResponse.status).toBe(200);
+    await expect(legacyResponse.json()).resolves.toMatchObject({ product: 'nexuspilot', service: 'desktop-mcp', protocol: 1 });
   });
 
   it('does not poison a legacy session after one protocol-level tool error', async () => {

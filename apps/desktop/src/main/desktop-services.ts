@@ -40,6 +40,7 @@ import {
 import {
   ActivityTracker,
   LNWJUD_MCP_IDENTITY_PATH,
+  NEXUSPILOT_MCP_IDENTITY_PATH,
   RuntimeGoalManagedTaskStateReader,
   createFileActivitySink,
   mcpActivityLogPath,
@@ -58,6 +59,8 @@ import {
   DESTRUCTIVE_AUTO_APPROVAL_SETTING_KEY,
   APP_NAME,
   APP_VERSION,
+  LEGACY_MCP_PRODUCT_NAME,
+  MCP_PRODUCT_NAME,
   DEFAULT_MCP_CALL_TIMEOUT_MS,
   DEFAULT_MCP_IDLE_TIMEOUT_MS,
   DEFAULT_PROCESS_TIMEOUT_MS,
@@ -2449,21 +2452,21 @@ export type McpIdentityProbe = (endpoint: URL) => Promise<boolean>;
 export async function checkConfiguredMcpPort(
   status: McpConnectionStatus,
   configuredPort: number,
-  identityProbe: McpIdentityProbe = probeLnwjudMcpIdentity,
+  identityProbe: McpIdentityProbe = probeNexusPilotMcpIdentity,
 ): Promise<DoctorProbeResult> {
   if (status.running && status.url !== null) {
     try {
       const endpoint = new URL(status.url);
       const livePort = Number(endpoint.port);
       if (!(await identityProbe(endpoint))) {
-        return { status: 'fail', message: `Desktop MCP endpoint failed the lnwjud identity check at ${endpoint.origin}` };
+        return { status: 'fail', message: `Desktop MCP endpoint failed the NexusPilot identity check at ${endpoint.origin}` };
       }
       if (configuredPort === 0 || livePort === configuredPort) {
-        return { status: 'pass', message: `lnwjud Desktop MCP identity verified at ${endpoint.origin}${endpoint.pathname}` };
+        return { status: 'pass', message: `NexusPilot Desktop MCP identity verified at ${endpoint.origin}${endpoint.pathname}` };
       }
       return {
         status: 'warn',
-        message: `lnwjud Desktop MCP identity verified at fallback port ${livePort}; configured port ${configuredPort} was unavailable`,
+        message: `NexusPilot Desktop MCP identity verified at fallback port ${livePort}; configured port ${configuredPort} was unavailable`,
       };
     } catch {
       return { status: 'fail', message: `Desktop MCP reported an invalid endpoint: ${status.url}` };
@@ -2487,50 +2490,59 @@ export async function checkConfiguredMcpPort(
   } catch (error: unknown) {
     const code = typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : 'unknown';
     const endpoint = new URL(`http://127.0.0.1:${configuredPort}/mcp`);
-    const isLnwjud = await identityProbe(endpoint);
-    return isLnwjud
-      ? { status: 'fail', message: `Configured MCP port ${configuredPort} is owned by an lnwjud listener that this Desktop instance is not managing (${code})` }
-      : { status: 'fail', message: `Configured MCP port ${configuredPort} is occupied by a listener that is not an lnwjud Desktop MCP (${code})` };
+    const isNexusPilot = await identityProbe(endpoint);
+    return isNexusPilot
+      ? { status: 'fail', message: `Configured MCP port ${configuredPort} is owned by a NexusPilot-compatible listener that this Desktop instance is not managing (${code})` }
+      : { status: 'fail', message: `Configured MCP port ${configuredPort} is occupied by a listener that is not a NexusPilot Desktop MCP (${code})` };
   } finally {
     if (listening) await new Promise<void>((resolve) => server.close(() => resolve()));
   }
 }
 
-async function probeLnwjudMcpIdentity(endpoint: URL): Promise<boolean> {
+async function probeNexusPilotMcpIdentity(endpoint: URL): Promise<boolean> {
   const MCP_IDENTITY_PROBE_TIMEOUT_MS = 750;
   const MCP_IDENTITY_PROBE_MAX_ATTEMPTS = 2;
   const started = Date.now();
-  const identityUrl = new URL(LNWJUD_MCP_IDENTITY_PATH, endpoint.origin);
+  const identityPaths = [NEXUSPILOT_MCP_IDENTITY_PATH, LNWJUD_MCP_IDENTITY_PATH];
   let lastFailure = 'transport error';
-  for (let attempt = 0; attempt < MCP_IDENTITY_PROBE_MAX_ATTEMPTS; attempt += 1) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), MCP_IDENTITY_PROBE_TIMEOUT_MS);
-    try {
-      const response = await fetch(identityUrl, {
-        method: 'GET',
-        cache: 'no-store',
-        signal: controller.signal,
-      });
-      if (!response.ok || response.headers.get('x-lnwjud-service') !== 'desktop-mcp') {
-        lastFailure = `unexpected HTTP response (${response.status})`;
+
+  for (const identityPath of identityPaths) {
+    const identityUrl = new URL(identityPath, endpoint.origin);
+    for (let attempt = 0; attempt < MCP_IDENTITY_PROBE_MAX_ATTEMPTS; attempt += 1) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), MCP_IDENTITY_PROBE_TIMEOUT_MS);
+      try {
+        const response = await fetch(identityUrl, {
+          method: 'GET',
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        const serviceHeader = response.headers.get('x-nexuspilot-service')
+          ?? response.headers.get('x-lnwjud-service');
+        if (!response.ok || serviceHeader !== 'desktop-mcp') {
+          lastFailure = 'unexpected HTTP response (' + response.status + ')';
+          break;
+        }
+        const body: unknown = await response.json();
+        const productMatches = typeof body === 'object' && body !== null
+          && 'product' in body
+          && (body.product === MCP_PRODUCT_NAME || body.product === LEGACY_MCP_PRODUCT_NAME);
+        const matches = productMatches
+          && 'service' in body && body.service === 'desktop-mcp'
+          && 'protocol' in body && body.protocol === 1;
+        if (matches) return true;
+        lastFailure = 'identity document mismatch';
         break;
+      } catch (error: unknown) {
+        lastFailure = controller.signal.aborted ? 'timeout' : error instanceof SyntaxError ? 'invalid JSON' : 'transport error';
+        if (lastFailure !== 'timeout' && lastFailure !== 'transport error') break;
+      } finally {
+        clearTimeout(timer);
       }
-      const body: unknown = await response.json();
-      const matches = typeof body === 'object' && body !== null
-        && 'product' in body && body.product === 'lnwjud'
-        && 'service' in body && body.service === 'desktop-mcp'
-        && 'protocol' in body && body.protocol === 1;
-      if (matches) return true;
-      lastFailure = 'identity document mismatch';
-      break;
-    } catch (error: unknown) {
-      lastFailure = controller.signal.aborted ? 'timeout' : error instanceof SyntaxError ? 'invalid JSON' : 'transport error';
-      if (lastFailure !== 'timeout' && lastFailure !== 'transport error') break;
-    } finally {
-      clearTimeout(timer);
     }
   }
-  console.warn(`[Doctor] MCP identity probe failed: ${lastFailure} after ${Date.now() - started}ms`);
+
+  console.warn('[Doctor] MCP identity probe failed: ' + lastFailure + ' after ' + (Date.now() - started) + 'ms');
   return false;
 }
 

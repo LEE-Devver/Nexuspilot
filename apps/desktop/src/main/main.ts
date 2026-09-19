@@ -1643,9 +1643,9 @@ function bootstrapMcpStdio(): void {
       ?? process.cwd();
     try {
       const workspaceId = await runtime.ensureDefaultWorkspace(workspacePath);
-      process.stderr.write(`lnwjud MCP stdio ready workspace=${workspaceId}\n`);
+      process.stderr.write(`NexusPilot MCP stdio ready workspace=${workspaceId}\n`);
     } catch (error: unknown) {
-      process.stderr.write(`lnwjud MCP stdio workspace warning: ${error instanceof Error ? error.message : 'unknown'}\n`);
+      process.stderr.write(`NexusPilot MCP stdio workspace warning: ${error instanceof Error ? error.message : 'unknown'}\n`);
     }
     startMcpStdio({
       services: runtime.mcpServices,
@@ -1661,11 +1661,11 @@ function bootstrapMcpStdio(): void {
       toolAvailabilitySubscribe: (listener) => runtime.toolAvailabilityService.subscribe(listener),
       onError: (error): void => {
         if (/EPIPE|ECONNRESET|broken pipe/i.test(error.message)) {
-          process.stderr.write(`lnwjud MCP stdio: peer closed (${error.message})\n`);
+          process.stderr.write(`NexusPilot MCP stdio: peer closed (${error.message})\n`);
           void desktopRuntime?.close().finally(() => process.exit(0));
           return;
         }
-        process.stderr.write(`lnwjud MCP stdio error: ${error.message}\n`);
+        process.stderr.write(`NexusPilot MCP stdio error: ${error.message}\n`);
       },
     });
     process.stdin.on('end', () => {
@@ -1680,7 +1680,7 @@ function bootstrapMcpStdio(): void {
       }
     });
   }).catch((error: unknown) => {
-    process.stderr.write(`lnwjud MCP stdio startup failed: ${error instanceof Error ? error.message : 'unknown error'}\n`);
+    process.stderr.write(`NexusPilot MCP stdio startup failed: ${error instanceof Error ? error.message : 'unknown error'}\n`);
     app.quit();
   });
   app.on('window-all-closed', () => {

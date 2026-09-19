@@ -54,8 +54,8 @@ async function main(): Promise<void> {
   // deliberately accepts only an explicit development key.
   const checkpointEncryptionKey = resolveStdioCheckpointKey();
   const restore = applyPendingSqliteRestoreSync(path.join(dataPath, 'lnwjud.sqlite'), path.join(dataPath, 'backups'), { platform: process.platform, arch: process.arch });
-  if (restore.error !== undefined) process.stderr.write(`lnwjud MCP stdio: scheduled restore failed: ${restore.error}\n`);
-  if (restore.applied) process.stderr.write(`lnwjud MCP stdio: restored database from ${restore.backupId ?? 'scheduled backup'}\n`);
+  if (restore.error !== undefined) process.stderr.write(`NexusPilot MCP stdio: scheduled restore failed: ${restore.error}\n`);
+  if (restore.applied) process.stderr.write(`NexusPilot MCP stdio: restored database from ${restore.backupId ?? 'scheduled backup'}\n`);
 
   const database = new SqliteDatabase(path.join(dataPath, 'lnwjud.sqlite'), { backupDirectory: path.join(dataPath, 'backups'), platform: process.platform, arch: process.arch });
   const rawWorkspaceRepository = new SqliteWorkspaceRepository(database);
@@ -105,7 +105,7 @@ async function main(): Promise<void> {
       readArg('--confirm-reset-workspaces') ?? readCompatEnv('CONFIRM_RESET_WORKSPACES').value,
     );
     process.stderr.write(
-      `lnwjud MCP stdio: cleared ${result.deleted} previous workspace registration(s)`
+      `NexusPilot MCP stdio: cleared ${result.deleted} previous workspace registration(s)`
       + `${result.backupId === null ? '' : ` after backup ${result.backupId}`}\n`,
     );
   }
@@ -127,11 +127,11 @@ async function main(): Promise<void> {
     registeredProjectPaths: registeredProjects.map((entry) => entry.realRootPath),
   });
   if (requestedPath === null) {
-    process.stderr.write('lnwjud MCP stdio: no project workspace is configured; pass --workspace <path>\n');
+    process.stderr.write('NexusPilot MCP stdio: no project workspace is configured; pass --workspace <path>\n');
     process.exit(2);
   }
   if (!fs.existsSync(requestedPath)) {
-    process.stderr.write(`lnwjud MCP stdio: workspace path does not exist: ${requestedPath}\n`);
+    process.stderr.write(`NexusPilot MCP stdio: workspace path does not exist: ${requestedPath}\n`);
     process.exit(2);
   }
 
@@ -173,7 +173,7 @@ async function main(): Promise<void> {
   }
 
   for (const entry of await workspaceService.list()) {
-    process.stderr.write(`lnwjud workspace id=${entry.id} root=${entry.realRootPath}\n`);
+    process.stderr.write(`NexusPilot workspace id=${entry.id} root=${entry.realRootPath}\n`);
   }
   database.close();
 
@@ -185,7 +185,7 @@ async function main(): Promise<void> {
   });
   await runtime.activityReady;
   process.stderr.write(
-    `lnwjud MCP stdio ready primary=${workspace.id} root=${workspace.realRootPath} profile=${profileName}`
+    `NexusPilot MCP stdio ready primary=${workspace.id} root=${workspace.realRootPath} profile=${profileName}`
       + `${stdioFullBypassAll ? ' full_bypass=1' : ''}${unrestricted ? ' unrestricted=1' : ''}${strictAllowedRoots === undefined ? '' : ` strict_roots=${strictAllowedRoots.length}`}\n`,
   );
 
@@ -213,11 +213,11 @@ async function main(): Promise<void> {
     toolAvailabilitySubscribe: (listener) => runtime.toolAvailabilityService.subscribe(listener),
     onError: (error): void => {
       if (/EPIPE|ECONNRESET|broken pipe/i.test(error.message)) {
-        process.stderr.write(`lnwjud MCP stdio: peer closed (${error.message})\n`);
+        process.stderr.write(`NexusPilot MCP stdio: peer closed (${error.message})\n`);
         void shutdown();
         return;
       }
-      process.stderr.write(`lnwjud MCP stdio error: ${error.message}\n`);
+      process.stderr.write(`NexusPilot MCP stdio error: ${error.message}\n`);
     },
   });
 
@@ -235,6 +235,6 @@ function comparableWorkspaceRoot(value: string): string | null {
 }
 
 main().catch((error: unknown) => {
-  process.stderr.write(`lnwjud MCP stdio failed: ${error instanceof Error ? error.message : 'unknown'}\n`);
+  process.stderr.write(`NexusPilot MCP stdio failed: ${error instanceof Error ? error.message : 'unknown'}\n`);
   process.exit(1);
 });

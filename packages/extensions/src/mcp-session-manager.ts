@@ -413,7 +413,7 @@ export function createDefaultMcpClientFactory(
     });
     const disposeStderrDrain = attachChildStderrDrain(transport.stderr);
     const client = new Client(
-      { name: 'lnwjud-mcp-bridge', version: '1.0.0' },
+      { name: 'nexuspilot-mcp-bridge', version: '1.0.0' },
       { versionNegotiation: { mode: 'auto' } },
     );
     try {

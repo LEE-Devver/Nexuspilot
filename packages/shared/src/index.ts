@@ -1,4 +1,6 @@
 export const APP_NAME = 'lnwjud';
+export const MCP_PRODUCT_NAME = 'nexuspilot';
+export const LEGACY_MCP_PRODUCT_NAME = 'lnwjud';
 export const APP_VERSION = '5.2.2';
 export { isUnrestricted, unrestrictedFromEnv, unrestrictedFromSetting, UNRESTRICTED_SETTING_KEY, type ProcessEnvLike } from './unrestricted.js';
 

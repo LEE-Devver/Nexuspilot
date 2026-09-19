@@ -22,9 +22,10 @@ import { IncrementalVerifier } from './incremental-verifier.js';
 import { RunBudgetGuard } from './run-budget.js';
 import { PonytailActivationLedger } from './ponytail-runtime.js';
 import { createOriginPolicy, type OriginPolicy } from './origin-policy.js';
-import { APP_NAME, APP_VERSION } from '@nexuspilot/shared';
+import { APP_VERSION, MCP_PRODUCT_NAME } from '@nexuspilot/shared';
 
 export const MAX_MCP_HTTP_BODY_BYTES = 1_048_576;
+export const NEXUSPILOT_MCP_IDENTITY_PATH = '/_nexuspilot/identity';
 export const LNWJUD_MCP_IDENTITY_PATH = '/_lnwjud/identity';
 
 export interface McpHttpServerOptions extends McpServerOptions {
@@ -304,7 +305,7 @@ async function handleRequest(
   maxBodyBytes: number,
 ): Promise<void> {
   const requestedPath = new URL(request.url ?? '/', 'http://127.0.0.1').pathname;
-  if (requestedPath !== '/mcp' && requestedPath !== LNWJUD_MCP_IDENTITY_PATH) {
+  if (requestedPath !== '/mcp' && requestedPath !== NEXUSPILOT_MCP_IDENTITY_PATH && requestedPath !== LNWJUD_MCP_IDENTITY_PATH) {
     sendStatus(response, 404, 'Not found');
     return;
   }
@@ -323,19 +324,20 @@ async function handleRequest(
     return;
   }
 
-  if (requestedPath === LNWJUD_MCP_IDENTITY_PATH) {
+  if (requestedPath === NEXUSPILOT_MCP_IDENTITY_PATH || requestedPath === LNWJUD_MCP_IDENTITY_PATH) {
     if (fetchRequest.method !== 'GET') {
       sendStatus(response, 405, 'Method not allowed');
       return;
     }
     await writeFetchResponse(response, Response.json({
-      product: APP_NAME,
+      product: MCP_PRODUCT_NAME,
       service: 'desktop-mcp',
       protocol: 1,
       version: APP_VERSION,
     }, {
       headers: {
         'cache-control': 'no-store',
+        'x-nexuspilot-service': 'desktop-mcp',
         'x-lnwjud-service': 'desktop-mcp',
       },
     }));

@@ -76,7 +76,7 @@ describe('desktop packaged startup regression contract', () => {
   it('fails stdio startup explicitly if checkpoint/runtime bootstrap rejects', () => {
     const stdio = section('function bootstrapMcpStdio', 'function applyDesktopUserSettings');
     expect(stdio).toContain('resolveDesktopRuntimeSecrets(dataPath)');
-    expect(stdio).toContain('lnwjud MCP stdio startup failed:');
+    expect(stdio).toContain('NexusPilot MCP stdio startup failed:');
     expect(stdio).toContain('app.quit();');
   });
 

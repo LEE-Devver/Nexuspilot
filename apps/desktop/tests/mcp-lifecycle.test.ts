@@ -153,10 +153,31 @@ describe('DesktopMcpLifecycle', () => {
   it('Doctor retries a transient MCP identity transport failure before reporting a false negative', async () => {
     const fetchMock = vi.fn()
       .mockRejectedValueOnce(new Error('connection reset'))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ product: 'lnwjud', service: 'desktop-mcp', protocol: 1 }), {
+      .mockResolvedValueOnce(new Response(JSON.stringify({ product: 'nexuspilot', service: 'desktop-mcp', protocol: 1 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json', 'x-nexuspilot-service': 'desktop-mcp' },
+      }));
+    vi.stubGlobal('fetch', fetchMock);
+    try {
+      await expect(checkConfiguredMcpPort(
+        { running: true, url: 'http://127.0.0.1:18765/mcp', lastStartError: null, workspaceId: null },
+        18765,
+      )).resolves.toMatchObject({ status: 'pass' });
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('Doctor falls back to the legacy lnwjud identity endpoint for an older listener', async () => {
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      const url = input instanceof Request ? input.url : String(input);
+      if (url.includes('/_nexuspilot/identity')) return new Response('', { status: 404 });
+      return new Response(JSON.stringify({ product: 'lnwjud', service: 'desktop-mcp', protocol: 1 }), {
         status: 200,
         headers: { 'content-type': 'application/json', 'x-lnwjud-service': 'desktop-mcp' },
-      }));
+      });
+    });
     vi.stubGlobal('fetch', fetchMock);
     try {
       await expect(checkConfiguredMcpPort(
@@ -185,7 +206,7 @@ describe('DesktopMcpLifecycle', () => {
     expect(probed).toEqual(['http://127.0.0.1:43123']);
   });
 
-  it('Doctor still fails a fallback listener when its lnwjud identity cannot be verified', async () => {
+  it('Doctor still fails a fallback listener when its NexusPilot identity cannot be verified', async () => {
     const result = await checkConfiguredMcpPort(
       { running: true, url: 'http://127.0.0.1:43123/mcp', lastStartError: null, workspaceId: null },
       18765,
@@ -195,7 +216,7 @@ describe('DesktopMcpLifecycle', () => {
     expect(result.message).toContain('identity');
   });
 
-  it('Doctor rejects a reported running listener when the lnwjud identity probe does not match', async () => {
+  it('Doctor rejects a reported running listener when the NexusPilot identity probe does not match', async () => {
     const result = await checkConfiguredMcpPort(
       { running: true, url: 'http://127.0.0.1:18765/mcp', lastStartError: null, workspaceId: null },
       18765,
@@ -220,7 +241,7 @@ describe('DesktopMcpLifecycle', () => {
       if (address === null || typeof address === 'string') throw new Error('Expected TCP address');
       const result = await checkConfiguredMcpPort({ running: false, url: null, lastStartError: null, workspaceId: null }, address.port);
       expect(result.status).toBe('fail');
-      expect(result.message).toContain('not an lnwjud Desktop MCP');
+      expect(result.message).toContain('not a NexusPilot Desktop MCP');
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }

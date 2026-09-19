@@ -265,17 +265,18 @@ Legacy aliases should be documented, tested, and eventually removable rather tha
 - Stage 2 — internal package namespace: complete (`@nexuspilot/*`, root package `nexuspilot`)
 - Stage 3 — compatibility and persistence scaffolding: complete (NexusPilot-first env compatibility with bounded lnwjud fallback; persisted defaults intentionally unchanged)
 - Stage 4 — desktop internal API / IPC migration: complete (`window.nexusPilot`, `nexuspilot:*`; temporary `window.lnwjud` preload alias retained)
-- Stage 5 — product runtime identity: next
+- Stage 5 — product runtime identity: complete (MCP server/bridge identity is NexusPilot; canonical health identity added with bounded lnwjud endpoint/product recognition)
+- Stage 6 — executables, installer, and persisted-state cutover: next
 
 ## Immediate next implementation step
-Start Stage 5 product runtime identity migration. Update MCP/CLI product metadata and current runtime identity surfaces to NexusPilot while explicitly preserving legacy recognition where existing clients, launchers, tunnel profiles, or upgrade probes still require it. Do not rename executable/installer artifacts, default persisted paths, tunnel profile/runtime aliases, or native-host filenames yet.
+Start Stage 6 by inventorying executable/installer names and persisted-state locations before any cutover. Define tested migration rules for existing `lnwjud` app-data/workspace state, conflict precedence when both legacy and NexusPilot state exist, and launcher/update compatibility. Only after those migration readers are green should canonical executable, installer, app identifier, or persisted write locations switch to NexusPilot.
 
 The following compatibility/runtime identities remain intentionally preserved until their later stages:
 - bounded `LNWJUD_*` environment fallbacks / dual-writes
 - `.lnwjud` persisted workspace metadata
 - deprecated `window.lnwjud` preload alias
 - executable / installer names
-- MCP external runtime identity where Stage 5 has not migrated it yet
+- legacy MCP identity endpoint/header recognition retained for older listeners
 - native-host names
 - tunnel profile compatibility names
 - historical documents

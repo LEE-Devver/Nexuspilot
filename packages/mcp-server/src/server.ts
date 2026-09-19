@@ -1,7 +1,7 @@
 import { McpServer, type CallToolResult, type RegisteredTool } from '@modelcontextprotocol/server';
 import type { DiagnosticLogger, FileActor } from '@nexuspilot/application';
 import type { PermissionProfile } from '@nexuspilot/permissions';
-import { APP_NAME, APP_VERSION, DEFAULT_PONYTAIL_MODE, parsePonytailMode, type DestructiveAutoApprovalPolicy, type PonytailMode, type ToolAvailabilitySnapshot } from '@nexuspilot/shared';
+import { APP_VERSION, MCP_PRODUCT_NAME, DEFAULT_PONYTAIL_MODE, parsePonytailMode, type DestructiveAutoApprovalPolicy, type PonytailMode, type ToolAvailabilitySnapshot } from '@nexuspilot/shared';
 import { readTraceContext, type ActivitySink, type ActivityTracker } from './activity-tracker.js';
 import { withProgressHeartbeat, type ProgressNotifyContext } from './progress-heartbeat.js';
 import { IncrementalVerifier } from './incremental-verifier.js';
@@ -108,7 +108,7 @@ export function createMcpServer(options: McpServerOptions): McpServer {
   // protocol mismatch. Keep the legacy bridge available only when the
   // transport has already identified a legacy client.
   const legacyTasksProtocol = options.legacyTasksProtocol === true;
-  const server = new McpServer({ name: APP_NAME, version: APP_VERSION }, {
+  const server = new McpServer({ name: MCP_PRODUCT_NAME, version: APP_VERSION }, {
     capabilities: legacyTasksProtocol
       ? { tools: {}, tasks: { list: {}, cancel: {} } }
       : { tools: {}, extensions: { [MODERN_TASKS_EXTENSION_ID]: {} } },
