@@ -19,6 +19,8 @@ describe('provider-neutral Agent Monitor observations', () => {
         executable: '/opt/homebrew/bin/claude',
         args: ['--dangerously-sensitive-prompt-should-not-be-copied'],
         state: 'running',
+        startedAt: '2026-09-21T01:00:00.000Z',
+        finishedAt: '2026-09-21T01:01:00.000Z',
         logSummary: 'sensitive output must not be copied',
       },
       {
@@ -39,6 +41,8 @@ describe('provider-neutral Agent Monitor observations', () => {
         kind: 'managed_process',
         label: 'claude',
         state: 'running',
+        startedAt: '2026-09-21T01:00:00.000Z',
+        updatedAt: '2026-09-21T01:01:00.000Z',
       }),
     ]);
     const serialized = JSON.stringify(observations);

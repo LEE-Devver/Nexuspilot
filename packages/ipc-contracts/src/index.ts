@@ -806,6 +806,8 @@ export interface ProcessSummary {
   readonly executable: string;
   readonly args: readonly string[];
   readonly state: 'starting' | 'running' | 'exited' | 'failed' | 'stopped' | 'timed_out' | 'termination_unverified';
+  readonly startedAt?: string;
+  readonly finishedAt?: string;
   readonly logSummary: string;
 }
 

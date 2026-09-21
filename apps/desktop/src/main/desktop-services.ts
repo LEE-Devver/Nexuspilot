@@ -1803,6 +1803,8 @@ function toProcessSummary(processValue: ManagedProcess, workspaceId: string, log
     executable: redactDisplayText(processValue.executable),
     args: processValue.args.map(redactDisplayText),
     state: processValue.state,
+    startedAt: processValue.startedAt,
+    ...(processValue.finishedAt === undefined ? {} : { finishedAt: processValue.finishedAt }),
     logSummary,
   };
 }

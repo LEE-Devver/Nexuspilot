@@ -3259,3 +3259,131 @@ h2 {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+.agent-monitor-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.agent-monitor-tab {
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.agent-monitor-tab.is-active {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.agent-monitor-detail {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+}
+
+.agent-topology-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px;
+}
+
+.agent-topology-node {
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 9px 10px;
+  min-width: 0;
+}
+
+.agent-topology-node.node-swarm {
+  border-style: dashed;
+}
+
+.agent-topology-node.state-running,
+.agent-topology-node.state-starting {
+  border-color: var(--accent);
+}
+
+.agent-topology-edges {
+  display: grid;
+  gap: 5px;
+}
+
+.agent-topology-edge {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  border-left: 2px solid var(--border-subtle);
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.agent-topology-edge > span {
+  color: var(--text-muted);
+}
+
+.agent-topology-edge > strong {
+  overflow-wrap: anywhere;
+}
+
+.agent-timeline-list {
+  display: grid;
+  gap: 5px;
+}
+
+.agent-timeline-row {
+  display: grid;
+  grid-template-columns: minmax(145px, auto) auto minmax(100px, 1fr) auto auto minmax(100px, 1fr);
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 7px 0;
+  font-size: 12px;
+}
+
+.agent-timeline-row time,
+.agent-timeline-row > span {
+  color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+  .agent-timeline-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+.agent-monitor-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.agent-monitor-filters label {
+  display: grid;
+  gap: 4px;
+}
+
+.agent-monitor-filters label > span {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.agent-monitor-filters select {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .agent-monitor-filters {
+    grid-template-columns: 1fr;
+  }
+}

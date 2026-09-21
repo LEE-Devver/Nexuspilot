@@ -120,16 +120,28 @@ The Control Center now also shows provider workers tracked by NexusPilot. Extern
 
 ## Next phases
 
-### Phase 8C — topology and timeline
+## Phase 8C — topology and timeline
 
-Add:
+Phase 8C adds safe topology/timeline projections over the Phase 8A–8B metadata.
 
-- parent/child topology
-- task graph edges
-- current tool/action
-- activity timeline
-- filters by provider, workspace, session, state
-- duration and concurrency metrics
+Implemented:
+
+- swarm group nodes and task nodes,
+- task dependency edges,
+- provider-worker nodes for NexusPilot-managed Codex/Claude Code processes,
+- timestamped swarm/task/process timeline events,
+- provider/workspace/state filters shared by topology and timeline,
+- managed-process start/finish timestamps carried through IPC,
+- no synthetic finished event when a task/provider has no verified finish timestamp.
+
+The Control Center exposes `Overview`, `Topology`, and `Timeline` monitor views. Overview remains the default, while Topology/Timeline render bounded recent metadata only.
+
+Still intentionally deferred:
+
+- cross-provider parent/child relationships for external providers until they expose trustworthy parent IDs,
+- exact current tool/action unless a provider emits it explicitly,
+- duration/token metrics that would require guessing missing timestamps or usage data,
+- silent OS-wide external process discovery.
 
 ### Phase 8D — telemetry
 

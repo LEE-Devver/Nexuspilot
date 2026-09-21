@@ -20,6 +20,12 @@ export function buildAgentObservations(processes: readonly ProcessSummary[]): re
       ...(processSummary.sessionId === null ? {} : { sessionId: processSummary.sessionId }),
       label: path.win32.basename(processSummary.executable),
       state: processSummary.state,
+      ...(processSummary.startedAt === undefined ? {} : { startedAt: processSummary.startedAt }),
+      ...(processSummary.finishedAt !== undefined
+        ? { updatedAt: processSummary.finishedAt }
+        : processSummary.startedAt === undefined
+          ? {}
+          : { updatedAt: processSummary.startedAt }),
     });
   }
 

@@ -5,6 +5,7 @@ import { createTranslator } from '../../i18n/index.js';
 import { tunnelRuntimeCredentialAvailable } from '../../tunnel-auth-readiness.js';
 import { tunnelAuthPresentation } from '../../tunnel-auth-presentation.js';
 import { settleWorkspaceAdd, type AddWorkspaceAction } from '../workspaces/workspace-add.js';
+import { buildAgentTimeline, buildAgentTopology, filterAgentTimeline, filterAgentTopology, type AgentTimelineEvent, type AgentTopology } from './agent-monitor-view.js';
 
 interface ControlCenterPageProps {
   readonly dashboard: DashboardSnapshot;
@@ -35,6 +36,10 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
   const [projectPath, setProjectPath] = useState('');
   const [selectedId, setSelectedId] = useState(dashboard.selectedWorkspace?.id ?? '');
   const [projectBusyId, setProjectBusyId] = useState<string | null>(null);
+  const [agentMonitorView, setAgentMonitorView] = useState<'overview' | 'topology' | 'timeline'>('overview');
+  const [agentProviderFilter, setAgentProviderFilter] = useState<'all' | 'codex' | 'claude_code'>('all');
+  const [agentWorkspaceFilter, setAgentWorkspaceFilter] = useState('all');
+  const [agentStateFilter, setAgentStateFilter] = useState('all');
   const activeWorkspaceIds = new Set(dashboard.activeWorkspaces.map((workspace) => workspace.id));
   const activeProjects = props.workspaces.filter((workspace) => activeWorkspaceIds.has(workspace.id));
   const agentSwarms = dashboard.agentSwarms ?? [];
@@ -44,6 +49,15 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
   const monitoredTasks = agentSwarms.flatMap((swarm) => swarm.tasks);
   const runningAgentTasks = monitoredTasks.filter((task) => task.state === 'running').length;
   const blockedAgentTasks = monitoredTasks.filter((task) => task.state === 'blocked').length;
+  const agentTopology = buildAgentTopology(dashboard);
+  const agentTimeline = buildAgentTimeline(dashboard);
+  const agentMonitorFilter = {
+    ...(agentProviderFilter === 'all' ? {} : { provider: agentProviderFilter }),
+    ...(agentWorkspaceFilter === 'all' ? {} : { workspaceId: agentWorkspaceFilter }),
+    ...(agentStateFilter === 'all' ? {} : { state: agentStateFilter }),
+  };
+  const filteredAgentTopology = filterAgentTopology(agentTopology, agentMonitorFilter);
+  const filteredAgentTimeline = filterAgentTimeline(agentTimeline, agentMonitorFilter);
   const tunnelCredentialAvailable = tunnelRuntimeCredentialAvailable(dashboard.tunnel);
   const tunnelPresentation = tunnelAuthPresentation(dashboard.tunnel);
   const remoteMcp = dashboard.remoteMcp ?? {
@@ -156,6 +170,49 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
             {activeAgentSwarms.length} {props.locale === 'th' ? 'กำลังทำงาน' : 'active'}
           </span>
         </div>
+        <div className="agent-monitor-tabs" role="tablist" aria-label={props.locale === 'th' ? 'มุมมอง Agent Monitor' : 'Agent Monitor views'}>
+          {(['overview', 'topology', 'timeline'] as const).map((view) => (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={agentMonitorView === view}
+              className={`agent-monitor-tab ${agentMonitorView === view ? 'is-active' : ''}`}
+              key={view}
+              onClick={() => setAgentMonitorView(view)}
+            >
+              {agentMonitorViewLabel(view, props.locale)}
+            </button>
+          ))}
+        </div>
+        <div className="agent-monitor-filters">
+          <label>
+            <span>{props.locale === 'th' ? 'Provider' : 'Provider'}</span>
+            <select value={agentProviderFilter} onChange={(event) => setAgentProviderFilter(event.target.value as 'all' | 'codex' | 'claude_code')}>
+              <option value="all">{props.locale === 'th' ? 'ทั้งหมด' : 'All'}</option>
+              <option value="codex">Codex</option>
+              <option value="claude_code">Claude Code</option>
+            </select>
+          </label>
+          <label>
+            <span>{props.locale === 'th' ? 'Workspace' : 'Workspace'}</span>
+            <select value={agentWorkspaceFilter} onChange={(event) => setAgentWorkspaceFilter(event.target.value)}>
+              <option value="all">{props.locale === 'th' ? 'ทั้งหมด' : 'All'}</option>
+              {props.workspaces.map((workspace) => <option key={workspace.id} value={workspace.id}>{workspace.displayName}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>{props.locale === 'th' ? 'สถานะ' : 'State'}</span>
+            <select value={agentStateFilter} onChange={(event) => setAgentStateFilter(event.target.value)}>
+              <option value="all">{props.locale === 'th' ? 'ทั้งหมด' : 'All'}</option>
+              <option value="running">running</option>
+              <option value="queued">queued</option>
+              <option value="blocked">blocked</option>
+              <option value="completed">completed</option>
+              <option value="failed">failed</option>
+              <option value="termination_unverified">termination unverified</option>
+            </select>
+          </label>
+        </div>
         <div className="agent-monitor-metrics">
           <AgentMonitorMetric label={props.locale === 'th' ? 'Swarm ล่าสุด' : 'Recent swarms'} value={String(agentSwarms.length)} />
           <AgentMonitorMetric label={props.locale === 'th' ? 'Task กำลังรัน' : 'Running tasks'} value={String(runningAgentTasks)} active={runningAgentTasks > 0} />
@@ -226,6 +283,20 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
             </div>
           )}
         </div>
+        {agentMonitorView === 'topology' ? (
+          <AgentTopologyView
+            topology={filteredAgentTopology}
+            workspaces={props.workspaces}
+            locale={props.locale}
+          />
+        ) : null}
+        {agentMonitorView === 'timeline' ? (
+          <AgentTimelineView
+            timeline={filteredAgentTimeline}
+            workspaces={props.workspaces}
+            locale={props.locale}
+          />
+        ) : null}
       </section>
 
       <section className={`panel security-overview ${broadAccess ? 'security-risk-broad' : 'security-risk-restricted'}`} aria-label={t('security.title')}>
@@ -444,6 +515,98 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
 
     </div>
   );
+}
+
+function agentMonitorViewLabel(view: 'overview' | 'topology' | 'timeline', locale: UiLocale): string {
+  if (view === 'overview') return locale === 'th' ? 'ภาพรวม' : 'Overview';
+  if (view === 'topology') return 'Topology';
+  return 'Timeline';
+}
+
+function AgentTopologyView(props: {
+  readonly topology: AgentTopology;
+  readonly workspaces: readonly WorkspaceSummary[];
+  readonly locale: UiLocale;
+}): ReactElement {
+  const labelById = new Map(props.topology.nodes.map((node) => [node.id, node.label]));
+  const dependencyEdges = props.topology.edges.filter((edge) => edge.kind === 'dependency' || edge.kind === 'parent');
+  return (
+    <div className="agent-monitor-detail agent-topology-view" data-testid="agent-topology">
+      <div className="settings-mini-heading">
+        <strong>{props.locale === 'th' ? 'โครงสร้าง Agent / Task' : 'Agent / Task topology'}</strong>
+        <span>{props.topology.nodes.length} nodes · {dependencyEdges.length} edges</span>
+      </div>
+      {props.topology.nodes.length === 0 ? (
+        <p className="hint">{props.locale === 'th' ? 'ยังไม่มี topology ให้แสดง' : 'No topology is available yet.'}</p>
+      ) : (
+        <div className="agent-topology-grid">
+          {props.topology.nodes.slice(0, 30).map((node) => (
+            <article className={`agent-topology-node node-${node.kind} state-${node.state}`} key={node.id}>
+              <div className="agent-monitor-task-main">
+                <strong>{node.label}</strong>
+                <span>{node.state.replaceAll('_', ' ')}</span>
+              </div>
+              <div className="agent-monitor-task-meta">
+                {agentProviderLabel(node.provider)} · {workspaceDisplayName(props.workspaces, node.workspaceId)}
+              </div>
+              {node.parentId === undefined ? null : (
+                <div className="agent-monitor-task-meta">
+                  ↳ {props.locale === 'th' ? 'อยู่ใต้' : 'parent'}: {labelById.get(node.parentId) ?? node.parentId}
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
+      {dependencyEdges.length === 0 ? null : (
+        <div className="agent-topology-edges">
+          {dependencyEdges.slice(0, 40).map((edge, index) => (
+            <div className="agent-topology-edge" key={`${edge.kind}:${edge.from}:${edge.to}:${index}`}>
+              <span>{edge.kind === 'dependency' ? (props.locale === 'th' ? 'dependency' : 'depends') : 'parent'}</span>
+              <strong>{labelById.get(edge.from) ?? edge.from}</strong>
+              <span>→</span>
+              <strong>{labelById.get(edge.to) ?? edge.to}</strong>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AgentTimelineView(props: {
+  readonly timeline: readonly AgentTimelineEvent[];
+  readonly workspaces: readonly WorkspaceSummary[];
+  readonly locale: UiLocale;
+}): ReactElement {
+  return (
+    <div className="agent-monitor-detail agent-timeline-view" data-testid="agent-timeline">
+      <div className="settings-mini-heading">
+        <strong>{props.locale === 'th' ? 'Timeline ล่าสุด' : 'Recent timeline'}</strong>
+        <span>{props.timeline.length}</span>
+      </div>
+      {props.timeline.length === 0 ? (
+        <p className="hint">{props.locale === 'th' ? 'ยังไม่มี event ที่มี timestamp' : 'No timestamped agent events yet.'}</p>
+      ) : (
+        <div className="agent-timeline-list">
+          {props.timeline.slice(0, 30).map((event) => (
+            <div className="agent-timeline-row" key={event.id}>
+              <time dateTime={event.timestamp}>{formatDateTime(event.timestamp, '—', props.locale)}</time>
+              <span className={`agent-provider provider-${event.provider}`}>{agentProviderLabel(event.provider)}</span>
+              <strong>{event.label}</strong>
+              <span>{event.event}</span>
+              <span>{event.state.replaceAll('_', ' ')}</span>
+              <span>{workspaceDisplayName(props.workspaces, event.workspaceId)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function workspaceDisplayName(workspaces: readonly WorkspaceSummary[], workspaceId: string): string {
+  return workspaces.find((workspace) => workspace.id === workspaceId)?.displayName ?? workspaceId;
 }
 
 function AgentMonitorMetric(props: { readonly label: string; readonly value: string; readonly active?: boolean }): ReactElement {

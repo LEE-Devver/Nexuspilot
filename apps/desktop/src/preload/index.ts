@@ -687,6 +687,8 @@ function processSummary(value: unknown): ProcessSummary {
     executable: stringField(value, 'executable'),
     args: value.args,
     state,
+    ...(typeof value.startedAt === 'string' ? { startedAt: value.startedAt } : {}),
+    ...(typeof value.finishedAt === 'string' ? { finishedAt: value.finishedAt } : {}),
     logSummary: stringField(value, 'logSummary'),
   };
 }
