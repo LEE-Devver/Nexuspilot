@@ -229,6 +229,7 @@ const defaultUserSettings: UserSettings = {
   lspCommands: {},
   mcpHttpPort: 18_765,
   codexToolsEnabled: false,
+  agentEventIngressEnabled: false,
   eccEnabled: false,
   ponytailMode: 'off',
   updateAutoCheck: true,
@@ -292,6 +293,7 @@ const defaultDesktopServices: DesktopIpcServices = {
     inFlight: [],
     agentSwarms: [],
     agentObservations: [],
+    agentEventIngress: { enabled: false, running: false, endpoint: null, token: null },
     agentTelemetry: {
       mcpCalls: 0, completedCalls: 0, successes: 0, errors: 0, cancellations: 0, activeCalls: 0,
       averageLatencyMs: 0, p50LatencyMs: 0, p95LatencyMs: 0, maxLatencyMs: 0,
@@ -1224,6 +1226,7 @@ function parseUserSettings(record: Record<string, unknown>): UserSettings {
     lspCommands: stringRecord(record.lspCommands, 'lspCommands', 32),
     mcpHttpPort: boundedInteger(record.mcpHttpPort, 'mcpHttpPort', 0, 65_535),
     codexToolsEnabled: booleanField(record.codexToolsEnabled, 'codexToolsEnabled'),
+    agentEventIngressEnabled: record.agentEventIngressEnabled === undefined ? false : booleanField(record.agentEventIngressEnabled, 'agentEventIngressEnabled'),
     eccEnabled: record.eccEnabled === undefined ? false : booleanField(record.eccEnabled, 'eccEnabled'),
     ponytailMode: ponytailModeField(record.ponytailMode),
     updateAutoCheck: booleanField(record.updateAutoCheck, 'updateAutoCheck'),

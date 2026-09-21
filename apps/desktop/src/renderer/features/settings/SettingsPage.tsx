@@ -62,6 +62,12 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
   const guidedTunnelRunning = isTunnelRunning(props.dashboard.tunnel);
   const guidedTunnelConfigured = tunnelRuntimeCredentialAvailable(props.dashboard.tunnel) && props.dashboard.tunnel.profileExists;
   const tunnelPresentation = tunnelAuthPresentation(props.dashboard.tunnel);
+  const agentEventIngress = props.dashboard.agentEventIngress ?? {
+    enabled: props.dashboard.settings.agentEventIngressEnabled === true,
+    running: false,
+    endpoint: null,
+    token: null,
+  };
   const remoteMcp = props.dashboard.remoteMcp ?? {
     state: 'stopped' as const, provider: 'ngrok' as const, installed: false, automaticInstallAvailable: false, automaticInstallMethod: null, hasAuthtoken: false, ngrokPath: null,
     localMcpUrl: props.dashboard.mcp.url, localGatewayUrl: null, publicMcpUrl: null, configuredPublicOrigin: null, pairingCode: null, pairingCodeExpiresAt: null,
@@ -87,6 +93,8 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
   const [remoteMcpMessage, setRemoteMcpMessage] = useState<string | null>(null);
   const [oauthLogin, setOauthLogin] = useState<TunnelOAuthLoginStatus | null>(null);
   const [oauthBusy, setOauthBusy] = useState(false);
+  const [agentIngressBusy, setAgentIngressBusy] = useState(false);
+  const [agentIngressMessage, setAgentIngressMessage] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
   const [stdioProfile, setStdioProfile] = useState<PermissionProfileName>(props.dashboard.stdioPermissionProfile);
   const [strictRoots, setStrictRoots] = useState(props.dashboard.stdioStrictRoots);
@@ -419,6 +427,31 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
     }
   }
 
+  async function setAgentIngressEnabled(enabled: boolean): Promise<void> {
+    if (agentIngressBusy) return;
+    setAgentIngressBusy(true);
+    setAgentIngressMessage(null);
+    try {
+      await props.onUserSettingsChange({ ...props.dashboard.settings, agentEventIngressEnabled: enabled });
+      await props.onRefresh();
+      setAgentIngressMessage(enabled
+        ? (props.locale === 'th' ? 'เปิด External Agent Events แล้ว — token ใหม่ถูกสร้างสำหรับ app session นี้' : 'External Agent Events enabled — a new token was created for this app session.')
+        : (props.locale === 'th' ? 'ปิด External Agent Events แล้ว — listener และ token ถูกยกเลิก' : 'External Agent Events disabled — listener and token revoked.'));
+    } catch (cause: unknown) {
+      setAgentIngressMessage(cause instanceof Error ? cause.message : 'Agent Event ingress update failed');
+    } finally {
+      setAgentIngressBusy(false);
+    }
+  }
+
+  async function copyAgentIngressValue(value: string | null, label: 'endpoint' | 'token'): Promise<void> {
+    if (value === null) return;
+    await navigator.clipboard.writeText(value);
+    setAgentIngressMessage(label === 'endpoint'
+      ? (props.locale === 'th' ? 'คัดลอก Agent Event endpoint แล้ว' : 'Agent Event endpoint copied.')
+      : (props.locale === 'th' ? 'คัดลอก ephemeral token แล้ว' : 'Ephemeral Agent Event token copied.'));
+  }
+
   async function copyRemoteMcpUrl(): Promise<void> {
     const value = remoteMcp.publicMcpUrl;
     if (value === null) return;
@@ -623,6 +656,53 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
                 ? 'ถ้า ChatGPT ยังเห็นรายการ action เก่าหลังเปิด/ปิด ให้ใช้ Action Refresh / Scan Tools ของ ChatGPT; ไม่จำเป็นต้องเปิด ECC สำหรับผู้ใช้ทั่วไป'
                 : 'If ChatGPT still shows an old action snapshot after toggling ECC, use ChatGPT Action Refresh / Scan Tools. ECC is not required for normal NexusPilot use.'}</p>
               {eccMessage === null ? null : <div className="toast-success-banner" role="status">{eccMessage}</div>}
+            </section>
+          ) : null}
+
+
+          {activeSection === 'tools' ? (
+            <section className="panel settings-card settings-card-polished" aria-label="External Agent Events" data-settings-focus="tools-agent-events" tabIndex={-1}>
+              <SettingsCardHeading
+                icon="A"
+                title="External Agent Events"
+                subtitle={props.locale === 'th' ? 'ให้ Claude Code / Codex ที่เปิดจากภายนอก register เข้า Agent Monitor แบบ opt-in' : 'Opt-in registration for Claude Code / Codex sessions started outside NexusPilot'}
+                badge={agentEventIngress.running ? 'LOOPBACK ON' : 'DEFAULT OFF'}
+              />
+              <SettingSwitch
+                checked={props.dashboard.settings.agentEventIngressEnabled === true}
+                disabled={agentIngressBusy}
+                label={props.locale === 'th' ? 'เปิด Agent Event ingress' : 'Enable Agent Event ingress'}
+                description={props.locale === 'th'
+                  ? 'Bind เฉพาะ 127.0.0.1, ต้องใช้ ephemeral Bearer token และรับเฉพาะ metadata ที่ schema อนุญาต'
+                  : 'Binds only to 127.0.0.1, requires an ephemeral Bearer token, and accepts only schema-approved metadata.'}
+                onChange={(enabled) => { void setAgentIngressEnabled(enabled); }}
+              />
+              {agentEventIngress.running && agentEventIngress.endpoint !== null ? (
+                <div className="agent-event-ingress-details">
+                  <div className="setting-field">
+                    <span className="field-label">Endpoint</span>
+                    <code>{agentEventIngress.endpoint}</code>
+                    <button type="button" className="btn-secondary" onClick={() => { void copyAgentIngressValue(agentEventIngress.endpoint, 'endpoint'); }}>
+                      {props.locale === 'th' ? 'คัดลอก Endpoint' : 'Copy Endpoint'}
+                    </button>
+                  </div>
+                  <div className="setting-field">
+                    <span className="field-label">Bearer Token</span>
+                    <code>{agentEventIngress.token === null ? 'unavailable' : agentEventIngress.token.slice(0, 6) + '••••••••••••'}</code>
+                    <button type="button" className="btn-secondary" disabled={agentEventIngress.token === null} onClick={() => { void copyAgentIngressValue(agentEventIngress.token, 'token'); }}>
+                      {props.locale === 'th' ? 'คัดลอก Token' : 'Copy Token'}
+                    </button>
+                  </div>
+                  <p className="hint">{props.locale === 'th'
+                    ? 'Token อยู่ใน memory เท่านั้น และจะถูก revoke เมื่อปิด ingress หรือปิด NexusPilot'
+                    : 'The token exists only in memory and is revoked when the ingress or NexusPilot is stopped.'}</p>
+                </div>
+              ) : (
+                <div className="empty-setting-state">{props.locale === 'th'
+                  ? 'ปิดอยู่ — NexusPilot ไม่เปิด listener สำหรับ external agent events'
+                  : 'Disabled — NexusPilot exposes no external-agent event listener.'}</div>
+              )}
+              {agentIngressMessage === null ? null : <div className="toast-success-banner" role="status">{agentIngressMessage}</div>}
             </section>
           ) : null}
 

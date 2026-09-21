@@ -5,6 +5,7 @@ import { open, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import runtimeDependencies from './runtime-dependencies.json' with { type: 'json' };
 import { buildAgentObservations, buildAgentTelemetry } from './agent-monitor.js';
+import { AgentEventIngressController } from './agent-event-ingress-controller.js';
 import {
   AgentEventService,
   AgentSwarmService,
@@ -455,6 +456,13 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
   });
   const agentSwarmService = new AgentSwarmService(new SqliteAgentSwarmRepository(database), codexService);
   const agentEventService = new AgentEventService(new SqliteAgentEventRepository(database));
+  const agentEventIngressController = new AgentEventIngressController(agentEventService);
+  const agentEventIngressStartup = readSettings().agentEventIngressEnabled === true
+    ? agentEventIngressController.start().catch((error: unknown) => {
+      console.error(`Agent Event ingress startup failed: ${error instanceof Error ? error.message : 'unknown error'}`);
+      return agentEventIngressController.status(true);
+    })
+    : Promise.resolve(agentEventIngressController.status(false));
   const capabilityRuntime = createLocalCapabilityRuntime(dataPath, async (): Promise<readonly string[]> => (
     (await workspaceRepository.list())
       .filter((workspace) => !isMachineRootPath(workspace.realRootPath) && !isMachineRootPath(workspace.rootPath))
@@ -1249,6 +1257,7 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
         agentSwarms,
         agentObservations,
         agentTelemetry,
+        agentEventIngress: agentEventIngressController.status(readSettings().agentEventIngressEnabled === true),
         tunnel,
         remoteMcp,
         settings: readSettings(),
@@ -1408,6 +1417,10 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
         const unverified = reconciledMcp.value.servers.filter((server) => server.lifecycle === 'termination_unverified');
         if (unverified.length > 0) logHub.feed('mcp', 'warn', `[MCP] termination_unverified: ${unverified.map((server) => server.name).join(', ')}`);
       }
+      if (previous.agentEventIngressEnabled !== next.agentEventIngressEnabled) {
+        if (next.agentEventIngressEnabled === true) await agentEventIngressController.start();
+        else await agentEventIngressController.stop();
+      }
       if (previous.recoveryRetentionDays !== next.recoveryRetentionDays) {
         lastRecoveryRetentionSweepAt = 0;
         await sweepRecoveryRetention(true).catch((error: unknown) => {
@@ -1561,6 +1574,8 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
     await tunnelController.shutdownForDesktopExit();
     stopToolAvailabilityWatch();
     await remoteMcpController.close();
+    await agentEventIngressStartup;
+    await agentEventIngressController.close();
     logHub.stop();
     await mcpLifecycle.close();
     await extensionsService.close().catch(() => undefined);
@@ -2081,6 +2096,7 @@ function readUserSettings(settingsRepository: SqliteSettingsRepository, env: Nod
     lspCommands: parseStringRecordSetting(settingsRepository.get(USER_SETTING_KEYS.lspCommands)),
     mcpHttpPort: readMcpPort(readCompatEnv('MCP_PORT', env).value ?? settingsRepository.get(USER_SETTING_KEYS.mcpHttpPort) ?? undefined),
     codexToolsEnabled: parseBooleanSetting(settingsRepository.get(USER_SETTING_KEYS.codexToolsEnabled), DEFAULT_CODEX_TOOLS_ENABLED),
+    agentEventIngressEnabled: parseBooleanSetting(settingsRepository.get(USER_SETTING_KEYS.agentEventIngressEnabled), false),
     eccEnabled: parseBooleanSetting(settingsRepository.get(USER_SETTING_KEYS.eccEnabled), DEFAULT_ECC_ENABLED),
     ponytailMode: parsePonytailMode(settingsRepository.get(USER_SETTING_KEYS.ponytailMode), DEFAULT_PONYTAIL_MODE),
     updateAutoCheck: parseBooleanSetting(settingsRepository.get(USER_SETTING_KEYS.updateAutoCheck), true),
@@ -2111,6 +2127,7 @@ function persistUserSettings(settingsRepository: SqliteSettingsRepository, setti
   settingsRepository.set(USER_SETTING_KEYS.lspCommands, serializeStringRecordSetting(settings.lspCommands));
   settingsRepository.set(USER_SETTING_KEYS.mcpHttpPort, String(settings.mcpHttpPort));
   settingsRepository.set(USER_SETTING_KEYS.codexToolsEnabled, settings.codexToolsEnabled ? 'true' : 'false');
+  settingsRepository.set(USER_SETTING_KEYS.agentEventIngressEnabled, settings.agentEventIngressEnabled === true ? 'true' : 'false');
   settingsRepository.set(USER_SETTING_KEYS.eccEnabled, settings.eccEnabled === true ? 'true' : 'false');
   settingsRepository.set(USER_SETTING_KEYS.ponytailMode, settings.ponytailMode);
   settingsRepository.set(USER_SETTING_KEYS.updateAutoCheck, settings.updateAutoCheck ? 'true' : 'false');

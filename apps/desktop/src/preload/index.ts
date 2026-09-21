@@ -353,6 +353,7 @@ function userSettings(value: unknown): UserSettings {
     lspCommands: stringRecordResponse(value.lspCommands),
     mcpHttpPort: integerField(value, 'mcpHttpPort'),
     codexToolsEnabled: booleanField(value, 'codexToolsEnabled'),
+    agentEventIngressEnabled: value.agentEventIngressEnabled === undefined ? false : booleanField(value, 'agentEventIngressEnabled'),
     eccEnabled: value.eccEnabled === undefined ? false : booleanField(value, 'eccEnabled'),
     ponytailMode: ponytailModeResponse(value.ponytailMode),
     updateAutoCheck: booleanField(value, 'updateAutoCheck'),
@@ -461,6 +462,7 @@ function dashboard(value: unknown): DashboardSnapshot {
   if ((hostPlatform !== 'win32' && hostPlatform !== 'darwin' && hostPlatform !== 'linux')
     || (hostArch !== 'x64' && hostArch !== 'arm64')) throw new Error('Invalid IPC response');
   const parsedAgentTelemetry = parseAgentTelemetry(value.agentTelemetry);
+  const parsedAgentEventIngress = agentEventIngressStatus(value.agentEventIngress);
   return {
     selectedWorkspace,
     activeWorkspaces: workspaceList(value.activeWorkspaces),
@@ -517,12 +519,24 @@ function dashboard(value: unknown): DashboardSnapshot {
     agentSwarms: parseAgentMonitorSwarms(value.agentSwarms),
     agentObservations: parseAgentObservations(value.agentObservations),
     ...(parsedAgentTelemetry === undefined ? {} : { agentTelemetry: parsedAgentTelemetry }),
+    ...(parsedAgentEventIngress === undefined ? {} : { agentEventIngress: parsedAgentEventIngress }),
     tunnel: tunnelStatus(value.tunnel),
     remoteMcp: remoteMcpStatus(value.remoteMcp),
     settings: userSettings(value.settings),
     hostPlatform,
     hostArch,
     appVersion: stringField(value, 'appVersion'),
+  };
+}
+
+function agentEventIngressStatus(value: unknown): DashboardSnapshot['agentEventIngress'] | undefined {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) throw new Error('Invalid IPC response');
+  return {
+    enabled: booleanField(value, 'enabled'),
+    running: booleanField(value, 'running'),
+    endpoint: nullableString(value.endpoint),
+    token: nullableString(value.token),
   };
 }
 

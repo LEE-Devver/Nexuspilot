@@ -12,6 +12,7 @@ export const USER_SETTING_KEYS = Object.freeze({
   lspCommands: 'lsp_commands',
   mcpHttpPort: 'mcp_http_port',
   codexToolsEnabled: 'codex_tools_enabled',
+  agentEventIngressEnabled: 'agent_event_ingress_enabled',
   eccEnabled: 'ecc_enabled',
   ponytailMode: 'ponytail_mode',
   toolAvailability: 'tool_availability_v1',

@@ -287,6 +287,8 @@ export interface UserSettings {
   readonly lspCommands: Readonly<Record<string, string>>;
   readonly mcpHttpPort: number;
   readonly codexToolsEnabled: boolean;
+  /** Explicit opt-in for the authenticated loopback Agent Event Protocol ingress. */
+  readonly agentEventIngressEnabled?: boolean;
   /** Host-owned ECC consent gate. Missing/false means ECC stays disabled. */
   readonly eccEnabled?: boolean;
   readonly ponytailMode: 'off' | 'lite' | 'full' | 'ultra';
@@ -777,6 +779,14 @@ export interface AgentMonitorTelemetrySummary {
   readonly topTools: readonly AgentMonitorToolTelemetry[];
 }
 
+export interface AgentEventIngressStatus {
+  readonly enabled: boolean;
+  readonly running: boolean;
+  readonly endpoint: string | null;
+  /** Ephemeral capability token; present only while the opt-in loopback ingress is running. */
+  readonly token: string | null;
+}
+
 export interface DashboardSnapshot {
   /** Primary workspace used when a tool call omits workspaceId. */
   readonly selectedWorkspace: WorkspaceSummary | null;
@@ -821,6 +831,7 @@ export interface DashboardSnapshot {
   readonly agentObservations?: readonly AgentObservationSummary[];
   /** Bounded measured telemetry. Token/context metrics are omitted until an authoritative provider source is wired. */
   readonly agentTelemetry?: AgentMonitorTelemetrySummary;
+  readonly agentEventIngress?: AgentEventIngressStatus;
   readonly tunnel: TunnelStatus;
   readonly remoteMcp: RemoteMcpStatus;
   readonly settings: UserSettings;

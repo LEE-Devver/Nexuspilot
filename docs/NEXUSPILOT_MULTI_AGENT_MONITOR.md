@@ -185,7 +185,29 @@ Implemented:
 - external parent/child topology independent of event arrival order,
 - no prompt/result/process-output body fields in the protocol.
 
-Phase 9A intentionally exposes no external listener. Phase 9B will add an authenticated opt-in loopback ingress after the transport security contract is implemented.
+Phase 9A intentionally exposes no external listener.
+
+## Phase 9B — authenticated loopback ingress
+
+Phase 9B implements the opt-in transport for external provider events.
+
+Implemented:
+
+- disabled by default and controlled by a persisted Desktop setting,
+- loopback-only binding on `127.0.0.1` with an ephemeral port,
+- in-memory 32-byte capability token exposed only to the trusted Desktop UI,
+- Bearer authentication with timing-safe token comparison,
+- token rotation and immediate revocation when the ingress stops,
+- `POST /v1/agent-events` as the only accepted transport route,
+- strict provider/event/state/schema validation with arbitrary fields rejected,
+- `application/json` enforcement and a 16 KiB request-body limit,
+- bounded 120 requests/minute host-local rate limiting,
+- Settings UI for explicit enable/disable plus endpoint/token copy actions,
+- Desktop shutdown cleanup so the listener and token do not outlive the app session.
+
+The ingress forwards only validated protocol metadata into `AgentEventService`; it does not accept prompt/result bodies, command arguments, stdout/stderr, credentials, tokens, or arbitrary provider metadata.
+
+External provider adapters/hooks remain separate follow-up work. The transport is ready for opt-in Claude Code/Codex integration without silently scanning OS processes.
 
 ## Design rule
 
