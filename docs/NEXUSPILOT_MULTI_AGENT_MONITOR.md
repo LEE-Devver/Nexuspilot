@@ -207,7 +207,21 @@ Implemented:
 
 The ingress forwards only validated protocol metadata into `AgentEventService`; it does not accept prompt/result bodies, command arguments, stdout/stderr, credentials, tokens, or arbitrary provider metadata.
 
-External provider adapters/hooks remain separate follow-up work. The transport is ready for opt-in Claude Code/Codex integration without silently scanning OS processes.
+## Phase 9C — external hook adapter
+
+Phase 9C adds the first provider-side integration primitive: `scripts/agent-event-hook.mjs`.
+
+Implemented:
+
+- Codex/Claude Code provider selection,
+- root session and subagent identity mapping,
+- lifecycle/tool event normalization into the shared protocol,
+- no forwarding of prompt, transcript, tool input/output, or assistant message bodies,
+- fail-open delivery so monitoring cannot block an agent workflow,
+- explicit endpoint/token environment handoff with no credential persistence,
+- stable hashed external workspace identity unless an explicit NexusPilot workspace ID is supplied.
+
+One-click provider hook installation is still deferred; hook configuration remains explicit and opt-in.
 
 ## Design rule
 

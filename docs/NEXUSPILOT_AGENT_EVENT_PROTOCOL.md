@@ -173,12 +173,44 @@ external provider
 
 rather than passive process scraping.
 
-Provider adapters may later be implemented as:
+## Phase 9C hook adapter
 
-- Claude Code hook/plugin,
-- Codex hook/wrapper,
-- NexusPilot CLI registration helper,
-- child MCP adapter.
+NexusPilot now ships `scripts/agent-event-hook.mjs`, a fail-open hook adapter for local Codex and Claude Code lifecycle hooks.
+
+The adapter:
+
+- reads the provider hook JSON from stdin,
+- maps only lifecycle metadata into the shared Agent Event Protocol,
+- deliberately drops prompt text, tool input/output, transcripts, assistant messages, and arbitrary provider fields,
+- derives a stable external workspace ID from `cwd` unless `NEXUSPILOT_WORKSPACE_ID` is provided,
+- preserves root/subagent topology when `agent_id` is available,
+- sends events only when both `NEXUSPILOT_AGENT_EVENT_ENDPOINT` and `NEXUSPILOT_AGENT_EVENT_TOKEN` are explicitly present,
+- fails open when NexusPilot is stopped or the ingress cannot be reached, so observability never blocks the provider workflow.
+
+Supported hook mappings:
+
+```text
+SessionStart     -> started
+SessionEnd       -> completed
+SubagentStart    -> spawned
+SubagentStop     -> completed
+PreToolUse       -> tool_started
+PostToolUse      -> tool_completed
+UserPromptSubmit -> heartbeat
+Stop/Interrupt   -> updated (non-terminal)
+```
+
+For Codex, configure command hooks for the lifecycle events you want to observe and run:
+
+```text
+node /absolute/path/to/NexusPilot/scripts/agent-event-hook.mjs --provider=codex
+```
+
+Codex command hooks receive a JSON object on stdin with fields such as `session_id`, `cwd`, `hook_event_name`, `agent_id`, and `tool_name`; the adapter intentionally ignores sensitive payload fields. Configure the same command shape for Claude Code with `--provider=claude_code` when using its lifecycle hooks.
+
+The ingress endpoint/token remain app-session capabilities. Copy them from NexusPilot Settings into the environment of the provider process; they are not persisted by the adapter.
+
+Future packaging may add one-click hook installation, but it must preserve explicit user opt-in and must not persist the ephemeral ingress token.
 
 ## Removal / evolution rule
 
