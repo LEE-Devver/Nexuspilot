@@ -4,7 +4,7 @@ export interface AgentTopologyNode {
   readonly id: string;
   readonly label: string;
   readonly provider: 'codex' | 'claude_code' | 'managed_process';
-  readonly kind: 'swarm' | 'swarm_task' | 'managed_process';
+  readonly kind: 'swarm' | 'swarm_task' | 'managed_process' | 'external_agent';
   readonly state: string;
   readonly workspaceId: string;
   readonly parentId?: string;
@@ -70,19 +70,23 @@ export function buildAgentTopology(dashboard: DashboardSnapshot): AgentTopology 
     }
   }
 
-  const existingNodeIds = new Set(nodes.map((node) => node.id));
-  for (const observation of observations) {
-    if (observation.kind !== 'managed_process') continue;
+  const monitorObservations = observations.filter(
+    (observation) => observation.kind === 'managed_process' || observation.kind === 'external_agent',
+  );
+  for (const observation of monitorObservations) {
     nodes.push({
       id: observation.id,
       label: observation.label,
       provider: observation.provider,
-      kind: 'managed_process',
+      kind: observation.kind,
       state: observation.state,
       workspaceId: observation.workspaceId,
       ...(observation.parentId === undefined ? {} : { parentId: observation.parentId }),
     });
-    if (observation.parentId !== undefined && existingNodeIds.has(observation.parentId)) {
+  }
+  const allNodeIds = new Set(nodes.map((node) => node.id));
+  for (const observation of monitorObservations) {
+    if (observation.parentId !== undefined && allNodeIds.has(observation.parentId)) {
       edges.push({ from: observation.parentId, to: observation.id, kind: 'parent' });
     }
   }
@@ -140,7 +144,7 @@ export function buildAgentTimeline(dashboard: DashboardSnapshot): readonly Agent
   }
 
   for (const observation of dashboard.agentObservations ?? []) {
-    if (observation.kind !== 'managed_process') continue;
+    if (observation.kind !== 'managed_process' && observation.kind !== 'external_agent') continue;
     if (observation.startedAt !== undefined) {
       events.push({
         id: `${observation.id}:started`,

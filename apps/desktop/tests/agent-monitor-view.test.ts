@@ -62,6 +62,42 @@ describe('Agent Monitor topology and timeline', () => {
     });
   });
 
+  it('links external provider children to external parents regardless of observation order', () => {
+    const topology = buildAgentTopology({
+      ...dashboard,
+      agentObservations: [
+        {
+          id: 'external:child',
+          parentId: 'external:parent',
+          provider: 'claude_code',
+          kind: 'external_agent',
+          workspaceId: 'workspace-b',
+          label: 'Subagent',
+          state: 'running',
+          updatedAt: '2026-09-21T01:00:07.000Z',
+        },
+        {
+          id: 'external:parent',
+          provider: 'claude_code',
+          kind: 'external_agent',
+          workspaceId: 'workspace-b',
+          label: 'Main agent',
+          state: 'running',
+          updatedAt: '2026-09-21T01:00:06.000Z',
+        },
+      ],
+    } as DashboardSnapshot);
+
+    expect(topology.nodes.map((node) => [node.id, node.kind])).toEqual([
+      ['swarm:swarm-a', 'swarm'],
+      ['swarm:swarm-a:task:design', 'swarm_task'],
+      ['swarm:swarm-a:task:review', 'swarm_task'],
+      ['external:child', 'external_agent'],
+      ['external:parent', 'external_agent'],
+    ]);
+    expect(topology.edges).toContainEqual({ from: 'external:parent', to: 'external:child', kind: 'parent' });
+  });
+
   it('orders timestamped swarm/task/process events newest first without inventing missing events', () => {
     const timeline = buildAgentTimeline(dashboard);
     expect(timeline[0]).toMatchObject({

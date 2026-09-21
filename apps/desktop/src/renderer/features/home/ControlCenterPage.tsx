@@ -44,7 +44,7 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
   const activeProjects = props.workspaces.filter((workspace) => activeWorkspaceIds.has(workspace.id));
   const agentSwarms = dashboard.agentSwarms ?? [];
   const agentObservations = dashboard.agentObservations ?? [];
-  const observedAgentProcesses = agentObservations.filter((observation) => observation.kind === 'managed_process');
+  const observedAgentProcesses = agentObservations.filter((observation) => observation.kind === 'managed_process' || observation.kind === 'external_agent');
   const activeAgentSwarms = agentSwarms.filter((swarm) => swarm.state === 'queued' || swarm.state === 'running');
   const monitoredTasks = agentSwarms.flatMap((swarm) => swarm.tasks);
   const runningAgentTasks = monitoredTasks.filter((task) => task.state === 'running').length;

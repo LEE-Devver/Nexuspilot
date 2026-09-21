@@ -6,6 +6,7 @@ import path from 'node:path';
 import runtimeDependencies from './runtime-dependencies.json' with { type: 'json' };
 import { buildAgentObservations, buildAgentTelemetry } from './agent-monitor.js';
 import {
+  AgentEventService,
   AgentSwarmService,
   CheckpointService,
   CodexService,
@@ -106,7 +107,7 @@ import {
   type SecretProtector,
   type DestructiveAutoApprovalPolicy,
 } from '@nexuspilot/shared';
-import { AesGcmCheckpointCipher, BACKUP_RESTORE_NOTICE_SETTING_KEY, parseBackupRestoreNotice, SqliteAgentSwarmRepository, SqliteAuditRepository, SqliteBackupService, SqliteCheckpointRepository, SqliteDatabase, SqliteSettingsRepository, SqliteWorkspaceRepository, type BackupReason, type BackupRestoreNotice as StorageBackupRestoreNotice, type BackupSummary } from '@nexuspilot/storage';
+import { AesGcmCheckpointCipher, BACKUP_RESTORE_NOTICE_SETTING_KEY, parseBackupRestoreNotice, SqliteAgentEventRepository, SqliteAgentSwarmRepository, SqliteAuditRepository, SqliteBackupService, SqliteCheckpointRepository, SqliteDatabase, SqliteSettingsRepository, SqliteWorkspaceRepository, type BackupReason, type BackupRestoreNotice as StorageBackupRestoreNotice, type BackupSummary } from '@nexuspilot/storage';
 import { SqliteGoalRepository } from '@nexuspilot/storage';
 import type { Workspace } from '@nexuspilot/workspace';
 import { comparableHostPath, isDriveRoot, isMachineRootPath, resolveHostPath, SecretPolicy, WorkspacePathGuard, WorkspaceService } from '@nexuspilot/workspace';
@@ -453,6 +454,7 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
     profileProvider: activePermissionProfile,
   });
   const agentSwarmService = new AgentSwarmService(new SqliteAgentSwarmRepository(database), codexService);
+  const agentEventService = new AgentEventService(new SqliteAgentEventRepository(database));
   const capabilityRuntime = createLocalCapabilityRuntime(dataPath, async (): Promise<readonly string[]> => (
     (await workspaceRepository.list())
       .filter((workspace) => !isMachineRootPath(workspace.realRootPath) && !isMachineRootPath(workspace.rootPath))
@@ -1184,7 +1186,8 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
       const workLog = await buildWorkLog(auditRepository, workLogViewState);
       const inFlight = activityTracker.listInFlight().map(toInFlightItem);
       const agentSwarms = agentSwarmService.monitorSnapshot(20);
-      const agentObservations = buildAgentObservations(processSummaries);
+      const externalAgents = agentEventService.monitorSnapshot(50);
+      const agentObservations = buildAgentObservations(processSummaries, externalAgents);
       const agentTelemetry = buildAgentTelemetry(activityTracker.telemetrySnapshot(), agentSwarms, agentObservations);
       const tunnel = await observedTunnelStatus();
       const remoteMcp = await remoteMcpController.status();

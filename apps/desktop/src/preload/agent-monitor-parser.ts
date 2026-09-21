@@ -14,7 +14,7 @@ const taskStates = new Set<AgentMonitorTaskSummary['state']>([
   'blocked', 'queued', 'running', 'completed', 'failed', 'cancelled', 'termination_unverified',
 ]);
 const observationProviders = new Set<AgentObservationProvider>(['codex', 'claude_code', 'managed_process']);
-const observationKinds = new Set<AgentObservationSummary['kind']>(['swarm_task', 'managed_process']);
+const observationKinds = new Set<AgentObservationSummary['kind']>(['swarm_task', 'managed_process', 'external_agent']);
 const observationStates = new Set<AgentObservationState>([
   'blocked', 'queued', 'starting', 'running', 'completed', 'exited', 'failed', 'cancelled', 'stopped',
   'timed_out', 'termination_unverified',

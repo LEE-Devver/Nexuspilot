@@ -1,13 +1,17 @@
 import path from 'node:path';
 import type { AgentMonitorTelemetrySummary, AgentObservationSummary, DashboardSnapshot, ProcessSummary } from '@nexuspilot/ipc-contracts';
 import type { ActivityTelemetrySnapshot } from '@nexuspilot/mcp-server';
+import type { StoredExternalAgentObservation } from '@nexuspilot/storage';
 
 /**
  * Swarm tasks are deliberately not observed here: dashboard.agentSwarms already carries every
  * field a swarm_task observation would duplicate, and nothing renders them. Add them back only
  * together with a consumer, so the snapshot does not pay IPC cost for an unrendered read model.
  */
-export function buildAgentObservations(processes: readonly ProcessSummary[]): readonly AgentObservationSummary[] {
+export function buildAgentObservations(
+  processes: readonly ProcessSummary[],
+  externalAgents: readonly StoredExternalAgentObservation[] = [],
+): readonly AgentObservationSummary[] {
   const observations: AgentObservationSummary[] = [];
   for (const processSummary of processes) {
     const provider = agentProviderForExecutable(processSummary.executable);
@@ -27,6 +31,27 @@ export function buildAgentObservations(processes: readonly ProcessSummary[]): re
         : processSummary.startedAt === undefined
           ? {}
           : { updatedAt: processSummary.startedAt }),
+    });
+  }
+
+  for (const external of externalAgents) {
+    observations.push({
+      id: `external:${external.agentId}`,
+      ...(external.parentAgentId === undefined ? {} : { parentId: `external:${external.parentAgentId}` }),
+      provider: external.provider,
+      kind: 'external_agent',
+      workspaceId: external.workspaceId,
+      ...(external.clientId === undefined ? {} : { clientId: external.clientId }),
+      ...(external.sessionId === undefined ? {} : { sessionId: external.sessionId }),
+      label: external.label,
+      state: external.state,
+      ...(external.startedAt === undefined ? {} : { startedAt: external.startedAt }),
+      updatedAt: external.updatedAt,
+      ...(external.currentActivity === undefined
+        ? external.toolName === undefined ? {} : { currentActivity: `tool: ${external.toolName}` }
+        : external.toolName === undefined
+          ? { currentActivity: external.currentActivity }
+          : { currentActivity: `${external.currentActivity} · tool: ${external.toolName}` }),
     });
   }
 

@@ -170,6 +170,23 @@ The Telemetry UI explicitly states that token/context usage stays hidden until t
 
 Provider token counts must be reported only when trustworthy provider evidence exists. Do not invent estimates and label them as exact.
 
+## Phase 9A — Agent Event Protocol registry
+
+Phase 9A adds a persistent metadata-only registry for opt-in external providers. See `docs/NEXUSPILOT_AGENT_EVENT_PROTOCOL.md`.
+
+Implemented:
+
+- stable external `agentId` and optional `parentAgentId`,
+- provider/workspace/client/session/label/state/current activity/tool metadata,
+- host-authoritative timestamps,
+- TTL-based active leases and terminal retention,
+- bounded 24-hour event history,
+- current registry merged into provider-neutral Agent Monitor observations,
+- external parent/child topology independent of event arrival order,
+- no prompt/result/process-output body fields in the protocol.
+
+Phase 9A intentionally exposes no external listener. Phase 9B will add an authenticated opt-in loopback ingress after the transport security contract is implemented.
+
 ## Design rule
 
 Execution ownership and monitoring visibility are separate concepts:

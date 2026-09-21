@@ -116,6 +116,50 @@ describe('provider-neutral Agent Monitor observations', () => {
     expect(JSON.stringify(telemetry)).not.toContain('token');
   });
 
+  it('normalizes opt-in external agents without prompt/result fields and preserves parent links', () => {
+    const observations = buildAgentObservations([], [
+      {
+        agentId: 'claude-parent',
+        provider: 'claude_code',
+        workspaceId: 'workspace-a',
+        clientId: 'claude-code',
+        sessionId: 'session-a',
+        label: 'Claude main',
+        state: 'running',
+        currentActivity: 'reviewing',
+        toolName: 'read_file',
+        startedAt: '2026-09-21T02:00:00.000Z',
+        updatedAt: '2026-09-21T02:00:01.000Z',
+        expiresAt: '2026-09-21T02:02:01.000Z',
+      },
+      {
+        agentId: 'claude-child',
+        parentAgentId: 'claude-parent',
+        provider: 'claude_code',
+        workspaceId: 'workspace-a',
+        label: 'Claude subagent',
+        state: 'running',
+        updatedAt: '2026-09-21T02:00:02.000Z',
+        expiresAt: '2026-09-21T02:02:02.000Z',
+      },
+    ]);
+
+    expect(observations).toContainEqual(expect.objectContaining({
+      id: 'external:claude-parent',
+      kind: 'external_agent',
+      provider: 'claude_code',
+      currentActivity: 'reviewing · tool: read_file',
+    }));
+    expect(observations).toContainEqual(expect.objectContaining({
+      id: 'external:claude-child',
+      parentId: 'external:claude-parent',
+      kind: 'external_agent',
+    }));
+    const serialized = JSON.stringify(observations);
+    expect(serialized).not.toContain('prompt');
+    expect(serialized).not.toContain('result');
+  });
+
   it('does not duplicate swarm tasks that dashboard.agentSwarms already carries', () => {
     expect(buildAgentObservations([]).some((observation) => observation.kind === 'swarm_task')).toBe(false);
   });

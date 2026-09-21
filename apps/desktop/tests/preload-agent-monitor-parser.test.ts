@@ -27,8 +27,9 @@ describe('preload Agent Monitor parsing', () => {
     expect(parseAgentMonitorSwarms([{ ...swarm, tasks: [{ ...swarm.tasks[0], finishedAt: '2026-09-19T00:00:02.000Z', error: 'boom' }] }])).toEqual([
       { ...swarm, tasks: [{ ...swarm.tasks[0], finishedAt: '2026-09-19T00:00:02.000Z', error: 'boom' }] },
     ]);
-    expect(parseAgentObservations([{ ...observation, parentId: 'swarm:swarm-a', currentActivity: 'agent task' }])).toEqual([
+    expect(parseAgentObservations([{ ...observation, parentId: 'swarm:swarm-a', currentActivity: 'agent task' }, { ...observation, id: 'external:claude', kind: 'external_agent' }])).toEqual([
       { ...observation, parentId: 'swarm:swarm-a', currentActivity: 'agent task' },
+      { ...observation, id: 'external:claude', kind: 'external_agent' },
     ]);
   });
 

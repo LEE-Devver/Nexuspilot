@@ -730,7 +730,7 @@ export interface AgentObservationSummary {
   readonly id: string;
   readonly parentId?: string;
   readonly provider: AgentObservationProvider;
-  readonly kind: 'swarm_task' | 'managed_process';
+  readonly kind: 'swarm_task' | 'managed_process' | 'external_agent';
   readonly workspaceId: string;
   readonly clientId?: string;
   readonly sessionId?: string;
