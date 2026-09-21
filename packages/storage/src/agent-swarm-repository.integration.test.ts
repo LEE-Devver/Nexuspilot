@@ -120,12 +120,45 @@ describe('SqliteAgentSwarmRepository', () => {
       });
       repository.updateSwarmState('swarm-a', 'running', '2026-08-31T00:00:02.000Z');
 
-      expect(repository.listRecent(20).map((swarm) => [swarm.id, swarm.ownerClientId, swarm.ownerSessionId])).toEqual([
+      expect(repository.listRecentForMonitor(20).map((swarm) => [swarm.id, swarm.ownerClientId, swarm.ownerSessionId])).toEqual([
         ['swarm-a', 'client-a', 'session-a'],
         ['swarm-b', 'client-b', 'session-b'],
       ]);
       expect(repository.listOwned('client-a', 'session-a', 'workspace-a', 20, 0).map((swarm) => swarm.id)).toEqual(['swarm-a']);
       expect(repository.listOwned('client-b', 'session-b', 'workspace-b', 20, 0).map((swarm) => swarm.id)).toEqual(['swarm-b']);
+    } finally {
+      database.close();
+    }
+  });
+
+  it('projects monitor rows without reading result bodies and keeps the recent-swarm scan indexed', async () => {
+    const { database, repository } = await fixture();
+    try {
+      repository.create(createInput('swarm-a'));
+      repository.create({
+        ...createInput('swarm-b'),
+        ownerClientId: 'client-b',
+        ownerSessionId: 'session-b',
+        workspaceId: 'workspace-b',
+        idempotencyKey: '33333333-3333-4333-8333-333333333333',
+        createdAt: '2026-08-31T00:00:01.000Z',
+      });
+      repository.updateTask('swarm-a', 'inspect', { resultText: 'sensitive-result-body', outputTruncated: true }, '2026-08-31T00:00:03.000Z');
+
+      const monitor = repository.listRecentForMonitor(20);
+      expect(JSON.stringify(monitor)).not.toContain('sensitive-result-body');
+      expect(monitor[0]?.id).toBe('swarm-a');
+      expect(monitor[0]?.tasks[0]).toMatchObject({ id: 'inspect', resultAvailable: true, outputTruncated: true });
+      expect(monitor[0]?.tasks[1]).toMatchObject({ id: 'summarize', resultAvailable: false, dependsOn: ['inspect'] });
+      expect(monitor[1]?.tasks[0]).toMatchObject({ id: 'inspect', resultAvailable: false, outputTruncated: false });
+
+      const plan = database.connection
+        .prepare('EXPLAIN QUERY PLAN SELECT id FROM agent_swarms ORDER BY updated_at DESC, created_at DESC, id DESC LIMIT 20')
+        .all()
+        .map((row) => (row as { detail: string }).detail)
+        .join(' ');
+      expect(plan).toContain('idx_agent_swarms_recent');
+      expect(plan).not.toContain('TEMP B-TREE');
     } finally {
       database.close();
     }

@@ -723,6 +723,24 @@ export interface AgentMonitorSwarmSummary {
   readonly tasks: readonly AgentMonitorTaskSummary[];
 }
 
+export type AgentObservationProvider = 'codex' | 'claude_code' | 'managed_process';
+export type AgentObservationState = 'blocked' | 'queued' | 'starting' | 'running' | 'completed' | 'exited' | 'failed' | 'cancelled' | 'stopped' | 'timed_out' | 'termination_unverified';
+
+export interface AgentObservationSummary {
+  readonly id: string;
+  readonly parentId?: string;
+  readonly provider: AgentObservationProvider;
+  readonly kind: 'swarm_task' | 'managed_process';
+  readonly workspaceId: string;
+  readonly clientId?: string;
+  readonly sessionId?: string;
+  readonly label: string;
+  readonly state: AgentObservationState;
+  readonly startedAt?: string;
+  readonly updatedAt?: string;
+  readonly currentActivity?: string;
+}
+
 export interface DashboardSnapshot {
   /** Primary workspace used when a tool call omits workspaceId. */
   readonly selectedWorkspace: WorkspaceSummary | null;
@@ -763,6 +781,8 @@ export interface DashboardSnapshot {
   readonly inFlight: readonly InFlightWorkItem[];
   /** Host-only read model of recent agent swarms across client sessions. Prompt/result bodies are never included. */
   readonly agentSwarms?: readonly AgentMonitorSwarmSummary[];
+  /** Provider-neutral host observations derived only from work NexusPilot already owns or tracks. */
+  readonly agentObservations?: readonly AgentObservationSummary[];
   readonly tunnel: TunnelStatus;
   readonly remoteMcp: RemoteMcpStatus;
   readonly settings: UserSettings;

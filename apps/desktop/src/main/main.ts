@@ -291,6 +291,7 @@ const defaultDesktopServices: DesktopIpcServices = {
     workLog: [],
     inFlight: [],
     agentSwarms: [],
+    agentObservations: [],
     tunnel: emptyTunnel,
     remoteMcp: emptyRemoteMcp,
     settings: defaultUserSettings,

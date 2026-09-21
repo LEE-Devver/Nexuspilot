@@ -59,6 +59,15 @@ describe('Security Overview', () => {
   it('renders the host-wide Agent Monitor without exposing prompt or result bodies', () => {
     const markup = render({
       ...baseDashboard,
+      agentObservations: [{
+        id: 'process:claude-1',
+        provider: 'claude_code',
+        kind: 'managed_process',
+        workspaceId: 'workspace-a',
+        clientId: 'desktop-renderer',
+        label: 'claude',
+        state: 'running',
+      }],
       agentSwarms: [{
         swarmId: 'swarm-a',
         workspaceId: 'workspace-a',
@@ -81,6 +90,8 @@ describe('Security Overview', () => {
     expect(markup).toContain('depends on: design');
     expect(markup).toContain('Running tasks');
     expect(markup).toContain('Blocked tasks');
+    expect(markup).toContain('CLAUDE CODE');
+    expect(markup).toContain('claude');
     expect(markup).not.toContain('promptDigest');
     expect(markup).not.toContain('resultText');
   });

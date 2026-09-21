@@ -38,6 +38,8 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
   const activeWorkspaceIds = new Set(dashboard.activeWorkspaces.map((workspace) => workspace.id));
   const activeProjects = props.workspaces.filter((workspace) => activeWorkspaceIds.has(workspace.id));
   const agentSwarms = dashboard.agentSwarms ?? [];
+  const agentObservations = dashboard.agentObservations ?? [];
+  const observedAgentProcesses = agentObservations.filter((observation) => observation.kind === 'managed_process');
   const activeAgentSwarms = agentSwarms.filter((swarm) => swarm.state === 'queued' || swarm.state === 'running');
   const monitoredTasks = agentSwarms.flatMap((swarm) => swarm.tasks);
   const runningAgentTasks = monitoredTasks.filter((task) => task.state === 'running').length;
@@ -142,7 +144,7 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
         </div>
       </section>
 
-      <section className="panel agent-monitor-panel" aria-label={props.locale === 'th' ? 'Agent Monitor' : 'Agent Monitor'} data-testid="agent-monitor">
+      <section className="panel agent-monitor-panel" aria-label="Agent Monitor" data-testid="agent-monitor">
         <div className="agent-monitor-header">
           <div>
             <h2>Agent Monitor</h2>
@@ -199,6 +201,31 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
             })}
           </div>
         )}
+        <div className="agent-monitor-workers">
+          <div className="settings-mini-heading">
+            <strong>{props.locale === 'th' ? 'Provider workers ที่ NexusPilot ติดตาม' : 'Provider workers tracked by NexusPilot'}</strong>
+            <span>{observedAgentProcesses.length}</span>
+          </div>
+          {observedAgentProcesses.length === 0 ? (
+            <p className="hint">{props.locale === 'th'
+              ? 'ยังไม่มี Claude Code / Codex process ที่ถูกเริ่มและติดตามโดย NexusPilot'
+              : 'No Claude Code or Codex process is currently owned and tracked by NexusPilot.'}</p>
+          ) : (
+            <div className="agent-monitor-worker-list">
+              {observedAgentProcesses.map((worker) => {
+                const workspace = props.workspaces.find((candidate) => candidate.id === worker.workspaceId);
+                return (
+                  <div className="agent-monitor-worker" key={worker.id}>
+                    <span className={`agent-provider provider-${worker.provider}`}>{agentProviderLabel(worker.provider)}</span>
+                    <strong>{worker.label}</strong>
+                    <span>{workspace?.displayName ?? worker.workspaceId}</span>
+                    <span>{worker.state.replaceAll('_', ' ')}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </section>
 
       <section className={`panel security-overview ${broadAccess ? 'security-risk-broad' : 'security-risk-restricted'}`} aria-label={t('security.title')}>
@@ -426,6 +453,12 @@ function AgentMonitorMetric(props: { readonly label: string; readonly value: str
       <strong>{props.value}</strong>
     </article>
   );
+}
+
+function agentProviderLabel(provider: NonNullable<DashboardSnapshot['agentObservations']>[number]['provider']): string {
+  if (provider === 'claude_code') return 'CLAUDE CODE';
+  if (provider === 'codex') return 'CODEX';
+  return 'PROCESS';
 }
 
 function shortAgentIdentity(clientId: string, sessionId: string): string {

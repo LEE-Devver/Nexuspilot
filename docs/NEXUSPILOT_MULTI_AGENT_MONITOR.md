@@ -79,38 +79,46 @@ The Control Center shows a read-only Agent Monitor panel with:
 
 The initial view intentionally has no cancel, retry, edit, or result-view controls.
 
-## Next phases
+## Phase 8B — provider-neutral runtime observations
 
-### Phase 8B — provider-neutral agent runtime observations
+Phase 8B adds a provider-neutral observation model without forcing every provider into the AgentSwarm execution model.
 
-Introduce a provider-neutral observation model so NexusPilot can monitor work originating from:
+Current sources:
 
-- Codex agent swarms
-- Claude Code sessions/subagents
-- local shell/process workers
-- future child MCP agent providers
+- Codex Agent Swarm metadata remains in the dedicated swarm read model.
+- NexusPilot-owned/tracked `codex` processes are normalized as provider `codex`.
+- NexusPilot-owned/tracked `claude` / `claude-code` processes are normalized as provider `claude_code`.
+- Unrelated managed processes are not classified as AI workers.
+- Arbitrary external OS processes are not scanned silently.
 
-Do not force every provider into the AgentSwarm execution model. Normalize observations at the monitor layer.
+Security/performance rules:
 
-Suggested provider-neutral fields:
+- process arguments are never copied into the monitor observation,
+- process stdout/log summaries are never copied into the observation,
+- swarm monitor SQL projects metadata only and does not read prompt or result bodies,
+- malformed/future monitor rows are dropped by the preload parser instead of breaking the whole dashboard,
+- an indexed recent-swarm query bounds host-monitor cost.
+
+Current provider-neutral fields:
 
 ```text
-agentId
-parentAgentId?
+id
+parentId?
 provider
-workspaceId?
+kind
+workspaceId
 clientId?
 sessionId?
-role?
+label
 state
-startedAt
-updatedAt
+startedAt?
+updatedAt?
 currentActivity?
-toolName?
-processId?
-tokensIn?
-tokensOut?
 ```
+
+The Control Center now also shows provider workers tracked by NexusPilot. External Claude Code/Codex sessions started outside NexusPilot remain intentionally undiscovered until an explicit opt-in discovery/event protocol exists.
+
+## Next phases
 
 ### Phase 8C — topology and timeline
 

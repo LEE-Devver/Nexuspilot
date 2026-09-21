@@ -5,6 +5,8 @@ import type { ManagedProcess, ProcessLogResult } from '@nexuspilot/process';
 import {
   SqliteAgentSwarmRepository,
   type StoredAgentSwarm,
+  type StoredAgentSwarmMonitor,
+  type StoredAgentSwarmMonitorTask,
   type StoredAgentSwarmState,
   type StoredAgentSwarmTask,
   type StoredAgentSwarmTaskState,
@@ -176,7 +178,7 @@ export class AgentSwarmService {
   }
 
   public monitorSnapshot(limit = 20): readonly AgentSwarmMonitorSnapshot[] {
-    return this.repository.listRecent(limit).map(toMonitorSnapshot);
+    return this.repository.listRecentForMonitor(limit).map(toMonitorSnapshot);
   }
 
   private async monitor(swarmId: string, live: LiveSwarm, outerSignal?: AbortSignal): Promise<void> {
@@ -312,11 +314,31 @@ function toSnapshot(swarm: StoredAgentSwarm): AgentSwarmSnapshot {
   };
 }
 
-function toMonitorSnapshot(swarm: StoredAgentSwarm): AgentSwarmMonitorSnapshot {
+function toMonitorSnapshot(swarm: StoredAgentSwarmMonitor): AgentSwarmMonitorSnapshot {
   return {
-    ...toSnapshot(swarm),
+    swarmId: swarm.id,
+    workspaceId: swarm.workspaceId,
     ownerClientId: swarm.ownerClientId,
     ownerSessionId: swarm.ownerSessionId,
+    state: swarm.state,
+    maxConcurrency: swarm.maxConcurrency,
+    createdAt: swarm.createdAt,
+    updatedAt: swarm.updatedAt,
+    tasks: swarm.tasks.map(toMonitorTaskSnapshot),
+  };
+}
+
+function toMonitorTaskSnapshot(task: StoredAgentSwarmMonitorTask): AgentSwarmTaskSnapshot {
+  return {
+    id: task.id,
+    dependsOn: task.dependsOn,
+    state: task.state,
+    createdAt: task.createdAt,
+    ...(task.startedAt === undefined ? {} : { startedAt: task.startedAt }),
+    ...(task.finishedAt === undefined ? {} : { finishedAt: task.finishedAt }),
+    resultAvailable: task.resultAvailable,
+    outputTruncated: task.outputTruncated,
+    ...(task.error === undefined ? {} : { error: boundedError(task.error) }),
   };
 }
 
