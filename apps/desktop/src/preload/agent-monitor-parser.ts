@@ -1,6 +1,7 @@
 import type {
   AgentMonitorSwarmSummary,
   AgentMonitorTaskSummary,
+  AgentMonitorTelemetrySummary,
   AgentObservationProvider,
   AgentObservationState,
   AgentObservationSummary,
@@ -137,4 +138,66 @@ function optionalMember<T extends string>(value: unknown, allowed: ReadonlySet<T
 
 function optional<K extends string>(field: K, value: unknown): Record<K, string> | Record<string, never> {
   return typeof value === 'string' ? { [field]: value } as Record<K, string> : {};
+}
+
+
+export function parseAgentTelemetry(value: unknown): AgentMonitorTelemetrySummary | undefined {
+  if (!isRecord(value)) return undefined;
+  const scalarFields = [
+    'mcpCalls', 'completedCalls', 'successes', 'errors', 'cancellations', 'activeCalls',
+    'averageLatencyMs', 'p50LatencyMs', 'p95LatencyMs', 'maxLatencyMs',
+    'taskLifecycleCalls', 'deterministicRouteCalls', 'dedicatedDryRunCalls',
+  ] as const;
+  const scalarValues = Object.fromEntries(scalarFields.map((field) => [field, nonNegativeNumber(value[field])]));
+  if (Object.values(scalarValues).some((entry) => entry === undefined)) return undefined;
+  const agentTaskDuration = parseDurationStats(value.agentTaskDuration);
+  const providerProcessDuration = parseDurationStats(value.providerProcessDuration);
+  if (agentTaskDuration === undefined || providerProcessDuration === undefined || !Array.isArray(value.topTools)) return undefined;
+
+  const topTools = value.topTools.flatMap((entry) => {
+    if (!isRecord(entry)) return [];
+    const toolName = optionalString(entry.toolName);
+    const calls = nonNegativeNumber(entry.calls);
+    const errors = nonNegativeNumber(entry.errors);
+    const active = nonNegativeNumber(entry.active);
+    const averageLatencyMs = nonNegativeNumber(entry.averageLatencyMs);
+    const p95LatencyMs = nonNegativeNumber(entry.p95LatencyMs);
+    if (toolName === undefined || calls === undefined || errors === undefined || active === undefined) return [];
+    if (averageLatencyMs === undefined || p95LatencyMs === undefined) return [];
+    return [{ toolName, calls, errors, active, averageLatencyMs, p95LatencyMs }];
+  }).slice(0, 8);
+
+  return {
+    mcpCalls: scalarValues.mcpCalls!,
+    completedCalls: scalarValues.completedCalls!,
+    successes: scalarValues.successes!,
+    errors: scalarValues.errors!,
+    cancellations: scalarValues.cancellations!,
+    activeCalls: scalarValues.activeCalls!,
+    averageLatencyMs: scalarValues.averageLatencyMs!,
+    p50LatencyMs: scalarValues.p50LatencyMs!,
+    p95LatencyMs: scalarValues.p95LatencyMs!,
+    maxLatencyMs: scalarValues.maxLatencyMs!,
+    taskLifecycleCalls: scalarValues.taskLifecycleCalls!,
+    deterministicRouteCalls: scalarValues.deterministicRouteCalls!,
+    dedicatedDryRunCalls: scalarValues.dedicatedDryRunCalls!,
+    agentTaskDuration,
+    providerProcessDuration,
+    topTools,
+  };
+}
+
+function parseDurationStats(value: unknown): AgentMonitorTelemetrySummary['agentTaskDuration'] | undefined {
+  if (!isRecord(value)) return undefined;
+  const count = nonNegativeNumber(value.count);
+  const averageMs = nonNegativeNumber(value.averageMs);
+  const p50Ms = nonNegativeNumber(value.p50Ms);
+  const p95Ms = nonNegativeNumber(value.p95Ms);
+  const maxMs = nonNegativeNumber(value.maxMs);
+  if (count === undefined || averageMs === undefined || p50Ms === undefined || p95Ms === undefined || maxMs === undefined) return undefined;
+  return { count, averageMs, p50Ms, p95Ms, maxMs };
+}
+
+function nonNegativeNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : undefined;
 }

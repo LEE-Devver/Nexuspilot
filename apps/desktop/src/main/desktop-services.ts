@@ -4,7 +4,7 @@ import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from 'nod
 import { open, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import runtimeDependencies from './runtime-dependencies.json' with { type: 'json' };
-import { buildAgentObservations } from './agent-monitor.js';
+import { buildAgentObservations, buildAgentTelemetry } from './agent-monitor.js';
 import {
   AgentSwarmService,
   CheckpointService,
@@ -1185,6 +1185,7 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
       const inFlight = activityTracker.listInFlight().map(toInFlightItem);
       const agentSwarms = agentSwarmService.monitorSnapshot(20);
       const agentObservations = buildAgentObservations(processSummaries);
+      const agentTelemetry = buildAgentTelemetry(activityTracker.telemetrySnapshot(), agentSwarms, agentObservations);
       const tunnel = await observedTunnelStatus();
       const remoteMcp = await remoteMcpController.status();
       const backups = await backupService.list();
@@ -1244,6 +1245,7 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
         inFlight,
         agentSwarms,
         agentObservations,
+        agentTelemetry,
         tunnel,
         remoteMcp,
         settings: readSettings(),

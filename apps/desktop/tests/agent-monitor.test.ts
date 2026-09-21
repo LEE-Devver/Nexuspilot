@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { agentProviderForExecutable, buildAgentObservations } from '../src/main/agent-monitor.js';
+import { agentProviderForExecutable, buildAgentObservations, buildAgentTelemetry } from '../src/main/agent-monitor.js';
 
 describe('provider-neutral Agent Monitor observations', () => {
   it('classifies Codex and Claude Code executables without treating unrelated processes as agents', () => {
@@ -50,8 +50,76 @@ describe('provider-neutral Agent Monitor observations', () => {
     expect(serialized).not.toContain('sensitive output');
   });
 
+  it('builds measured telemetry from tracker and lifecycle timestamps without inventing token usage', () => {
+    const telemetry = buildAgentTelemetry({
+      calls: 6,
+      completed: 5,
+      successes: 4,
+      errors: 1,
+      cancellations: 0,
+      active: 1,
+      averageLatencyMs: 22,
+      p50LatencyMs: 18,
+      p95LatencyMs: 80,
+      maxLatencyMs: 100,
+      byTool: {
+        read_file: { calls: 3, successes: 3, errors: 0, cancellations: 0, active: 1, averageLatencyMs: 10, p50LatencyMs: 8, p95LatencyMs: 20, maxLatencyMs: 20 },
+        agent_swarm_run: { calls: 2, successes: 1, errors: 1, cancellations: 0, active: 0, averageLatencyMs: 40, p50LatencyMs: 20, p95LatencyMs: 60, maxLatencyMs: 60 },
+        route_intent: { calls: 1, successes: 1, errors: 0, cancellations: 0, active: 0, averageLatencyMs: 2, p50LatencyMs: 2, p95LatencyMs: 2, maxLatencyMs: 2 },
+        dry_run: { calls: 1, successes: 1, errors: 0, cancellations: 0, active: 0, averageLatencyMs: 1, p50LatencyMs: 1, p95LatencyMs: 1, maxLatencyMs: 1 },
+      },
+      batchPartialFailures: 0,
+      taskLifecycleCalls: 2,
+      recentErrorClasses: [{ code: 'FAILED', count: 1 }],
+    }, [{
+      swarmId: 'swarm-a',
+      workspaceId: 'workspace-a',
+      ownerClientId: 'chatgpt',
+      ownerSessionId: 'session-a',
+      state: 'completed',
+      maxConcurrency: 1,
+      createdAt: '2026-09-21T01:00:00.000Z',
+      updatedAt: '2026-09-21T01:00:03.000Z',
+      tasks: [{
+        id: 'review',
+        dependsOn: [],
+        state: 'completed',
+        createdAt: '2026-09-21T01:00:00.000Z',
+        startedAt: '2026-09-21T01:00:01.000Z',
+        finishedAt: '2026-09-21T01:00:03.000Z',
+        resultAvailable: true,
+        outputTruncated: false,
+      }],
+    }], [{
+      id: 'process:claude',
+      provider: 'claude_code',
+      kind: 'managed_process',
+      workspaceId: 'workspace-a',
+      label: 'claude',
+      state: 'exited',
+      startedAt: '2026-09-21T01:00:00.000Z',
+      updatedAt: '2026-09-21T01:00:05.000Z',
+    }]);
+
+    expect(telemetry).toMatchObject({
+      mcpCalls: 6,
+      completedCalls: 5,
+      errors: 1,
+      activeCalls: 1,
+      taskLifecycleCalls: 2,
+      deterministicRouteCalls: 1,
+      dedicatedDryRunCalls: 1,
+      agentTaskDuration: { count: 1, averageMs: 2000 },
+      providerProcessDuration: { count: 1, averageMs: 5000 },
+    });
+    expect(telemetry.topTools[0]?.toolName).toBe('read_file');
+    expect(JSON.stringify(telemetry)).not.toContain('token');
+  });
+
   it('does not duplicate swarm tasks that dashboard.agentSwarms already carries', () => {
     expect(buildAgentObservations([]).some((observation) => observation.kind === 'swarm_task')).toBe(false);
   });
+
+
 
 });

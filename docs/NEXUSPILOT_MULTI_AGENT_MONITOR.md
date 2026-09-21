@@ -145,13 +145,28 @@ Still intentionally deferred:
 
 ### Phase 8D — telemetry
 
-Add bounded telemetry for:
+Phase 8D is implemented as measured-only telemetry over existing trusted runtime evidence.
 
-- tool-call counts and latency
-- task duration
-- context/token estimates when the provider exposes them
-- deterministic/zero-LLM route hits
-- dry-run versus real execution
+Implemented:
+
+- MCP/tool call totals, success/error/cancellation/active counts from `ActivityTracker`,
+- average/P50/P95/max MCP latency,
+- top tools by observed call count with error/active/P95 latency,
+- agent task duration from verified task `startedAt`/`finishedAt`,
+- NexusPilot-managed provider-process duration from verified process timestamps,
+- task lifecycle call count,
+- deterministic route count when `route_intent` is actually invoked,
+- dedicated dry-run count when `dry_run` is actually invoked,
+- a `Telemetry` tab in Agent Monitor,
+- preload validation that drops malformed telemetry instead of breaking the dashboard.
+
+Not implemented by design:
+
+- token/context usage without an authoritative provider source,
+- inferred tool activity from logs or command text,
+- fabricated duration when a verified finish timestamp is missing.
+
+The Telemetry UI explicitly states that token/context usage stays hidden until trustworthy provider evidence is available.
 
 Provider token counts must be reported only when trustworthy provider evidence exists. Do not invent estimates and label them as exact.
 

@@ -36,7 +36,7 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
   const [projectPath, setProjectPath] = useState('');
   const [selectedId, setSelectedId] = useState(dashboard.selectedWorkspace?.id ?? '');
   const [projectBusyId, setProjectBusyId] = useState<string | null>(null);
-  const [agentMonitorView, setAgentMonitorView] = useState<'overview' | 'topology' | 'timeline'>('overview');
+  const [agentMonitorView, setAgentMonitorView] = useState<'overview' | 'topology' | 'timeline' | 'telemetry'>('overview');
   const [agentProviderFilter, setAgentProviderFilter] = useState<'all' | 'codex' | 'claude_code'>('all');
   const [agentWorkspaceFilter, setAgentWorkspaceFilter] = useState('all');
   const [agentStateFilter, setAgentStateFilter] = useState('all');
@@ -171,7 +171,7 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
           </span>
         </div>
         <div className="agent-monitor-tabs" role="tablist" aria-label={props.locale === 'th' ? 'มุมมอง Agent Monitor' : 'Agent Monitor views'}>
-          {(['overview', 'topology', 'timeline'] as const).map((view) => (
+          {(['overview', 'topology', 'timeline', 'telemetry'] as const).map((view) => (
             <button
               type="button"
               role="tab"
@@ -296,6 +296,9 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
             workspaces={props.workspaces}
             locale={props.locale}
           />
+        ) : null}
+        {agentMonitorView === 'telemetry' ? (
+          <AgentTelemetryView telemetry={dashboard.agentTelemetry} locale={props.locale} />
         ) : null}
       </section>
 
@@ -517,10 +520,65 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
   );
 }
 
-function agentMonitorViewLabel(view: 'overview' | 'topology' | 'timeline', locale: UiLocale): string {
+function agentMonitorViewLabel(view: 'overview' | 'topology' | 'timeline' | 'telemetry', locale: UiLocale): string {
   if (view === 'overview') return locale === 'th' ? 'ภาพรวม' : 'Overview';
   if (view === 'topology') return 'Topology';
-  return 'Timeline';
+  if (view === 'timeline') return 'Timeline';
+  return 'Telemetry';
+}
+
+function AgentTelemetryView(props: {
+  readonly telemetry: DashboardSnapshot['agentTelemetry'];
+  readonly locale: UiLocale;
+}): ReactElement {
+  const telemetry = props.telemetry;
+  if (telemetry === undefined) {
+    return <div className="agent-monitor-detail agent-monitor-empty" data-testid="agent-telemetry">{props.locale === 'th' ? 'ยังไม่มีข้อมูล telemetry' : 'Telemetry is not available yet.'}</div>;
+  }
+  return (
+    <div className="agent-monitor-detail agent-telemetry-view" data-testid="agent-telemetry">
+      <div className="settings-mini-heading">
+        <strong>{props.locale === 'th' ? 'Telemetry ที่วัดได้จริง' : 'Measured telemetry'}</strong>
+        <span>{telemetry.mcpCalls} MCP calls</span>
+      </div>
+      <div className="agent-telemetry-grid">
+        <AgentMonitorMetric label="MCP calls" value={String(telemetry.mcpCalls)} active={telemetry.activeCalls > 0} />
+        <AgentMonitorMetric label={props.locale === 'th' ? 'สำเร็จ' : 'Successes'} value={String(telemetry.successes)} />
+        <AgentMonitorMetric label={props.locale === 'th' ? 'ผิดพลาด' : 'Errors'} value={String(telemetry.errors)} />
+        <AgentMonitorMetric label="P95 latency" value={formatDurationMs(telemetry.p95LatencyMs)} />
+        <AgentMonitorMetric label={props.locale === 'th' ? 'Agent task avg' : 'Agent task avg'} value={formatDurationMs(telemetry.agentTaskDuration.averageMs)} />
+        <AgentMonitorMetric label={props.locale === 'th' ? 'Provider process avg' : 'Provider process avg'} value={formatDurationMs(telemetry.providerProcessDuration.averageMs)} />
+        <AgentMonitorMetric label="Task lifecycle calls" value={String(telemetry.taskLifecycleCalls)} />
+        <AgentMonitorMetric label="Deterministic route / dry-run" value={`${telemetry.deterministicRouteCalls} / ${telemetry.dedicatedDryRunCalls}`} />
+      </div>
+      <div className="agent-telemetry-tools">
+        <div className="settings-mini-heading">
+          <strong>{props.locale === 'th' ? 'Tools ที่ถูกเรียกมากสุด' : 'Top tools'}</strong>
+          <span>{telemetry.topTools.length}</span>
+        </div>
+        {telemetry.topTools.length === 0 ? (
+          <p className="hint">{props.locale === 'th' ? 'ยังไม่มี tool telemetry' : 'No tool telemetry yet.'}</p>
+        ) : (
+          telemetry.topTools.map((tool) => (
+            <div className="agent-telemetry-tool" key={tool.toolName}>
+              <code>{tool.toolName}</code>
+              <span>{tool.calls} calls</span>
+              <span>{tool.errors} errors</span>
+              <span>P95 {formatDurationMs(tool.p95LatencyMs)}</span>
+            </div>
+          ))
+        )}
+      </div>
+      <p className="hint">{props.locale === 'th'
+        ? 'ยังไม่แสดง token/context usage จนกว่าจะมีข้อมูลจาก provider ที่เชื่อถือได้'
+        : 'Token/context usage stays hidden until an authoritative provider source is available.'}</p>
+    </div>
+  );
+}
+
+function formatDurationMs(value: number): string {
+  if (value < 1_000) return `${Math.round(value)} ms`;
+  return `${(value / 1_000).toFixed(value < 10_000 ? 1 : 0)} s`;
 }
 
 function AgentTopologyView(props: {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseAgentMonitorSwarms, parseAgentObservations } from '../src/preload/agent-monitor-parser.js';
+import { parseAgentMonitorSwarms, parseAgentObservations, parseAgentTelemetry } from '../src/preload/agent-monitor-parser.js';
 
 const swarm = {
   swarmId: 'swarm-a',
@@ -51,6 +51,30 @@ describe('preload Agent Monitor parsing', () => {
     expect(rows[0]?.tasks.map((task) => task.id)).toEqual(['design']);
   });
 
+  it('parses measured telemetry and drops malformed telemetry without breaking the dashboard', () => {
+    const telemetry = {
+      mcpCalls: 10,
+      completedCalls: 9,
+      successes: 7,
+      errors: 1,
+      cancellations: 1,
+      activeCalls: 1,
+      averageLatencyMs: 25,
+      p50LatencyMs: 20,
+      p95LatencyMs: 90,
+      maxLatencyMs: 120,
+      taskLifecycleCalls: 3,
+      deterministicRouteCalls: 2,
+      dedicatedDryRunCalls: 1,
+      agentTaskDuration: { count: 2, averageMs: 1500, p50Ms: 1000, p95Ms: 2000, maxMs: 2000 },
+      providerProcessDuration: { count: 1, averageMs: 5000, p50Ms: 5000, p95Ms: 5000, maxMs: 5000 },
+      topTools: [{ toolName: 'read_file', calls: 4, errors: 0, active: 1, averageLatencyMs: 10, p95LatencyMs: 20 }],
+    };
+    expect(parseAgentTelemetry(telemetry)).toEqual(telemetry);
+    expect(parseAgentTelemetry({ ...telemetry, mcpCalls: 'ten' })).toBeUndefined();
+    expect(parseAgentTelemetry(undefined)).toBeUndefined();
+  });
+
   it('drops unreadable observations and non-array payloads', () => {
     expect(parseAgentObservations([
       { ...observation, id: 'process:unknown', provider: 'gemini_cli' },
@@ -60,5 +84,20 @@ describe('preload Agent Monitor parsing', () => {
     expect(parseAgentObservations(undefined)).toEqual([]);
     expect(parseAgentMonitorSwarms(null)).toEqual([]);
     expect(parseAgentMonitorSwarms('swarms')).toEqual([]);
+  });
+
+  it('accepts bounded telemetry and rejects malformed telemetry as unavailable', () => {
+    const telemetry = {
+      mcpCalls: 10, completedCalls: 9, successes: 8, errors: 1, cancellations: 0, activeCalls: 1,
+      averageLatencyMs: 12, p50LatencyMs: 8, p95LatencyMs: 31, maxLatencyMs: 44,
+      taskLifecycleCalls: 3, deterministicRouteCalls: 2, dedicatedDryRunCalls: 1,
+      agentTaskDuration: { count: 2, averageMs: 1500, p50Ms: 1000, p95Ms: 2000, maxMs: 2000 },
+      providerProcessDuration: { count: 1, averageMs: 5000, p50Ms: 5000, p95Ms: 5000, maxMs: 5000 },
+      topTools: [{ toolName: 'read_file', calls: 4, errors: 0, active: 1, averageLatencyMs: 7, p95LatencyMs: 9 }],
+    };
+    expect(parseAgentTelemetry(telemetry)).toEqual(telemetry);
+    expect(parseAgentTelemetry({ ...telemetry, mcpCalls: -1 })).toBeUndefined();
+    expect(parseAgentTelemetry({ ...telemetry, agentTaskDuration: { count: 'two' } })).toBeUndefined();
+    expect(parseAgentTelemetry(undefined)).toBeUndefined();
   });
 });

@@ -77,7 +77,7 @@ import {
   type WorkLogEntry,
   type WorkspaceSummary,
 } from '@nexuspilot/ipc-contracts';
-import { parseAgentMonitorSwarms, parseAgentObservations } from './agent-monitor-parser.js';
+import { parseAgentMonitorSwarms, parseAgentObservations, parseAgentTelemetry } from './agent-monitor-parser.js';
 import { parseLogCorrelation } from './log-parser.js';
 
 function invoke(channel: string, payload?: unknown): Promise<unknown> {
@@ -460,6 +460,7 @@ function dashboard(value: unknown): DashboardSnapshot {
   const hostArch = value.hostArch;
   if ((hostPlatform !== 'win32' && hostPlatform !== 'darwin' && hostPlatform !== 'linux')
     || (hostArch !== 'x64' && hostArch !== 'arm64')) throw new Error('Invalid IPC response');
+  const parsedAgentTelemetry = parseAgentTelemetry(value.agentTelemetry);
   return {
     selectedWorkspace,
     activeWorkspaces: workspaceList(value.activeWorkspaces),
@@ -515,6 +516,7 @@ function dashboard(value: unknown): DashboardSnapshot {
     inFlight: inFlightItems(value.inFlight),
     agentSwarms: parseAgentMonitorSwarms(value.agentSwarms),
     agentObservations: parseAgentObservations(value.agentObservations),
+    ...(parsedAgentTelemetry === undefined ? {} : { agentTelemetry: parsedAgentTelemetry }),
     tunnel: tunnelStatus(value.tunnel),
     remoteMcp: remoteMcpStatus(value.remoteMcp),
     settings: userSettings(value.settings),

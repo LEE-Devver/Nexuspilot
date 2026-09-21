@@ -741,6 +741,42 @@ export interface AgentObservationSummary {
   readonly currentActivity?: string;
 }
 
+export interface AgentMonitorDurationStats {
+  readonly count: number;
+  readonly averageMs: number;
+  readonly p50Ms: number;
+  readonly p95Ms: number;
+  readonly maxMs: number;
+}
+
+export interface AgentMonitorToolTelemetry {
+  readonly toolName: string;
+  readonly calls: number;
+  readonly errors: number;
+  readonly active: number;
+  readonly averageLatencyMs: number;
+  readonly p95LatencyMs: number;
+}
+
+export interface AgentMonitorTelemetrySummary {
+  readonly mcpCalls: number;
+  readonly completedCalls: number;
+  readonly successes: number;
+  readonly errors: number;
+  readonly cancellations: number;
+  readonly activeCalls: number;
+  readonly averageLatencyMs: number;
+  readonly p50LatencyMs: number;
+  readonly p95LatencyMs: number;
+  readonly maxLatencyMs: number;
+  readonly taskLifecycleCalls: number;
+  readonly deterministicRouteCalls: number;
+  readonly dedicatedDryRunCalls: number;
+  readonly agentTaskDuration: AgentMonitorDurationStats;
+  readonly providerProcessDuration: AgentMonitorDurationStats;
+  readonly topTools: readonly AgentMonitorToolTelemetry[];
+}
+
 export interface DashboardSnapshot {
   /** Primary workspace used when a tool call omits workspaceId. */
   readonly selectedWorkspace: WorkspaceSummary | null;
@@ -783,6 +819,8 @@ export interface DashboardSnapshot {
   readonly agentSwarms?: readonly AgentMonitorSwarmSummary[];
   /** Provider-neutral host observations derived only from work NexusPilot already owns or tracks. */
   readonly agentObservations?: readonly AgentObservationSummary[];
+  /** Bounded measured telemetry. Token/context metrics are omitted until an authoritative provider source is wired. */
+  readonly agentTelemetry?: AgentMonitorTelemetrySummary;
   readonly tunnel: TunnelStatus;
   readonly remoteMcp: RemoteMcpStatus;
   readonly settings: UserSettings;
