@@ -1,5 +1,8 @@
 #!/usr/bin/env node
-/* global process, fetch, AbortController, setTimeout, clearTimeout, Buffer */
+/* global process, fetch, AbortController, setTimeout, clearTimeout, Buffer, URL */
+import { lstat } from 'node:fs/promises';
+import { createConnection } from 'node:net';
+import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 
 const MAX_STDIN_BYTES = 1024 * 1024;
@@ -52,12 +55,13 @@ function mapEvent(name) {
 }
 
 export async function postAgentEvent(endpoint, token, payload, fetchImpl = fetch, timeoutMs = DEFAULT_TIMEOUT_MS) {
-  if (!endpoint || !token || !payload) return false;
+  if (!validEndpoint(endpoint) || !token || !payload) return false;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetchImpl(endpoint, {
       method: 'POST',
+      redirect: 'error',
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: JSON.stringify(payload),
       signal: controller.signal,
@@ -95,18 +99,57 @@ function providerLabel(provider) {
   return provider === 'codex' ? 'Codex' : 'Claude Code';
 }
 
+function validEndpoint(endpoint) {
+  try {
+    const url = new URL(endpoint);
+    return url.protocol === 'http:' && url.hostname === '127.0.0.1' && url.port !== ''
+      && url.pathname === '/v1/agent-events' && !url.username && !url.password && !url.search && !url.hash;
+  } catch { return false; }
+}
+
+export async function resolveRuntimeCapability(env = process.env, directory = process.getuid ? `/tmp/nexuspilot-events-${process.getuid()}` : null) {
+  // Never mix explicit and discovered credentials, or fall back after a partial override.
+  if (env.NEXUSPILOT_AGENT_EVENT_ENDPOINT || env.NEXUSPILOT_AGENT_EVENT_TOKEN) {
+    return validEndpoint(env.NEXUSPILOT_AGENT_EVENT_ENDPOINT) && env.NEXUSPILOT_AGENT_EVENT_TOKEN
+      ? { endpoint: env.NEXUSPILOT_AGENT_EVENT_ENDPOINT, token: env.NEXUSPILOT_AGENT_EVENT_TOKEN } : null;
+  }
+  if (!directory || process.platform === 'win32') return null;
+  try {
+    const dir = await lstat(directory);
+    const file = await lstat(`${directory}/capability.sock`);
+    if (!dir.isDirectory() || !file.isSocket() || dir.uid !== process.getuid() || file.uid !== process.getuid()
+      || (dir.mode & 0o077) !== 0 || (file.mode & 0o077) !== 0) return null;
+    return await new Promise((resolve) => {
+      const socket = createConnection(`${directory}/capability.sock`);
+      let data = '';
+      const finish = (value) => { socket.destroy(); resolve(value); };
+      socket.setTimeout(300, () => finish(null));
+      socket.on('error', () => finish(null));
+      socket.on('data', (chunk) => { data += chunk.toString(); if (data.length > 4096) finish(null); });
+      socket.on('end', () => {
+        try {
+          const value = JSON.parse(data);
+          finish(validEndpoint(value.endpoint) && typeof value.token === 'string' && value.token.length <= 256 ? value : null);
+        } catch { finish(null); }
+      });
+    });
+  } catch { return null; }
+}
+
 async function main() {
   const providerArg = process.argv.find((arg) => arg.startsWith('--provider='));
   const provider = providerArg?.slice('--provider='.length) ?? process.env.NEXUSPILOT_AGENT_PROVIDER;
-  const endpoint = process.env.NEXUSPILOT_AGENT_EVENT_ENDPOINT;
-  const token = process.env.NEXUSPILOT_AGENT_EVENT_TOKEN;
-  if (!endpoint || !token || (provider !== 'codex' && provider !== 'claude_code')) return;
+  if (provider !== 'codex' && provider !== 'claude_code') return;
+  const capability = await resolveRuntimeCapability();
+  if (!capability) return;
   const input = await readStdin();
   const payload = normalizeHookEvent(provider, input);
-  if (!payload) return;
-  await postAgentEvent(endpoint, token, payload);
+  if (payload) await postAgentEvent(capability.endpoint, capability.token, payload);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  // Bound the entire hook, including stalled stdin. Never emit provider-visible output.
+  const deadline = setTimeout(() => process.exit(0), 2500);
+  try { await main(); } catch { /* Monitoring must never affect provider execution. */ }
+  finally { clearTimeout(deadline); process.stdin.destroy(); }
 }

@@ -4,7 +4,7 @@
 
 Phase 9A defines the persistent, metadata-only Agent Event Protocol and host registry.
 
-Phase 9B adds the explicit opt-in Desktop transport. The listener is disabled by default, binds only to `127.0.0.1` on an ephemeral port, requires an in-memory Bearer capability token, validates the strict shared event schema, enforces a 16 KiB JSON body limit, and rate-limits accepted attempts to 120 requests/minute. External provider hooks/adapters are not bundled yet; providers must still opt in and send protocol events deliberately.
+Phase 9B adds the explicit opt-in Desktop transport. The listener is disabled by default, binds only to `127.0.0.1` on an ephemeral port, requires an in-memory Bearer capability token, validates the strict shared event schema, enforces a 16 KiB JSON body limit, and rate-limits accepted attempts to 120 requests/minute. Phase 9C ships the hook adapter; Phase 9D adds explicit Desktop setup for supported local hosts.
 
 ## Goal
 
@@ -184,7 +184,7 @@ The adapter:
 - deliberately drops prompt text, tool input/output, transcripts, assistant messages, and arbitrary provider fields,
 - derives a stable external workspace ID from `cwd` unless `NEXUSPILOT_WORKSPACE_ID` is provided,
 - preserves root/subagent topology when `agent_id` is available,
-- sends events only when both `NEXUSPILOT_AGENT_EVENT_ENDPOINT` and `NEXUSPILOT_AGENT_EVENT_TOKEN` are explicitly present,
+- resolves the current capability through the Phase 9D private runtime socket, or through an explicit endpoint/token environment pair,
 - fails open when NexusPilot is stopped or the ingress cannot be reached, so observability never blocks the provider workflow.
 
 Supported hook mappings:
@@ -208,9 +208,49 @@ node /absolute/path/to/NexusPilot/scripts/agent-event-hook.mjs --provider=codex
 
 Codex command hooks receive a JSON object on stdin with fields such as `session_id`, `cwd`, `hook_event_name`, `agent_id`, and `tool_name`; the adapter intentionally ignores sensitive payload fields. Configure the same command shape for Claude Code with `--provider=claude_code` when using its lifecycle hooks.
 
-The ingress endpoint/token remain app-session capabilities. Copy them from NexusPilot Settings into the environment of the provider process; they are not persisted by the adapter.
+The ingress endpoint/token remain app-session capabilities. Explicit environment variables remain available for development; never put them in provider settings, shell profiles, or command arguments. Automatic discovery is described below.
 
-Future packaging may add one-click hook installation, but it must preserve explicit user opt-in and must not persist the ephemeral ingress token.
+## Phase 9D — Desktop integration setup
+
+Settings → Tools → External Agent Events includes Codex and Claude Code integration cards. Status is based on reading the expected hook entries, not merely remembering a previous installation. Setup/repair and removal first show a preview; confirmation is the explicit write action. Setup does **not** enable ingress. Enable it separately to opt in to receiving events.
+
+### Provider configuration
+
+- Codex: `$CODEX_HOME/hooks.json`, or `~/.codex/hooks.json`.
+- Claude Code: `$CLAUDE_CONFIG_DIR/settings.json`, or `~/.claude/settings.json`.
+- Overrides are taken from the Desktop process environment and must be absolute. The provider must use that same configuration location.
+
+The installed command is:
+
+```text
+node '/absolute/NexusPilot/scripts/agent-event-hook.mjs' --provider=codex --nexuspilot-integration=v1
+```
+
+Claude Code uses `--provider=claude_code`. Packaged Desktop points to the shipped `resources/agent-hooks/agent-event-hook.mjs`. Paths are shell-quoted. Node must be available in the provider's PATH. The ownership marker contains no secret; it lets repair detect commands from an older installation path. Unmarked manually installed hooks are not adopted or removed.
+
+Both providers register SessionStart, SessionEnd, SubagentStart, SubagentStop, PreToolUse, PostToolUse, UserPromptSubmit, and Stop. Only Codex registers Interrupt. Handlers request async execution and a three-second timeout; the adapter itself exits silently within 2.5 seconds, including stalled stdin. Codex runs SessionEnd synchronously even when async is requested. Delivery is best-effort: providers may cancel outstanding background hooks during exit, and events can arrive out of order. See the [Codex hook contract](https://learn.chatgpt.com/docs/hooks) and [Claude Code hook contract](https://code.claude.com/docs/en/hooks).
+
+Codex requires review/trust of new or changed hooks in its `/hooks` UI. Setup never bypasses this trust requirement. Restart providers after installation. Older versions without these command hooks, managed policy, disabled hooks, or a missing Node executable can prevent delivery; Configured means the expected local file entries exist, not that delivery or provider execution was observed.
+
+### Preview, backup, repair, and removal
+
+The Desktop-only IPC returns the target path, create/modify flags, expected command/events, planned backup path, and a revision. A stale preview is rejected. Configuration is bounded to 1 MiB, parsed as strict JSON, and checked for duplicate keys and invalid hook structure. JSON with comments, linked files/directories, unsafe ownership/access, or unsupported locations fails closed with a useful message. Provider `disableAllHooks` is preserved; setup asks the user to change it themselves.
+
+Only the top-level hooks value is rewritten; unrelated top-level bytes and unrelated hook values are preserved. Before a change, existing bytes are saved with mode 0600 to `<config>.nexuspilot-<revision-prefix>.bak`. Existing identical backups can be reused; differing backups are never overwritten. New files need no backup. Writes use a sibling exclusive lock, a private temporary file, a source recheck, and atomic rename. Other editors do not participate in this lock; avoid editing provider settings concurrently. A crash may leave a lock/temp file; inspect and remove that sidecar manually before retrying, with NexusPilot stopped.
+
+Repeated setup/removal makes no duplicate changes. Repair updates marked entries after an installation moves. Removal strips only marked NexusPilot command handlers, preserves other handlers in mixed groups, leaves the provider configuration file in place, and keeps backups. Settings refreshes the verified file status after each mutation. No integration write method is exposed through public MCP.
+
+### Memory-only runtime handoff
+
+On macOS and Linux, enabled ingress owns `/tmp/nexuspilot-events-<uid>/capability.sock`. The directory must be owned by the current UID with mode 0700; the socket uses mode 0600. The hook validates ownership, type, and permissions before connecting. The socket returns the current loopback endpoint/token directly from memory, bounded to 4 KiB and a 300 ms discovery timeout. There is **no capability file**, no token in persistent provider config, and no secret in process arguments. The socket inode stores no token bytes.
+
+The regular HTTP ingress still requires Bearer authentication and schema validation. Discovery does not grant remote access: Unix directory permissions restrict access to the local user (and privileged OS administrators). The security boundary does not isolate mutually untrusted processes running as that same user. HTTP delivery rejects non-loopback endpoints and redirects, including with explicit environment overrides.
+
+Rotation is read on the next socket connection; no hook reinstallation is needed. Disable/shutdown revokes the token, closes broker clients and listener, and removes the socket. A crash revokes the in-memory token by process exit; the next startup recovers a refused stale socket, but never replaces a live broker. Only an empty private directory can remain. One active broker is supported per UID. A second broker fails closed.
+
+Automatic setup/handoff is currently **unavailable on Windows**: Node's portable named-pipe API does not provide the user-only ACL contract used here. Cards report Unsupported without writing provider config. Explicit session environment handoff still works with the adapter. A native Windows broker with verified ACLs is deferred; authentication is not weakened to emulate support. Linux uses the POSIX path but has not been tested on a Linux host in this change. macOS runtime/config tests exercise real loopback HTTP and Unix sockets; provider applications themselves are not launched in automated tests.
+
+The hook still projects only the Phase 9C metadata allowlist. Prompt/result/transcript bodies, tool input/output, stdout/stderr, credentials, and arbitrary provider fields are discarded before transport. A stopped app, malformed input, discovery failure, permission failure, or rejected event causes a silent successful exit rather than blocking agent work.
 
 ## Removal / evolution rule
 

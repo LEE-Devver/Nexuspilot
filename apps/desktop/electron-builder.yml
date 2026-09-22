@@ -17,6 +17,8 @@ files:
 afterPack: scripts/capture-packaged-runtime-evidence.mjs
 afterSign: scripts/capture-packaged-runtime-evidence.mjs
 extraResources:
+  - from: ../../scripts/agent-event-hook.mjs
+    to: agent-hooks/agent-event-hook.mjs
   - from: build/tunnel-client
     to: tunnel-client
   - from: build/runtime-tools

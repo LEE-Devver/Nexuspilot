@@ -1,6 +1,8 @@
+import { parseIntegrationRequest } from '../preload/external-agent-integration-parser.js';
 import { app, BrowserWindow, clipboard, desktopCapturer, dialog, ipcMain, Menu, nativeImage, net, Notification, safeStorage, screen, shell, Tray, type IpcMainInvokeEvent } from 'electron';
 import { randomBytes } from 'node:crypto';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import { access, lstat, readFile } from 'node:fs/promises';
 import { autoUpdater } from 'electron-updater';
@@ -9,6 +11,8 @@ import {
   APP_VERSION,
   ipcChannels,
   pushChannels,
+  type ExternalAgentIntegrationRequest,
+  type ExternalAgentIntegrationResult,
   type AddWorkspaceRequest,
   type BackupSummary,
   type ClearLogBufferRequest,
@@ -165,6 +169,7 @@ export interface DesktopIpcServices {
   regenerateRemoteMcpPairingCode(): Promise<RemoteMcpStatus>;
   setTunnelClientPath(request: SetTunnelClientPathRequest): Promise<{ readonly clientPath: string }>;
   setLocale(request: SetLocaleRequest): Promise<{ readonly locale: UiLocale }>;
+  externalAgentIntegration(request: ExternalAgentIntegrationRequest): Promise<ExternalAgentIntegrationResult>;
   setUserSettings(request: SetUserSettingsRequest): Promise<{ readonly settings: UserSettings; readonly restartRequired: boolean }>;
   getPonytailPolicyContext(request: GetPonytailPolicyContextRequest): Promise<PonytailPolicyContext>;
   setWorkspacePonytailMode(request: SetWorkspacePonytailModeRequest): Promise<PonytailPolicyContext>;
@@ -352,6 +357,7 @@ const defaultDesktopServices: DesktopIpcServices = {
   regenerateRemoteMcpPairingCode: async (): Promise<RemoteMcpStatus> => emptyRemoteMcp,
   setTunnelClientPath: async (request): Promise<{ readonly clientPath: string }> => ({ clientPath: request.clientPath }),
   setLocale: async (request): Promise<{ readonly locale: UiLocale }> => ({ locale: request.locale }),
+  externalAgentIntegration: async () => { throw new Error('External agent integration is unavailable'); },
   setUserSettings: async (request): Promise<{ readonly settings: UserSettings; readonly restartRequired: boolean }> => ({ settings: request.settings, restartRequired: false }),
   getPonytailPolicyContext: async (request): Promise<PonytailPolicyContext> => ({ workspaceId: request.workspaceId, globalMode: 'off', workspaceMode: 'inherit', effectiveWorkspaceMode: 'off', effectiveWorkspaceSource: 'default', activeGoals: [] }),
   setWorkspacePonytailMode: async (request): Promise<PonytailPolicyContext> => ({ workspaceId: request.workspaceId, globalMode: 'off', workspaceMode: request.mode, effectiveWorkspaceMode: request.mode === 'inherit' ? 'off' : request.mode, effectiveWorkspaceSource: request.mode === 'inherit' ? 'default' : 'workspace', activeGoals: [] }),
@@ -630,6 +636,10 @@ export function registerIpcHandlers(
     const result = await services.setLocale(parseSetLocaleRequest(payload));
     hooks.onLocaleChanged?.(result.locale);
     return result;
+  });
+  registerHandler(ipcChannels.externalAgentIntegration, async (event, payload: unknown) => {
+    assertTrustedSender(event, getMainWindow());
+    return services.externalAgentIntegration(parseIntegrationRequest(payload));
   });
   registerHandler(ipcChannels.setUserSettings, async (event, payload: unknown) => {
     assertTrustedSender(event, getMainWindow());
@@ -2034,6 +2044,9 @@ async function createNativeDesktopRuntime(dataPath: string): Promise<DesktopRunt
     ...secrets,
     nativeCapabilityApi: createElectronNativeCapabilityApi(() => mainWindow),
     eccRuntimeOptions: resolveDesktopEccRuntimeOptions(),
+    agentHookPath: app.isPackaged
+      ? path.join(process.resourcesPath, 'agent-hooks', 'agent-event-hook.mjs')
+      : fileURLToPath(new URL('../../../../scripts/agent-event-hook.mjs', import.meta.url)),
     hostMutationApprovalProvider: requestNativeMutationApproval,
     pdfProviderInstaller: (rootPath) => installPdfProvider(rootPath, {
       fetchImpl: (url) => net.fetch(url, { redirect: 'follow' }),

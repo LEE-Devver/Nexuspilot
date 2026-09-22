@@ -42,6 +42,7 @@ export const ipcChannels = {
   regenerateRemoteMcpPairingCode: 'nexuspilot:regenerate-remote-mcp-pairing-code',
   setTunnelClientPath: 'nexuspilot:set-tunnel-client-path',
   setLocale: 'nexuspilot:set-locale',
+  externalAgentIntegration: 'nexuspilot:external-agent-integration',
   setUserSettings: 'nexuspilot:set-user-settings',
   getPonytailPolicyContext: 'nexuspilot:get-ponytail-policy-context',
   setWorkspacePonytailMode: 'nexuspilot:set-workspace-ponytail-mode',
@@ -779,6 +780,26 @@ export interface AgentMonitorTelemetrySummary {
   readonly topTools: readonly AgentMonitorToolTelemetry[];
 }
 
+export type ExternalAgentProvider = 'codex' | 'claude_code';
+export interface ExternalAgentIntegrationRequest {
+  readonly provider: ExternalAgentProvider;
+  readonly action: 'inspect' | 'preview_setup' | 'preview_remove' | 'setup' | 'remove';
+  readonly expectedRevision?: string;
+}
+export interface ExternalAgentIntegrationResult {
+  readonly provider: ExternalAgentProvider;
+  readonly status: 'not_configured' | 'configured' | 'differs' | 'unavailable';
+  readonly configPath: string;
+  readonly command: string;
+  readonly events: readonly string[];
+  readonly revision: string;
+  readonly createsFile: boolean;
+  readonly modifiesEntry: boolean;
+  readonly changes: boolean;
+  readonly backupPath: string | null;
+  readonly message: string;
+}
+
 export interface AgentEventIngressStatus {
   readonly enabled: boolean;
   readonly running: boolean;
@@ -1097,6 +1118,7 @@ export interface IpcRequestMap {
   readonly [ipcChannels.regenerateRemoteMcpPairingCode]: undefined;
   readonly [ipcChannels.setTunnelClientPath]: SetTunnelClientPathRequest;
   readonly [ipcChannels.setLocale]: SetLocaleRequest;
+  readonly [ipcChannels.externalAgentIntegration]: ExternalAgentIntegrationRequest;
   readonly [ipcChannels.setUserSettings]: SetUserSettingsRequest;
   readonly [ipcChannels.getPonytailPolicyContext]: GetPonytailPolicyContextRequest;
   readonly [ipcChannels.setWorkspacePonytailMode]: SetWorkspacePonytailModeRequest;
@@ -1166,6 +1188,7 @@ export interface IpcResponseMap {
   readonly [ipcChannels.regenerateRemoteMcpPairingCode]: RemoteMcpStatus;
   readonly [ipcChannels.setTunnelClientPath]: { readonly clientPath: string };
   readonly [ipcChannels.setLocale]: { readonly locale: UiLocale };
+  readonly [ipcChannels.externalAgentIntegration]: ExternalAgentIntegrationResult;
   readonly [ipcChannels.setUserSettings]: { readonly settings: UserSettings; readonly restartRequired: boolean };
   readonly [ipcChannels.getPonytailPolicyContext]: PonytailPolicyContext;
   readonly [ipcChannels.setWorkspacePonytailMode]: PonytailPolicyContext;
@@ -1237,6 +1260,7 @@ export interface NexusPilotApi {
   regenerateRemoteMcpPairingCode(): Promise<IpcResponseMap[typeof ipcChannels.regenerateRemoteMcpPairingCode]>;
   setTunnelClientPath(request: SetTunnelClientPathRequest): Promise<IpcResponseMap[typeof ipcChannels.setTunnelClientPath]>;
   setLocale(request: SetLocaleRequest): Promise<IpcResponseMap[typeof ipcChannels.setLocale]>;
+  externalAgentIntegration(request: ExternalAgentIntegrationRequest): Promise<ExternalAgentIntegrationResult>;
   setUserSettings(request: SetUserSettingsRequest): Promise<IpcResponseMap[typeof ipcChannels.setUserSettings]>;
   getPonytailPolicyContext(request: GetPonytailPolicyContextRequest): Promise<IpcResponseMap[typeof ipcChannels.getPonytailPolicyContext]>;
   setWorkspacePonytailMode(request: SetWorkspacePonytailModeRequest): Promise<IpcResponseMap[typeof ipcChannels.setWorkspacePonytailMode]>;

@@ -1,3 +1,4 @@
+import { parseIntegrationRequest, parseIntegrationResult } from './external-agent-integration-parser.js';
 import { contextBridge, ipcRenderer } from 'electron';
 import {
   ipcChannels,
@@ -1388,6 +1389,7 @@ const api: NexusPilotApi = {
   regenerateRemoteMcpPairingCode: () => invoke(ipcChannels.regenerateRemoteMcpPairingCode).then(remoteMcpStatus),
   setTunnelClientPath,
   setLocale,
+  externalAgentIntegration: (request) => invoke(ipcChannels.externalAgentIntegration, parseIntegrationRequest(request)).then(parseIntegrationResult),
   setUserSettings,
   getPonytailPolicyContext,
   setWorkspacePonytailMode,

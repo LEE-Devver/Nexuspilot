@@ -1,3 +1,4 @@
+import { ExternalAgentIntegrations } from './ExternalAgentIntegrations.js';
 import { useEffect, useState, type ReactElement, type UIEvent } from 'react';
 import type { DashboardSnapshot, DestructiveDeletePolicy, ExternalSetupTarget, PdfProviderInstallResult, PermissionProfileName, PonytailModeOverride, PonytailPolicyContext, TunnelOAuthLoginStatus, TunnelStatus, UiLocale, UserSettings } from '@nexuspilot/ipc-contracts';
 import { formatDateTime } from '../../date-time.js';
@@ -702,6 +703,7 @@ export function SettingsPage(props: SettingsPageProps): ReactElement {
                   ? 'ปิดอยู่ — NexusPilot ไม่เปิด listener สำหรับ external agent events'
                   : 'Disabled — NexusPilot exposes no external-agent event listener.'}</div>
               )}
+              <ExternalAgentIntegrations />
               {agentIngressMessage === null ? null : <div className="toast-success-banner" role="status">{agentIngressMessage}</div>}
             </section>
           ) : null}

@@ -221,7 +221,23 @@ Implemented:
 - explicit endpoint/token environment handoff with no credential persistence,
 - stable hashed external workspace identity unless an explicit NexusPilot workspace ID is supplied.
 
-One-click provider hook installation is still deferred; hook configuration remains explicit and opt-in.
+## Phase 9D — one-click external integration setup
+
+Settings → Tools now includes Codex and Claude Code cards with inspected status, setup/repair preview, explicit confirmation, and removal. Provider file edits run in a Desktop host service behind validated, trusted-sender IPC, not React or public MCP. Setup remains separate from the disabled-by-default ingress opt-in.
+
+Implemented and covered by configuration/runtime/IPC tests:
+
+- Minimal hooks edits in the user Codex hooks JSON or Claude Code settings JSON, honoring Desktop environment location overrides.
+- Backups before modifications, atomic writes, stale-preview checks, no-op repeated actions, and removal that preserves unrelated settings and hooks.
+- Fail-closed handling of malformed/duplicate JSON, linked configuration, unavailable paths, and disabled provider hooks.
+- Current-user Unix socket discovery on macOS/POSIX with restrictive access, token rotation without reinstall, and disable/shutdown revocation.
+- No token file: the Bearer capability remains in memory, travels only through the private socket, and never enters hook commands or provider configuration.
+- Metadata-only payload filtering and bounded, silent fail-open hook execution.
+- Settings status refresh after writes and contained IPC errors.
+
+Current limits: Windows automatic setup is explicitly unavailable pending a native user-restricted named-pipe broker; explicit environment handoff remains possible. Linux shares the POSIX implementation but this change is verified on macOS. Node must be on the provider PATH. Codex still requires its own hook review/trust. Provider policy and version can prevent execution even when file entries are Configured. Delivery is best-effort, especially during provider shutdown. No OS process scanning was added.
+
+See [Agent Event Protocol Phase 9D](NEXUSPILOT_AGENT_EVENT_PROTOCOL.md#phase-9d--desktop-integration-setup) for exact locations, backup naming, ownership markers, socket cleanup, event coverage, and provider limitations.
 
 ## Design rule
 

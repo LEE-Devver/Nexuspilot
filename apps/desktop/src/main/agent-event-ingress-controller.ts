@@ -1,3 +1,4 @@
+import { AgentEventCapability } from './agent-event-capability.js';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import type { AgentEventInput, AgentEventReceipt } from '@nexuspilot/application';
@@ -38,7 +39,12 @@ export class AgentEventIngressController {
   private tokenValue: string | null = null;
   private readonly requestTimes: number[] = [];
 
-  public constructor(private readonly service: AgentEventIngressPort) {}
+  private lifecycle: Promise<unknown> = Promise.resolve();
+  private readonly capability: AgentEventCapability | null;
+
+  public constructor(private readonly service: AgentEventIngressPort, capabilityDirectory?: string | null) {
+    this.capability = capabilityDirectory ? new AgentEventCapability(capabilityDirectory, () => this.status(true)) : null;
+  }
 
   public status(enabled: boolean): AgentEventIngressStatus {
     return {
@@ -49,7 +55,21 @@ export class AgentEventIngressController {
     };
   }
 
-  public async start(): Promise<AgentEventIngressStatus> {
+  public start(): Promise<AgentEventIngressStatus> {
+    return this.serialize(() => this.startListening());
+  }
+
+  public stop(): Promise<AgentEventIngressStatus> {
+    return this.serialize(() => this.stopListening());
+  }
+
+  private serialize(action: () => Promise<AgentEventIngressStatus>): Promise<AgentEventIngressStatus> {
+    const next = this.lifecycle.then(action);
+    this.lifecycle = next.catch(() => undefined);
+    return next;
+  }
+
+  private async startListening(): Promise<AgentEventIngressStatus> {
     if (this.server !== null) return this.status(true);
     this.tokenValue = randomBytes(32).toString('base64url');
     const server = createServer((request, response) => {
@@ -59,7 +79,7 @@ export class AgentEventIngressController {
       socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n');
     });
     await new Promise<void>((resolve, reject) => {
-      const onError = (error: Error): void => reject(error);
+      const onError = (error: Error): void => { this.tokenValue = null; reject(error); };
       server.once('error', onError);
       server.listen({ host: HOST, port: 0, exclusive: true }, () => {
         server.off('error', onError);
@@ -74,15 +94,17 @@ export class AgentEventIngressController {
     }
     this.server = server;
     this.endpoint = `http://${HOST}:${address.port}${EVENT_PATH}`;
+    try { await this.capability?.start(); } catch (error) { await this.stopListening(); throw error; }
     return this.status(true);
   }
 
-  public async stop(): Promise<AgentEventIngressStatus> {
+  private async stopListening(): Promise<AgentEventIngressStatus> {
     const server = this.server;
     this.server = null;
     this.endpoint = null;
     this.tokenValue = null;
     this.requestTimes.length = 0;
+    await this.capability?.close();
     if (server !== null) {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }

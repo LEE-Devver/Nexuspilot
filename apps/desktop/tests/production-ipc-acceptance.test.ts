@@ -107,6 +107,19 @@ describe('production desktop IPC acceptance', () => {
     expect(services.stopTunnel).toHaveBeenCalledOnce();
   });
 
+  it('restricts integration mutations to the trusted Desktop and requires a preview revision', async () => {
+    const integration = vi.fn(async () => ({ status: 'not_configured' }));
+    registerIpcHandlers(() => ({}) as never, { ...desktopServices(), externalAgentIntegration: integration });
+    const handler = requiredHandler(ipcChannels.externalAgentIntegration);
+    const trusted = { senderFrame: { url: pathToFileURL(getRendererEntryPath()).href } };
+    await expect(handler({ senderFrame: { url: 'https://example.invalid/' } }, { provider: 'codex', action: 'setup', expectedRevision: 'a'.repeat(64) })).rejects.toThrow('IPC sender rejected');
+    await expect(handler(trusted, { provider: 'codex', action: 'setup' })).rejects.toThrow('Preview');
+    await expect(handler(trusted, { provider: 'other', action: 'inspect' })).rejects.toThrow('Invalid');
+    expect(integration).not.toHaveBeenCalled();
+    await handler(trusted, { provider: 'codex', action: 'setup', expectedRevision: 'a'.repeat(64) });
+    expect(integration).toHaveBeenCalledWith({ provider: 'codex', action: 'setup', expectedRevision: 'a'.repeat(64) });
+  });
+
   it('routes and validates AI delete and STDIO security policy changes', async () => {
     const services = desktopServices();
     registerIpcHandlers(() => ({}) as never, services);

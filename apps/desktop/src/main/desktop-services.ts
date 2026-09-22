@@ -1,3 +1,5 @@
+import { ExternalAgentIntegrationService } from './external-agent-integration.js';
+import { agentCapabilityDirectory } from './agent-event-capability.js';
 import { createHash } from 'node:crypto';
 import { createServer } from 'node:net';
 import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
@@ -236,6 +238,8 @@ export interface DesktopRuntimeOptions {
   readonly pdfProviderInstaller?: (dataPath: string) => Promise<InstalledPdfProvider>;
   readonly checkpointEncryptionKey?: Buffer;
   readonly decryptTunnelSecret?: (cipherText: string) => Promise<string>;
+  /** Absolute shipped adapter location, supplied only by the Desktop composition root. */
+  readonly agentHookPath?: string;
   /** Enables bounded SQLite polling for long-lived stdio processes that receive writes from another process. */
   readonly watchToolAvailability?: boolean;
   /** Injectable only when an officially supported Tunnel OAuth provisioning contract exists. */
@@ -456,7 +460,8 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
   });
   const agentSwarmService = new AgentSwarmService(new SqliteAgentSwarmRepository(database), codexService);
   const agentEventService = new AgentEventService(new SqliteAgentEventRepository(database));
-  const agentEventIngressController = new AgentEventIngressController(agentEventService);
+  const agentEventIngressController = new AgentEventIngressController(agentEventService, agentCapabilityDirectory());
+  const agentIntegration = new ExternalAgentIntegrationService(options.agentHookPath ?? '');
   const agentEventIngressStartup = readSettings().agentEventIngressEnabled === true
     ? agentEventIngressController.start().catch((error: unknown) => {
       console.error(`Agent Event ingress startup failed: ${error instanceof Error ? error.message : 'unknown error'}`);
@@ -1408,6 +1413,7 @@ export function createDesktopRuntime(dataPath: string, options: DesktopRuntimeOp
       settingsRepository.set(localeSettingKey, request.locale);
       return { locale: request.locale };
     },
+    externalAgentIntegration: async (request) => agentIntegration.execute(request),
     setUserSettings: async (request: SetUserSettingsRequest): Promise<{ readonly settings: UserSettings; readonly restartRequired: boolean }> => {
       const previous = readSettings();
       persistUserSettings(settingsRepository, request.settings);
