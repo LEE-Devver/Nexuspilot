@@ -26,6 +26,6 @@ export function markStartupDoctorPassed(storage: Pick<Storage, 'setItem'>, appVe
 }
 
 export function startupDoctorNavigationTarget(ready: boolean, requested: Screen): Screen {
-  if (ready || requested === 'doctor' || requested === 'projects') return requested;
+  if (ready || requested === 'doctor' || requested === 'projects' || requested === 'tools' || requested === 'settings') return requested;
   return 'doctor';
 }

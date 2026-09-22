@@ -76,9 +76,11 @@ describe('startup Doctor state', () => {
     })).toBe(true);
   });
 
-  it('allows Projects as a recovery destination while startup Doctor is blocking', () => {
+  it('keeps Projects, Tools, and Settings reachable while startup Doctor is blocking', () => {
     expect(startupDoctorNavigationTarget(false, 'projects')).toBe('projects');
-    expect(startupDoctorNavigationTarget(false, 'settings')).toBe('doctor');
+    expect(startupDoctorNavigationTarget(false, 'tools')).toBe('tools');
+    expect(startupDoctorNavigationTarget(false, 'settings')).toBe('settings');
+    expect(startupDoctorNavigationTarget(false, 'home')).toBe('doctor');
     expect(startupDoctorNavigationTarget(true, 'settings')).toBe('settings');
   });
 
