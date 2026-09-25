@@ -46,7 +46,7 @@ test.describe('Tools catalog and Doctor real Electron acceptance', () => {
     const app = await launchDesktop();
     try {
       await openTools(app.page);
-      await expect(app.page.getByRole('tab', { name: new RegExp(`lnwjud \\(${FIRST_PARTY_TOOL_COUNT}\\)`) })).toBeVisible();
+      await expect(app.page.getByRole('tab', { name: new RegExp(`NexusPilot \\(${FIRST_PARTY_TOOL_COUNT}\\)`) })).toBeVisible();
       await expect(app.page.locator('.tool-card')).toHaveCount(FIRST_PARTY_TOOL_COUNT);
       await expect(app.page.locator('.tool-status-strip')).toContainText(/พร้อม|ต้องดำเนินการ|ready|needs_setup/i);
     } finally { await closeDesktop(app); }
@@ -146,7 +146,7 @@ test.describe('Tools catalog and Doctor real Electron acceptance', () => {
       await expect(card).toHaveClass(/tool-needs_setup/);
       await expect(card).toContainText('สถานะ External ยังไม่ยืนยัน');
       await expect(card).toContainText('Server ไม่ได้ระบุสิทธิ์');
-      await expect(card).toContainText('lnwjud ไม่ได้จัดประเภท');
+      await expect(card).toContainText('NexusPilot ไม่ได้จัดประเภท');
     } finally { await closeDesktop(second); }
   });
 

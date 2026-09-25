@@ -60,6 +60,22 @@ describe('Secure Tunnel Desktop HTTP wiring', () => {
   });
 
   it.each([
+    { platform: 'darwin' as const, root: '/tmp/nexuspilot-e2e', home: '/Users/alice', expected: '/tmp/nexuspilot-e2e/tunnel-client' },
+    { platform: 'win32' as const, root: 'D:\\nexuspilot-e2e', home: 'C:\\Users\\alice', expected: 'D:\\nexuspilot-e2e\\tunnel-client' },
+  ])('isolates E2E tunnel profiles and secrets on $platform', ({ platform, root, home, expected }) => {
+    const env = { NEXUSPILOT_E2E_FIXTURE: '1', LNWJUD_DATA_PATH: root };
+    expect(resolveTunnelProfileDirectory(env, home, platform)).toBe(expected);
+    expect(legacyTunnelSecretPath(env, home, platform)).toBe((platform === 'win32' ? 'D:\\nexuspilot-e2e\\tunnel-client\\' : '/tmp/nexuspilot-e2e/tunnel-client/') + 'lnwjud.runtime.secret');
+  });
+
+  it('ignores relative or non-fixture data overrides for tunnel secrets', () => {
+    const home = '/Users/alice';
+    const defaultPath = '/Users/alice/Library/Application Support/lnwjud/tunnel-client';
+    expect(resolveTunnelProfileDirectory({ NEXUSPILOT_E2E_FIXTURE: '1', LNWJUD_DATA_PATH: 'relative' }, home, 'darwin')).toBe(defaultPath);
+    expect(resolveTunnelProfileDirectory({ LNWJUD_DATA_PATH: '/tmp/nexuspilot-e2e' }, home, 'darwin')).toBe(defaultPath);
+  });
+
+  it.each([
     { platform: 'win32' as const, env: { APPDATA: 'D:\\Roaming' }, home: 'C:\\Users\\alice' },
     { platform: 'darwin' as const, env: {}, home: '/Users/alice' },
     { platform: 'linux' as const, env: { XDG_DATA_HOME: '/srv/alice-data' }, home: '/home/alice' },

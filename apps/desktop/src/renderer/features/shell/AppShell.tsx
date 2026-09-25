@@ -100,6 +100,8 @@ export function AppShell(props: AppShellProps): ReactElement {
                 type="button"
                 className={props.screen === item.screen ? 'nav-item active' : 'nav-item'}
                 onClick={() => props.onNavigate(item.screen)}
+                aria-label={t(item.key)}
+                title={t(item.key)}
                 aria-current={props.screen === item.screen ? 'page' : undefined}
               >
                 <svg className="nav-icon" aria-hidden="true" viewBox="0 0 24 24">

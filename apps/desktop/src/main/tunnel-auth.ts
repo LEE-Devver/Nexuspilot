@@ -13,6 +13,11 @@ export function defaultTunnelProfileDirectory(
   homeDirectory: string = os.homedir(),
   platform: NodeJS.Platform = process.platform,
 ): string {
+  const pathApi = platform === 'win32' ? path.win32 : path.posix;
+  const fixtureDataPath = environment.NEXUSPILOT_DATA_PATH?.trim() || environment.LNWJUD_DATA_PATH?.trim();
+  if (environment.NEXUSPILOT_E2E_FIXTURE === '1' && fixtureDataPath && pathApi.isAbsolute(fixtureDataPath)) {
+    return pathApi.join(fixtureDataPath, 'tunnel-client');
+  }
   if (platform === 'win32') {
     const appData = environment.APPDATA?.trim();
     const base = appData !== undefined && path.win32.isAbsolute(appData)

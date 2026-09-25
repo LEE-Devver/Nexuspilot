@@ -17,7 +17,7 @@ test('fresh user sees Thai Tips, enters Secure Tunnel guide, and switches langua
   await withFreshDesktop(async (page) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await ensureThaiLocale(page);
-    await expect(page.getByRole('dialog', { name: 'ตั้งค่า ChatGPT ให้ใช้ lnwjud' })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('dialog', { name: 'ตั้งค่า ChatGPT ให้ใช้ NexusPilot' })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText('ต้องเปิด Dev Mode ในหน้า Plugin Settings ก่อน', { exact: false })).toBeVisible();
     await expectNoHorizontalOverflow(page);
 
@@ -40,7 +40,7 @@ test('Set up later closes Tips and the Home recovery entry reopens Secure Tunnel
   await withFreshDesktop(async (page) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await ensureThaiLocale(page);
-    const dialog = page.getByRole('dialog', { name: 'ตั้งค่า ChatGPT ให้ใช้ lnwjud' });
+    const dialog = page.getByRole('dialog', { name: 'ตั้งค่า ChatGPT ให้ใช้ NexusPilot' });
     await expect(dialog).toBeVisible({ timeout: 30_000 });
     await page.getByRole('button', { name: 'ไว้ทีหลัง' }).click();
     await expect(dialog).toBeHidden();
@@ -99,7 +99,19 @@ async function withFreshDesktop(run: (page: Page) => Promise<void>): Promise<voi
     await expect.poll(() => context.pages().length, { timeout: 30_000 }).toBeGreaterThan(0);
     const page = context.pages()[0];
     if (page === undefined) throw new Error('Electron did not create a renderer page');
-    await run(page);
+    try {
+      await run(page);
+    } catch (cause: unknown) {
+      const state = await page.evaluate(async () => {
+        const dashboard = await window.nexusPilot.getDashboard();
+        const report = await window.nexusPilot.runDoctor();
+        return {
+          tunnel: { profileExists: dashboard.tunnel.profileExists, hasApiKey: dashboard.tunnel.hasApiKey, authMode: dashboard.tunnel.auth?.mode },
+          coreFailures: report.checks.filter((check) => check.required && (check.status === 'fail' || check.status === 'unknown')).map((check) => check.id),
+        };
+      }).catch(() => null);
+      throw new Error(`Guided tunnel fixture did not reach the expected screen: ${JSON.stringify(state)}`, { cause });
+    }
   } finally {
     await browser?.close().catch(() => undefined);
     await terminateProcessTree(electronProcess);

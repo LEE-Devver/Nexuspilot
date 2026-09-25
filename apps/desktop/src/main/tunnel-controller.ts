@@ -9,7 +9,7 @@ import { request as httpRequest } from 'node:http';
 import type { TunnelAuthStatus, TunnelPersistentStatus, TunnelRunState, TunnelStatus } from '@nexuspilot/ipc-contracts';
 import { probeProcessStart, type ProcessProbeResult } from '@nexuspilot/mcp-server';
 import type { SecretProtector } from '@nexuspilot/shared';
-import { LegacyApiKeyCredentialProvider, type TunnelAuthDiagnostics, type TunnelAuthProvider, type TunnelNetworkErrorDiagnostic } from './tunnel-auth.js';
+import { defaultTunnelProfileDirectory, LegacyApiKeyCredentialProvider, type TunnelAuthDiagnostics, type TunnelAuthProvider, type TunnelNetworkErrorDiagnostic } from './tunnel-auth.js';
 import { formatTunnelExitMessage, tunnelExitHintFromLog } from './tunnel-exit.js';
 import { acquireTunnelLock, readTunnelLock, type TunnelLockAcquisition, type TunnelLockOwner } from './tunnel-lock.js';
 import { extractTunnelId, extractTunnelMcpServerUrl, normalizeLoopbackMcpUrl, rewriteTunnelYamlMcpServerUrl, rewriteTunnelYamlRuntimeApiKeyRef } from './tunnel-profile.js';
@@ -36,18 +36,7 @@ const MAX_DIAGNOSTIC_STDERR_BYTES = 16 * 1024;
 type ExternalTunnelProbe = 'live' | 'gone' | 'unverifiable';
 
 export function resolveTunnelProfileDirectory(environment: NodeJS.ProcessEnv = process.env, homeDirectory: string = os.homedir(), platform: NodeJS.Platform = process.platform): string {
-  const join = platform === 'win32' ? path.win32.join : path.posix.join;
-  if (platform === 'win32') {
-    const appData = environment.APPDATA?.trim();
-    const base = appData !== undefined && path.win32.isAbsolute(appData) ? appData : join(homeDirectory, 'AppData', 'Roaming');
-    return join(base, 'tunnel-client');
-  }
-  const dataHome = platform === 'darwin'
-    ? join(homeDirectory, 'Library', 'Application Support')
-    : (environment.XDG_DATA_HOME?.trim() && path.posix.isAbsolute(environment.XDG_DATA_HOME.trim())
-      ? environment.XDG_DATA_HOME.trim()
-      : join(homeDirectory, '.local', 'share'));
-  return join(dataHome, 'lnwjud', 'tunnel-client');
+  return defaultTunnelProfileDirectory(environment, homeDirectory, platform);
 }
 
 class StartCancelledError extends Error {}

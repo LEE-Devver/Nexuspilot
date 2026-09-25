@@ -38,7 +38,7 @@ test('renderer cannot access Node globals', async ({ browserName }, testInfo) =>
       expect(await app.evaluate(({ app }) => app.isPackaged)).toBe(true);
     }
     page = await app.firstWindow();
-    await expect(page.getByRole('banner').getByText('lnwjud', { exact: true })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('banner').getByText('NexusPilot', { exact: true })).toBeVisible({ timeout: 30_000 });
     const renderer = page;
     await expect.poll(() => renderer.evaluate(() => ({
       process: typeof Reflect.get(window, 'process'),
@@ -77,7 +77,7 @@ test('startup recovers an unsupported checkpoint envelope without deleting the o
     app = await launchElectron(dataRoot);
     app.process().stderr?.on('data', (chunk: Buffer) => stderr.push(chunk.toString()));
     page = await app.firstWindow();
-    await expect(page.getByRole('banner').getByText('lnwjud', { exact: true })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('banner').getByText('NexusPilot', { exact: true })).toBeVisible({ timeout: 30_000 });
     await expect.poll(async () => (await readFile(checkpointPath, 'utf8')).startsWith('safe:v1:'), { timeout: 15_000 }).toBe(true);
     const quarantined = (await readdir(dataRoot)).find((name) => name.startsWith('checkpoint-master.key.unsupported-'));
     expect(quarantined).toBeDefined();
