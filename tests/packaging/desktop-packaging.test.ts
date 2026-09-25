@@ -14,11 +14,11 @@ const ponytailSkillNames = [
 ] as const;
 
 describe('cross-platform desktop packaging', () => {
-  it('[version-contract] pins the product release to v5.2.2', async () => {
+  it('[version-contract] pins the product release to v5.4.0', async () => {
     const rootPackage = JSON.parse(await readFile(path.join(repositoryRoot, 'package.json'), 'utf8')) as { version?: unknown };
     const desktopPackage = JSON.parse(await readFile(path.join(desktopRoot, 'package.json'), 'utf8')) as { version?: unknown };
-    expect(rootPackage.version).toBe('5.2.2');
-    expect(desktopPackage.version).toBe('5.2.2');
+    expect(rootPackage.version).toBe('5.4.0');
+    expect(desktopPackage.version).toBe('5.4.0');
   });
 
   it('[version-contract] keeps every workspace package and runtime version aligned', async () => {
@@ -41,29 +41,34 @@ describe('cross-platform desktop packaging', () => {
     }
     for (const packagePath of packagePaths) {
       const packageJson = JSON.parse(await readFile(packagePath, 'utf8')) as { version?: unknown };
-      expect(packageJson.version, packagePath).toBe('5.2.2');
+      expect(packageJson.version, packagePath).toBe('5.4.0');
     }
     const ipcContracts = await readFile(path.join(repositoryRoot, 'packages', 'ipc-contracts', 'src', 'index.ts'), 'utf8');
     const shared = await readFile(path.join(repositoryRoot, 'packages', 'shared', 'src', 'index.ts'), 'utf8');
-    expect(ipcContracts).toContain("APP_VERSION = '5.2.2'");
-    expect(shared).toContain("APP_VERSION = '5.2.2'");
+    expect(ipcContracts).toContain("APP_VERSION = '5.4.0'");
+    expect(shared).toContain("APP_VERSION = '5.4.0'");
   });
 
-  it('[version-contract] keeps published-version documentation and runtime copy aligned with the root version', async () => {
+  it('[version-contract] keeps source-version and latest-published documentation explicit and aligned', async () => {
     const rootPackage = JSON.parse(await readFile(path.join(repositoryRoot, 'package.json'), 'utf8')) as { version?: unknown };
     const version = String(rootPackage.version);
     const readme = await readFile(path.join(repositoryRoot, 'README.md'), 'utf8');
+    const fullReadme = await readFile(path.join(repositoryRoot, 'FULL_README.md'), 'utf8');
     expect(readme).toContain(`## Upstream baseline version: lnwjud v${version}`);
 
-
     const usageTh = await readFile(path.join(repositoryRoot, 'docs', 'USAGE_TH.md'), 'utf8');
-    const publishedVersion = version;
-    expect(usageTh).toContain(`lnwjud v${publishedVersion} (ภาษาไทย)`);
+    expect(readme).toContain(`## Current source version: v${version}`);
+    expect(fullReadme).toContain(`## Current source version: v${version}`);
+    expect(usageTh).toContain(`lnwjud v${version} (ภาษาไทย)`);
+
+    const publishedVersion = readme.match(/Latest published release: \*\*v([0-9.]+)\*\*/)?.[1];
+    expect(publishedVersion).toBeTruthy();
+    expect(fullReadme).toContain(`Latest published release: **v${publishedVersion}**`);
     expect(usageTh).toContain(`public release \`v${publishedVersion}\``);
 
     const expectedReferences: ReadonlyArray<readonly [string, string]> = [
       ['docs/INSTALL_MACOS.md', `v${version} native macOS release target`],
-      ['.github/RELEASE_CHECKLIST.md', `**Current version:** \`v${version}\``],
+      ['.github/RELEASE_CHECKLIST.md', `**Current source version:** \`v${version}\``],
       ['docs/development/PACKAGING_WINDOWS.md', `current v${version} packaging contract`],
       ['docs/LNWJUD_CAPABILITIES.md', `lnwjud v${version}`],
       ['docs/architecture/MULTI_WORKSPACE_CONCURRENCY.md', `current v${version} runtime contract`],
@@ -77,6 +82,16 @@ describe('cross-platform desktop packaging', () => {
     }
   });
 
+  it('pins Electron 45 alpha.7 and exposes the Windows WER helper in the installed runtime', async () => {
+    const desktopPackage = JSON.parse(await readFile(path.join(desktopRoot, 'package.json'), 'utf8')) as {
+      devDependencies?: Record<string, string>;
+    };
+    expect(desktopPackage.devDependencies?.electron).toBe('45.0.0-alpha.7');
+    if (process.platform === 'win32') {
+      await access(path.join(desktopRoot, 'node_modules', 'electron', 'dist', 'electron_wer.dll'));
+    }
+  });
+
   it('publishes complete desktop application metadata', async () => {
     const desktopPackage = JSON.parse(await readFile(path.join(desktopRoot, 'package.json'), 'utf8')) as {
       description?: unknown;
@@ -85,7 +100,7 @@ describe('cross-platform desktop packaging', () => {
       repository?: { type?: unknown; url?: unknown };
     };
 
-    expect(desktopPackage.description).toBe('Cross-platform local AI-agent runtime and MCP gateway with 253 total tool definitions.');
+    expect(desktopPackage.description).toBe('Cross-platform local AI-agent runtime and MCP gateway with 259 total tool definitions.');
     expect(desktopPackage.author).toBe('NexusPilot contributors');
     expect(desktopPackage.homepage).toBeUndefined();
     expect(desktopPackage.repository).toBeUndefined();
@@ -203,6 +218,12 @@ describe('cross-platform desktop packaging', () => {
     expect(posixLauncher).toContain('exec "$APP" --mcp-stdio "$@"');
     expect(stdioLauncher).not.toContain(path.win32.join('%ProgramFiles%', 'nodejs'));
     expect(stdioLauncher).not.toContain(path.win32.join('%LOCALAPPDATA%', 'Programs', 'nodejs'));
+    const desktopServices = await readFile(path.join(desktopRoot, 'src', 'main', 'desktop-services.ts'), 'utf8');
+    expect(desktopServices).toContain('new SqliteAutomationRepository(database)');
+    expect(desktopServices).toContain('automationFactory:');
+    expect(desktopServices).toContain('new AutomationVerifier(workspaceRepository, runtime, pathGuard)');
+    expect(desktopServices).toContain('automationResumes: automationRepository');
+    expect(desktopServices).not.toMatch(/AutomationScheduler|automationScheduler|automation_schedule/);
     await access(path.join(desktopRoot, 'dist', 'main', 'main.js'));
     await access(path.join(desktopRoot, 'dist', 'preload', 'index.cjs'));
     await access(path.join(desktopRoot, 'dist', 'renderer', 'index.html'));

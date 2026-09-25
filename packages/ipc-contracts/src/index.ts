@@ -1,5 +1,5 @@
-export const APP_NAME = 'NexusPilot';
-export const APP_VERSION = '5.2.2';
+export const APP_NAME = 'nexuspilot';
+export const APP_VERSION = '5.4.0';
 
 export const ipcChannels = {
   listWorkspaces: 'nexuspilot:list-workspaces',
@@ -39,7 +39,7 @@ export const ipcChannels = {
   setRemoteMcpPublicOrigin: 'nexuspilot:set-remote-mcp-public-origin',
   startRemoteMcp: 'nexuspilot:start-remote-mcp',
   stopRemoteMcp: 'nexuspilot:stop-remote-mcp',
-  regenerateRemoteMcpPairingCode: 'nexuspilot:regenerate-remote-mcp-pairing-code',
+  resetRemoteMcpOAuth: 'nexuspilot:reset-remote-mcp-oauth',
   setTunnelClientPath: 'nexuspilot:set-tunnel-client-path',
   setLocale: 'nexuspilot:set-locale',
   externalAgentIntegration: 'nexuspilot:external-agent-integration',
@@ -60,6 +60,7 @@ export const ipcChannels = {
   openToolSetupTarget: 'nexuspilot:open-tool-setup-target',
   copyToolCommand: 'nexuspilot:copy-tool-command',
   getLogSnapshot: 'nexuspilot:get-log-snapshot',
+  loadLogSessionHistory: 'nexuspilot:load-log-session-history',
   clearLogBuffer: 'nexuspilot:clear-log-buffer',
   resolveActivityTargetDetail: 'nexuspilot:resolve-activity-target-detail',
   searchActivityTargetDetails: 'nexuspilot:search-activity-target-details',
@@ -68,6 +69,7 @@ export const ipcChannels = {
   captureIncident: 'nexuspilot:capture-incident',
   openLogViewer: 'nexuspilot:open-log-viewer',
   getUpdateStatus: 'nexuspilot:get-update-status',
+  factoryReset: 'nexuspilot:factory-reset',
   checkForUpdates: 'nexuspilot:check-for-updates',
   installUpdate: 'nexuspilot:install-update',
   getGitDiff: 'nexuspilot:get-git-diff',
@@ -371,6 +373,13 @@ export interface SearchActivityTargetDetailsResult {
   readonly matchingIds: readonly string[];
 }
 
+export interface LogSessionSummary {
+  readonly sessionId: string;
+  readonly workspaceId: string | null;
+  readonly startedAt: string;
+  readonly lastActivityAt: string;
+}
+
 export interface WorkLogEntry {
   readonly id: string;
   readonly timestamp: string;
@@ -473,14 +482,29 @@ export interface RemoteMcpStatus {
   readonly localGatewayUrl: string | null;
   readonly publicMcpUrl: string | null;
   readonly configuredPublicOrigin: string | null;
-  readonly pairingCode: string | null;
-  readonly pairingCodeExpiresAt: string | null;
   readonly oauthProtected: boolean;
   readonly oauthConnected: boolean;
-  readonly pairingRequired: boolean;
   readonly autoStartEnabled: boolean;
   readonly message: string | null;
 }
+
+export const EMPTY_REMOTE_MCP_STATUS: RemoteMcpStatus = {
+  state: 'stopped',
+  provider: 'ngrok',
+  installed: false,
+  automaticInstallAvailable: false,
+  automaticInstallMethod: null,
+  hasAuthtoken: false,
+  ngrokPath: null,
+  localMcpUrl: null,
+  localGatewayUrl: null,
+  publicMcpUrl: null,
+  configuredPublicOrigin: null,
+  oauthProtected: true,
+  oauthConnected: false,
+  autoStartEnabled: false,
+  message: null,
+};
 
 export interface SaveRemoteMcpAuthtokenRequest {
   readonly authtoken: string;
@@ -508,6 +532,17 @@ export interface TunnelStatus {
   readonly persistent: TunnelPersistentStatus | null;
 }
 
+export const EMPTY_TUNNEL_STATUS: TunnelStatus = {
+  state: 'stopped',
+  source: 'desktop',
+  hasApiKey: false,
+  clientPath: null,
+  profileExists: false,
+  message: null,
+  logPath: null,
+  persistent: null,
+};
+
 export type LogSource = 'tunnel' | 'mcp' | 'process';
 export type LogLevel = 'info' | 'warn' | 'error';
 
@@ -533,12 +568,23 @@ export interface LogSnapshot {
   readonly lines: readonly LogLine[];
   readonly tunnelLogPath: string | null;
   readonly tunnelLogExists: boolean;
+  readonly sessions?: readonly LogSessionSummary[];
   readonly tunnelAuth?: TunnelAuthStatus | undefined;
 }
 
 export interface LogScopeRequest {
   readonly workspaceId?: string;
   readonly sessionId?: string;
+}
+
+export interface LoadLogSessionHistoryRequest extends LogScopeRequest {
+  readonly sessionId: string;
+  readonly limit?: number;
+}
+
+export interface LoadLogSessionHistoryResult {
+  readonly workLog: readonly WorkLogEntry[];
+  readonly logSnapshot: LogSnapshot;
 }
 
 export type ClearWorkLogRequest = LogScopeRequest;
@@ -604,7 +650,18 @@ export function workspaceScopeMatches(workspaces: readonly WorkspaceSummary[], c
   return canonicalWorkspaceScopeId(workspaces, candidate) === canonicalWorkspaceScopeId(workspaces, selected);
 }
 
-export type IncidentClassification = 'local_tool_failed' | 'tunnel_disconnected' | 'remote_turn_stopped' | 'healthy_or_inconclusive';
+export const INCIDENT_CLASSIFICATIONS = [
+  'desktop_session_ended_uncleanly',
+  'local_tool_failed',
+  'tunnel_disconnected',
+  'remote_turn_stopped',
+  'healthy_or_inconclusive',
+] as const;
+export type IncidentClassification = typeof INCIDENT_CLASSIFICATIONS[number];
+
+export function isIncidentClassification(value: unknown): value is IncidentClassification {
+  return typeof value === 'string' && (INCIDENT_CLASSIFICATIONS as readonly string[]).includes(value);
+}
 export interface IncidentExportResult {
   readonly exported: boolean;
   readonly cancelled: boolean;
@@ -845,6 +902,7 @@ export interface DashboardSnapshot {
   readonly recovery: RecoveryCenterSummary;
   readonly connectionModes: ConnectionModes;
   readonly workLog: readonly WorkLogEntry[];
+  readonly workLogSessions?: readonly LogSessionSummary[];
   readonly inFlight: readonly InFlightWorkItem[];
   /** Host-only read model of recent agent swarms across client sessions. Prompt/result bodies are never included. */
   readonly agentSwarms?: readonly AgentMonitorSwarmSummary[];
@@ -1115,7 +1173,7 @@ export interface IpcRequestMap {
   readonly [ipcChannels.setRemoteMcpPublicOrigin]: SetRemoteMcpPublicOriginRequest;
   readonly [ipcChannels.startRemoteMcp]: undefined;
   readonly [ipcChannels.stopRemoteMcp]: undefined;
-  readonly [ipcChannels.regenerateRemoteMcpPairingCode]: undefined;
+  readonly [ipcChannels.resetRemoteMcpOAuth]: undefined;
   readonly [ipcChannels.setTunnelClientPath]: SetTunnelClientPathRequest;
   readonly [ipcChannels.setLocale]: SetLocaleRequest;
   readonly [ipcChannels.externalAgentIntegration]: ExternalAgentIntegrationRequest;
@@ -1134,6 +1192,7 @@ export interface IpcRequestMap {
   readonly [ipcChannels.setToolAvailability]: SetToolAvailabilityRequest;
   readonly [ipcChannels.resetToolAvailability]: ResetToolAvailabilityRequest;
   readonly [ipcChannels.getLogSnapshot]: undefined;
+  readonly [ipcChannels.loadLogSessionHistory]: LoadLogSessionHistoryRequest;
   readonly [ipcChannels.clearLogBuffer]: ClearLogBufferRequest;
   readonly [ipcChannels.resolveActivityTargetDetail]: ResolveActivityTargetDetailRequest;
   readonly [ipcChannels.searchActivityTargetDetails]: SearchActivityTargetDetailsRequest;
@@ -1142,6 +1201,7 @@ export interface IpcRequestMap {
   readonly [ipcChannels.captureIncident]: undefined;
   readonly [ipcChannels.openLogViewer]: undefined;
   readonly [ipcChannels.getUpdateStatus]: undefined;
+  readonly [ipcChannels.factoryReset]: undefined;
   readonly [ipcChannels.checkForUpdates]: undefined;
   readonly [ipcChannels.installUpdate]: undefined;
   readonly [ipcChannels.getGitDiff]: GetGitDiffRequest;
@@ -1185,7 +1245,7 @@ export interface IpcResponseMap {
   readonly [ipcChannels.setRemoteMcpPublicOrigin]: RemoteMcpStatus;
   readonly [ipcChannels.startRemoteMcp]: RemoteMcpStatus;
   readonly [ipcChannels.stopRemoteMcp]: RemoteMcpStatus;
-  readonly [ipcChannels.regenerateRemoteMcpPairingCode]: RemoteMcpStatus;
+  readonly [ipcChannels.resetRemoteMcpOAuth]: RemoteMcpStatus;
   readonly [ipcChannels.setTunnelClientPath]: { readonly clientPath: string };
   readonly [ipcChannels.setLocale]: { readonly locale: UiLocale };
   readonly [ipcChannels.externalAgentIntegration]: ExternalAgentIntegrationResult;
@@ -1206,6 +1266,7 @@ export interface IpcResponseMap {
   readonly [ipcChannels.openToolSetupTarget]: { readonly opened: true };
   readonly [ipcChannels.copyToolCommand]: { readonly copied: true };
   readonly [ipcChannels.getLogSnapshot]: LogSnapshot;
+  readonly [ipcChannels.loadLogSessionHistory]: LoadLogSessionHistoryResult;
   readonly [ipcChannels.clearLogBuffer]: { readonly cleared: boolean };
   readonly [ipcChannels.resolveActivityTargetDetail]: ResolveActivityTargetDetailResult;
   readonly [ipcChannels.searchActivityTargetDetails]: SearchActivityTargetDetailsResult;
@@ -1214,6 +1275,7 @@ export interface IpcResponseMap {
   readonly [ipcChannels.captureIncident]: IncidentExportResult;
   readonly [ipcChannels.openLogViewer]: { readonly opened: boolean };
   readonly [ipcChannels.getUpdateStatus]: UpdateStatus;
+  readonly [ipcChannels.factoryReset]: { readonly accepted: boolean };
   readonly [ipcChannels.checkForUpdates]: UpdateStatus;
   readonly [ipcChannels.installUpdate]: { readonly accepted: boolean; readonly status: UpdateStatus };
   readonly [ipcChannels.getGitDiff]: GetGitDiffResponse;
@@ -1257,7 +1319,7 @@ export interface NexusPilotApi {
   setRemoteMcpPublicOrigin(request: SetRemoteMcpPublicOriginRequest): Promise<IpcResponseMap[typeof ipcChannels.setRemoteMcpPublicOrigin]>;
   startRemoteMcp(): Promise<IpcResponseMap[typeof ipcChannels.startRemoteMcp]>;
   stopRemoteMcp(): Promise<IpcResponseMap[typeof ipcChannels.stopRemoteMcp]>;
-  regenerateRemoteMcpPairingCode(): Promise<IpcResponseMap[typeof ipcChannels.regenerateRemoteMcpPairingCode]>;
+  resetRemoteMcpOAuth(): Promise<IpcResponseMap[typeof ipcChannels.resetRemoteMcpOAuth]>;
   setTunnelClientPath(request: SetTunnelClientPathRequest): Promise<IpcResponseMap[typeof ipcChannels.setTunnelClientPath]>;
   setLocale(request: SetLocaleRequest): Promise<IpcResponseMap[typeof ipcChannels.setLocale]>;
   externalAgentIntegration(request: ExternalAgentIntegrationRequest): Promise<ExternalAgentIntegrationResult>;
@@ -1278,6 +1340,7 @@ export interface NexusPilotApi {
   openToolSetupTarget(request: OpenToolSetupTargetRequest): Promise<IpcResponseMap[typeof ipcChannels.openToolSetupTarget]>;
   copyToolCommand(request: CopyToolCommandRequest): Promise<IpcResponseMap[typeof ipcChannels.copyToolCommand]>;
   getLogSnapshot(): Promise<IpcResponseMap[typeof ipcChannels.getLogSnapshot]>;
+  loadLogSessionHistory(request: LoadLogSessionHistoryRequest): Promise<IpcResponseMap[typeof ipcChannels.loadLogSessionHistory]>;
   clearLogBuffer(request: ClearLogBufferRequest): Promise<IpcResponseMap[typeof ipcChannels.clearLogBuffer]>;
   resolveActivityTargetDetail(request: ResolveActivityTargetDetailRequest): Promise<IpcResponseMap[typeof ipcChannels.resolveActivityTargetDetail]>;
   searchActivityTargetDetails(request: SearchActivityTargetDetailsRequest): Promise<IpcResponseMap[typeof ipcChannels.searchActivityTargetDetails]>;
@@ -1286,6 +1349,7 @@ export interface NexusPilotApi {
   captureIncident(): Promise<IpcResponseMap[typeof ipcChannels.captureIncident]>;
   openLogViewer(): Promise<IpcResponseMap[typeof ipcChannels.openLogViewer]>;
   getUpdateStatus(): Promise<IpcResponseMap[typeof ipcChannels.getUpdateStatus]>;
+  factoryReset(): Promise<IpcResponseMap[typeof ipcChannels.factoryReset]>;
   checkForUpdates(): Promise<IpcResponseMap[typeof ipcChannels.checkForUpdates]>;
   installUpdate(): Promise<IpcResponseMap[typeof ipcChannels.installUpdate]>;
   getGitDiff(request: GetGitDiffRequest): Promise<IpcResponseMap[typeof ipcChannels.getGitDiff]>;

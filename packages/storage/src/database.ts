@@ -22,6 +22,7 @@ import { GOAL_PONYTAIL_MODE_MIGRATION_SQL } from './migrations/goal-ponytail-mod
 import { GOAL_V5_ORCHESTRATION_MIGRATION_SQL } from './migrations/goal-v5-orchestration-migration.js';
 import { AGENT_MONITOR_INDEX_MIGRATION_SQL } from './migrations/agent-monitor-index-migration.js';
 import { AGENT_EVENT_MIGRATION_SQL } from './migrations/agent-event-migration.js';
+import { NATIVE_AUTOMATION_MIGRATION_SQL } from './migrations/native-automation-migration.js';
 
 export interface SqliteDatabaseOptions {
   readonly backupDirectory?: string;
@@ -104,6 +105,7 @@ export class SqliteDatabase {
     this.applyMigration({ id: '016_recurring_scheduled_continuation', sql: RECURRING_SCHEDULED_CONTINUATION_MIGRATION_SQL });
     this.applyMigration({ id: '017_goal_ponytail_mode', sql: GOAL_PONYTAIL_MODE_MIGRATION_SQL });
     this.applyMigration({ id: '018_goal_v5_orchestration', sql: GOAL_V5_ORCHESTRATION_MIGRATION_SQL });
+    this.applyMigration({ id: '019_native_automation', sql: NATIVE_AUTOMATION_MIGRATION_SQL });
     this.applyMigration({ id: '019_agent_monitor_index', sql: AGENT_MONITOR_INDEX_MIGRATION_SQL });
     this.applyMigration({ id: '020_agent_event_protocol', sql: AGENT_EVENT_MIGRATION_SQL });
   }

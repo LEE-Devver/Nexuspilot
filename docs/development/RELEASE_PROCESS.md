@@ -91,8 +91,11 @@ PR CI and explicitly dispatched verification runs the full portable/test
 contract while allowing the expensive Windows installer packaging to be
 skipped with `-SkipWindowsPackaging`. Direct pushes to `dev` and other
 non-main branches run the native platform contract without repeating that
-portable gate, so feedback arrives sooner. The native platform contract runs
-on Windows, macOS, and Linux. Its non-desktop workspace tests run in the
+portable gate, so feedback arrives sooner. The separate `Dev Windows Installer`
+workflow is manual-only (`workflow_dispatch`) and must never be triggered by an
+ordinary `dev` push; local installer requests should use `package:windows` on
+the developer machine instead. The native platform contract runs on Windows,
+macOS, and Linux. Its non-desktop workspace tests run in the
 normal bounded pnpm pool, while each desktop shard first builds the workspace
 packages used by acceptance fixtures and then runs an isolated half of the
 desktop suite per operating system so the slowest files run concurrently. A
@@ -219,9 +222,10 @@ for release. In either case, the run must complete all of these target boundarie
   gate and uploads `windows-release-<main merge SHA>`.
 - `Native Platform Contract` passes on Windows, macOS, and Linux, including
   Swift protocol tests on macOS and locked Cargo tests on Linux.
-- `Native Package Verification` passes on macOS 14 arm64, macOS 13 x64,
-  Ubuntu 24.04 x64, and Ubuntu 24.04 arm64, and uploads the four
-  `native-<platform>-<arch>-<main merge SHA>` artifacts.
+- `Native Package Verification` builds on macOS 15 arm64, macOS 15 Intel x64,
+  Ubuntu 24.04 x64, and Ubuntu 24.04 arm64, then the exact macOS artifacts
+  must also pass the macOS 26 arm64/x64 compatibility gate before release;
+  the package jobs upload the four `native-<platform>-<arch>-<main merge SHA>` artifacts.
 
 Each target artifact must contain its matching versioned package, update
 metadata, `SHA256SUMS.txt`, and `PROVENANCE.json`. The expected update files

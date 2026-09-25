@@ -1,5 +1,5 @@
 import { useCallback, useState, type ReactElement } from 'react';
-import type { IncidentClassification, LiveLogExportReference, LogLine, LogSource, TunnelAuthStatus, UiLocale, WorkspaceSummary } from '@nexuspilot/ipc-contracts';
+import type { IncidentClassification, LiveLogExportReference, LogLine, LogSessionSummary, LogSource, TunnelAuthStatus, UiLocale, WorkspaceSummary } from '@nexuspilot/ipc-contracts';
 import { formatDateTime } from '../../date-time.js';
 import { createTranslator } from '../../i18n/index.js';
 import { tunnelAuthPresentation } from '../../tunnel-auth-presentation.js';
@@ -21,6 +21,8 @@ interface LiveLogsPageProps {
   readonly incidentCapturedAt: string | null;
   readonly incidentNotice: string | null;
   readonly workspaces: readonly WorkspaceSummary[];
+  readonly sessions?: readonly LogSessionSummary[];
+  readonly onLoadSessionHistory?: (scope: LogScopeSelection) => Promise<unknown>;
 }
 
 type LogTab = LogSource;
@@ -44,7 +46,7 @@ export function LiveLogsPage(props: LiveLogsPageProps): ReactElement {
           <p className="page-subtitle">{t(tunnelPresentation.logSubtitleKey)}</p>
         </div>
         <div className="heading-actions">
-          <button type="button" className="clear-all-logs-button" onClick={() => { void props.onClearAll(); }}>{props.locale === 'th' ? 'ล้าง Log ทั้งหมด' : 'Clear All Logs'}</button>
+          <button type="button" className="clear-all-logs-button" onClick={() => { void props.onClearAll(); }}>{t('live.clearAll')}</button>
           <button type="button" disabled={props.incidentBusy} onClick={() => { void props.onCaptureIncident(); }}>{t('live.captureIncident')}</button>
           <button type="button" onClick={() => { void props.onPopOut(); }}>{t('live.popOut')}</button>
         </div>
@@ -95,6 +97,7 @@ export function LiveLogsPage(props: LiveLogsPageProps): ReactElement {
             detailEmptyLabel={t('logDetail.empty')}
             legacyIncompleteLabel={t('logDetail.legacyIncomplete')}
             workspaces={props.workspaces}
+            {...(source === 'tunnel' || props.onLoadSessionHistory === undefined ? {} : { sessions: props.sessions, onSessionChange: async (scope: LogScopeSelection): Promise<void> => { await props.onLoadSessionHistory?.(scope); } })}
             workspaceLabel={t('scope.workspace')}
             sessionLabel={t('scope.session')}
             scopeAllLabel={t('scope.all')}
@@ -108,6 +111,7 @@ export function LiveLogsPage(props: LiveLogsPageProps): ReactElement {
 }
 
 function incidentSummary(t: ReturnType<typeof createTranslator>, classification: IncidentClassification): string {
+  if (classification === 'desktop_session_ended_uncleanly') return t('live.incident.desktopSessionEndedUncleanly');
   if (classification === 'local_tool_failed') return t('live.incident.localToolFailed');
   if (classification === 'tunnel_disconnected') return t('live.incident.tunnelDisconnected');
   if (classification === 'remote_turn_stopped') return t('live.incident.remoteTurnStopped');

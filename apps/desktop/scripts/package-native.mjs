@@ -25,6 +25,7 @@ await run('node', ['scripts/prepare-ecc-runtime.mjs'], environment);
 await run('node', [target === 'macos' ? 'scripts/build-macos-host.mjs' : 'scripts/build-linux-host.mjs'], environment);
 await run(corepack, ['pnpm@10.15.0', 'build'], environment);
 await run('electron-builder', [target === 'macos' ? '--mac' : '--linux', ...(target === 'macos' ? ['dmg', 'zip'] : ['AppImage', 'deb']), `--${architecture}`, '--publish', 'never'], environment);
+await run('node', ['scripts/write-native-update-manifest.mjs', target, architecture], environment);
 await run('node', ['scripts/write-release-evidence.mjs'], environment);
 await run('node', ['scripts/verify-release-evidence.mjs'], environment);
 

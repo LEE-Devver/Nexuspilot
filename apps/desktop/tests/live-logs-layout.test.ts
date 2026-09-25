@@ -76,8 +76,8 @@ describe('viewport-sized log and list layout', () => {
       incidentBusy: false, incidentClassification: null, incidentCapturedAt: null, incidentNotice: null, workspaces: [],
     }));
     expect(embedded).toContain('OAuth / Tunnel');
-    expect(embedded).toContain('Real-time OAuth session, Secure Tunnel transport, MCP activity, and process logs');
-    expect(embedded).not.toContain('Real-time tunnel, MCP activity, and process logs');
+    expect(embedded).toContain('See recent OAuth, Tunnel, tool, and running-task events to diagnose problems.');
+    expect(embedded).not.toContain('See recent Tunnel, MCP, and running-task events to diagnose problems.');
   });
 
   it('marks both embedded and pop-out viewers with dedicated fixed viewport containers', () => {
@@ -192,6 +192,7 @@ describe('viewport-sized log and list layout', () => {
     expect(markup).toContain('scope-filter-bar');
     expect(markup).toContain('scope-badge workspace');
     expect(markup).toContain('scope-badge session');
+    expect(markup).toContain('Session 22/08/2026 07:00');
   });
 
   it('treats legacy slash/case path workspace IDs as the registered project and exports the exact visible order', () => {
@@ -219,7 +220,7 @@ describe('viewport-sized log and list layout', () => {
       workspaceLabel: 'Workspace', sessionLabel: 'Session', scopeAllLabel: 'All', onClear: noop, onExport: noop, workspaces,
     }));
     expect(markup).not.toContain('Local Disk E:');
-    expect((markup.match(/>lnwjud — project-a<\/option>/g) ?? [])).toHaveLength(1);
+    expect(markup).toContain('>lnwjud — E:\\lnwjud</option>');
   });
 
   it('keeps Live Logs inside the window and scrolls only the log table', () => {

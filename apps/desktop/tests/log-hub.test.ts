@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile, appendFile } from 'node:fs/promises';
+import { appendFile, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -68,6 +68,11 @@ describe('LogHub', () => {
     expect(snapshot.lines).toHaveLength(3);
     expect(snapshot.lines.map((line) => line.text)).toEqual(['first', 'second', 'proc line']);
     expect(snapshot.tunnelLogExists).toBe(false);
+    const telemetry = hub.telemetrySnapshot();
+    expect(telemetry.totalLines).toBe(3);
+    expect(telemetry.totalRetainedBytes).toBeGreaterThan(0);
+    expect(telemetry.sources.mcp).toMatchObject({ lines: 2, seenKeys: 2 });
+    expect(telemetry.sources.process.lines).toBe(1);
   });
 
   it('removes terminal control sequences before logs reach the UI or exports', () => {
@@ -140,6 +145,25 @@ describe('LogHub', () => {
     expect(texts).toContain('plain text line');
     expect(texts).toContain('boom');
     expect(hub.snapshot().lines.find((line) => line.text === 'boom')?.level).toBe('error');
+  });
+
+  it('replays the bounded startup tail in one sync instead of waiting through 64 KiB polling chunks', async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-loghub-startup-tail-'));
+    temporaryRoots.push(root);
+    const logPath = path.join(root, 'lnwjud-tunnel.log');
+    const rows = Array.from({ length: 128 }, (_, index) => JSON.stringify({
+      level: 'info',
+      msg: `${index}:${'x'.repeat(900)}`,
+    }));
+    await writeFile(logPath, `${rows.join('\n')}\n`, 'utf8');
+
+    const hub = new LogHub({ tunnelLogPath: logPath });
+    hub.start();
+    const texts = hub.snapshot().lines.map((line) => line.text);
+    hub.stop();
+
+    expect(Buffer.byteLength(await readFile(logPath), 'utf8')).toBeGreaterThan(64 * 1024);
+    expect(texts).toContain(`127:${'x'.repeat(900)}`);
   });
 
   it('can start a fresh visible session without replaying existing tunnel history', async () => {

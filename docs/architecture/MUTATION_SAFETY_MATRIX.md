@@ -6,7 +6,7 @@ This document is the release-time inventory for every MCP tool advertised by `To
 
 The Desktop Tool Catalog/Doctor readiness layer is observational only and is not a new mutation authority. Its probes may inspect owned/read-only dependency/status surfaces with bounded timeouts, but may not invoke a tool to test it, create project files, run project commands, control input, or open Office documents. Remediation is limited to typed allowlisted actions (`open_settings`, official URL, copy command, recheck); every later mutation still re-enters the normal policy described below.
 
-Unless a row explicitly says otherwise, the matrix below describes **standard mode / Full Bypass OFF**. With a Full profile and the transport-specific Full Bypass toggle ON, `ToolRegistry` creates a trusted per-invocation authorization and skips all lnwjud application approvals and scope enforcement: chat confirmation, host exact-action approval, profile/command policy, Active Project/allowed roots/protected paths, always-confirm families, and `goalLease`. That authorization is propagated to inner services/backends and is never represented as forged `userConfirmed: true`.
+Unless a row explicitly says otherwise, the matrix below describes **standard mode / Full Bypass OFF**. With a Full profile and the transport-specific Full Bypass toggle ON, `ToolRegistry` creates a trusted per-invocation authorization and skips lnwjud application approvals and ordinary scope enforcement: chat confirmation, host exact-action approval, profile/command policy, Active Project/allowed roots/protected paths, and always-confirm families. A live rolling scheduled-goal mutation fence is different from ordinary authorization: it still requires the current `goalLease` ownership proof so a stale worker cannot mutate after handoff. That authorization is propagated to inner services/backends and is never represented as forged `userConfirmed: true`.
 
 Full Bypass does not disable schema/input validation, existence checks, task/process/worktree ownership, concurrency ledgers, Windows ACL/UAC, antivirus/locks, missing providers, Git/Office/WSL/runtime failures, remote/child-MCP policy, or network/authentication errors. Explicit absolute outside paths may dispatch; relative traversal remains invalid. Outside-workspace mutation may have no Recovery Trash/checkpoint pre-image.
 
@@ -39,7 +39,7 @@ Full Bypass does not disable schema/input validation, existence checks, task/pro
 
 **Covered goal tools:** `run_goal`, `get_goal`, `get_goal_plan`, `update_goal_plan`, `update_goal_acceptance`, `revise_goal_intent`, `create_context_capsule`, `get_context_capsule`, `list_context_capsules`, `context_pressure`, `record_delivery_receipt`, `list_delivery_receipts`, `advance_goal_iteration`, `checkpoint_goal`, `finish_goal`, `cancel_goal`, `reconcile_goals`, `list_goals`, `prepare_scheduled_continuation`, `record_scheduled_continuation_receipt`, `cancel_scheduled_continuation`, `claim_scheduled_continuation`, `get_scheduled_continuation`, `expedite_scheduled_continuation`.
 
-**Scheduled-continuation ownership:** `get_scheduled_continuation` is bounded `read`; prepare/receipt/claim/expedite mutate only app-owned durable continuation/lease state. `cancel_scheduled_continuation` is an independent destructive mutation: it marks the exact/latest continuation for host deletion and returns a receipt-required instruction, without cancelling the goal or its running tasks. `expedite_scheduled_continuation` only advances the durable due time/version and returns an update request for the exact existing native task; it never creates a replacement task or reaches file/Git/process backends. With Full Bypass OFF, a durable `goalLease` token/generation fence is checked before workspace-changing dispatch. Full Bypass ON intentionally skips registry enforcement of that proof; scheduled-continuation agents must still claim/attach it as a cooperative ownership rule.
+**Scheduled-continuation ownership:** `get_scheduled_continuation` is bounded `read`; prepare/receipt/claim/expedite mutate only app-owned durable continuation/lease state. `cancel_scheduled_continuation` is an independent destructive mutation: it marks the exact/latest continuation for host deletion and returns a receipt-required instruction, without cancelling the goal or its running tasks. `expedite_scheduled_continuation` only advances the durable due time/version and returns an update request for the exact existing native task; it never creates a replacement task or reaches file/Git/process backends. A live rolling scheduled-goal `goalLease` token/generation fence is checked before workspace-changing dispatch in both standard mode and Full Bypass. This is an ownership/concurrency fence rather than an approval prompt, so Full Bypass does not disable it.
 
 | Mutation kind | Chat confirmation | Host approval | Recoverable | Auto-approvable | Active Project | Command policy | Packaged transports |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -99,7 +99,36 @@ Full Bypass does not disable schema/input validation, existence checks, task/pro
 
 After a dispatched HTTP mutation fails/times out, the error explicitly states that the remote outcome may be unknown, instructs state inspection, and says **do not retry automatically**. The backend issues one `fetch` dispatch only.
 
-### 9. Scheduler mutation
+### 9. Native Goal automation
+
+**Covered tools:** `automation_create`, `automation_status`, `automation_events`, `automation_run`, `automation_control`, `automation_finalize`.
+
+`automation_status` and `automation_events` are bounded reads scoped to the exact
+actor and workspace. `automation_create` persists one bounded milestone DAG
+beneath an already leased Goal. `automation_run` advances one shell dispatch,
+observation, or verification boundary. `automation_control` pauses, resumes, or
+cancels the run; cancellation also applies the declared cancellation policy to
+the root Goal. `automation_finalize` succeeds only after every attempt and
+verification is terminal and the root Goal is confirmed complete.
+
+| Mutation kind | Chat confirmation | Host approval | Recoverable | Auto-approvable | Active Project | Command policy | Packaged transports |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| status/events are `read`; create is app-owned `create`; run is `execute`; pause/resume are app-owned `replace`; cancel is destructive; finalize is verified app-owned `replace` | ordinary dispatch follows the underlying shell policy; cancellation is explicit/destructive | required when the underlying shell dispatch requires it; the automation wrapper cannot reuse approval for a changed command | automation state/event writes are transactional; external shell side effects are unknown unless the declared verification proves them | no; automation never grants a new destructive auto-approval family | run and Goal must match actor/workspace; dispatch cwd/path verification re-enters the normal workspace boundary | exact executable/argv is checked at shell dispatch; plan text is not command authority | all transports use the same Goal lease, revision, actor/workspace, shell, and host-approval boundaries |
+
+Every create/run/control/finalize call requires the current root Goal lease;
+run/control/finalize also require the stored `goalId` and exact automation
+revision. This ownership fence remains active under Full Bypass. Plans support
+only `provider: shell`; `process` and `codex` are unsupported. Events are
+append-only/redacted, while raw stdout/stderr remains in the owned durable shell
+task store. Automation tools are rejected inside generic `tool_batch`.
+
+Launch is fail-closed. A persisted reservation is bound to one task ID and
+request digest. A found task is reattached; an unknown probe remains
+`dispatched_unresolved` and blocked; only exact absence permits a replacement
+attempt. Automation creates no schedule and reuses only the root Goal's existing
+single hourly recurring Native ChatGPT scheduled continuation.
+
+### 10. Scheduler mutation
 
 **Covered tools:** `scheduler`.
 
@@ -109,7 +138,7 @@ After a dispatched HTTP mutation fails/times out, the error explicitly states th
 
 A scheduler mutation dispatches `schtasks.exe` once. If dispatch returns an error or cancellation after launch, the result says the outcome may be unknown, requires inspecting current task state, and says **do not retry automatically**.
 
-### 10. Office/document replacement and merge
+### 11. Office/document replacement and merge
 
 **Covered tools:** `office`, `office_ppt`, `docx_merge`.
 
@@ -117,7 +146,7 @@ A scheduler mutation dispatches `schtasks.exe` once. If dispatch returns an erro
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | read modes are `read`; save/save-as/merge to target is `create` or `replace` | replacement/mutating mode requires chat confirmation | mutation requires exact host approval | yes for workspace-owned replacement: FileService prepares a replacement pre-image before native/Office dispatch | no | source/target paths are canonicalized under the matching Active Project | n/a for COM/native calls; any command-backed helper is still independently guarded | Desktop provider can approve; standalone providerless mutation denies |
 
-### 11. WSL filesystem translation
+### 12. WSL filesystem translation
 
 **Covered tools:** `wsl_fs`.
 
@@ -125,7 +154,7 @@ A scheduler mutation dispatches `schtasks.exe` once. If dispatch returns an erro
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `read`/translation/metadata only | no | no | n/a | no | Windows paths are checked with segment-aware `path.win32.relative`; raw access outside registered roots is refused | no command execution | all transports |
 
-### 12. Database inspection/query
+### 13. Database inspection/query
 
 **Covered tools:** `db_query`.
 
@@ -135,7 +164,7 @@ A scheduler mutation dispatches `schtasks.exe` once. If dispatch returns an erro
 
 The database runtime rejects DML/DDL such as `DELETE`, `UPDATE`, `DROP`, and multi-statement mutation rather than relying on approval.
 
-### 13. LSP rename planning
+### 14. LSP rename planning
 
 **Covered tools:** `lsp_rename`.
 
@@ -143,11 +172,11 @@ The database runtime rejects DML/DDL such as `DELETE`, `UPDATE`, `DROP`, and mul
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `read` plan generation; returned workspace edit is not applied | no for plan | no for plan | n/a until a later FileService/apply_patch mutation | no | requested files are canonicalized under Active Project/registered workspace | language-server process is configured argv, while any later mutation goes through normal policy | all transports |
 
-### 14. Optional/contract-level tools whose current implementation does not directly apply a user file mutation
+### 15. Optional/contract-level tools whose current implementation does not directly apply a user file mutation
 
 **Covered tools:** `compare_workbook_layout`, `render_excel_preview`, `compare_pdf_pages` are read/render helpers already covered above; the remaining execution/planning surfaces `agent_swarm_run` and `debug_step` remain centrally fail-closed if/when their optional provider becomes mutating. They are explicitly listed in their primary family so there is no untracked optional tool.
 
-### 15. Recovery execution and batch orchestration
+### 16. Recovery execution and batch orchestration
 
 **Covered tools:** `self_heal_apply`, `tool_batch`.
 
@@ -162,8 +191,8 @@ The database runtime rejects DML/DDL such as `DELETE`, `UPDATE`, `DROP`, and mul
 | Class | Reviewed production examples | Safety disposition |
 | --- | --- | --- |
 | A — user/workspace-owned | FileService write/edit/move/copy/delete; native Office save-as/merge targets; workspace sandbox staging | Replacement/deletion gets a pre-image/checkpoint/Recovery Trash entry before authoritative mutation. Canonical real-path containment is mandatory. |
-| B — internal/app-owned | backup manifests/locks, runtime state store, activity leases, tunnel lock, workspace index, durable-task metadata, updater state/temp files | App-owned paths only; atomic write/quarantine/owner-token or retention/recovery scheme used where authoritative state is replaced. These paths do not authorize arbitrary workspace mutation. |
-| C — opaque external | process execution, Codex, shell/WSL, browser/UI input, remote HTTP mutation, child MCP mutation, Task Scheduler | Explicit chat + independent trusted host approval; no auto approval; no automatic mutation retry after uncertain completion. |
+| B — internal/app-owned | backup manifests/locks, runtime state store, activity leases, tunnel lock, workspace index, durable-task metadata, automation rows/events, updater state/temp files | App-owned paths only; atomic write/quarantine/transaction/owner-token or retention/recovery scheme used where authoritative state is replaced. These paths do not authorize arbitrary workspace mutation. |
+| C — opaque external | process execution, Codex, shell/WSL, automation shell dispatch, browser/UI input, remote HTTP mutation, child MCP mutation, Task Scheduler | Explicit policy + independent trusted host approval when required; no auto approval; no automatic mutation retry after uncertain completion. |
 | D — test/build-only | fixture cleanup, test temporary directories, generated installer/doc/version staging | Not an advertised runtime mutation entrypoint. Build scripts remain subject to release-gate review and do not widen runtime authorization. |
 
 ## Retry and timeout audit
@@ -172,6 +201,7 @@ The database runtime rejects DML/DDL such as `DELETE`, `UPDATE`, `DROP`, and mul
 | --- | --- |
 | MCP Tasks protocol | `tasks/result` polls status only. It never restarts the task. When the bounded wait expires it instructs the client to preserve the task ID and poll later. |
 | Durable shell | Worker launch occurs once. Metadata read retries retry reads only. Cancellation retries termination/settlement against the same PIDs and emits `termination_unverified` when termination cannot be proven. |
+| Native Goal automation | Reservation precedes dispatch and binds one task ID plus request digest. Found tasks are reattached; unknown observation blocks as `dispatched_unresolved`; only exact absence permits another attempt. Verification retries inspect evidence and never replay a possibly launched payload. |
 | Process manager / Codex stop | `autoRetry` retries termination of the same known child only and deduplicates concurrent termination through a stored termination attempt. It never reruns the command/Codex instruction. |
 | Scheduler | One `schtasks` mutation dispatch. Error after dispatch reports unknown outcome, state inspection requirement, and no automatic retry. |
 | HTTP mutation | One `fetch` mutation dispatch. Timeout/failure after dispatch reports unknown outcome, remote-state inspection requirement, and no automatic retry. |
@@ -183,4 +213,5 @@ The database runtime rejects DML/DDL such as `DELETE`, `UPDATE`, `DROP`, and mul
 - `packages/mcp-server/src/mutation-inventory.test.ts` asserts that every advertised `ToolRegistry` name appears in this document.
 - `tests/release/path-boundary-source-policy.test.ts` rejects reviewed authorization sources that use string-prefix path authorization.
 - Mutation/host-approval integration tests verify that standalone providerless runtimes fail closed before dispatch while Desktop provider paths can approve exact actions.
+- Automation fault-injection, storage-upgrade, runtime-adapter, and packaging-isolation tests cover pre/post-launch crashes, duplicate wakes, stale leases/revisions, actor/workspace isolation, transactional event failure, secret/raw-output isolation, cross-host restore quarantine, and the six-tool/shell-only boundary.
 - The exhaustive source inventory is rerun during Task 9 for delete primitives, replacement primitives, database mutation markers, remote HTTP mutation methods, destructive Git flags, and mirror/delete synchronization flags.

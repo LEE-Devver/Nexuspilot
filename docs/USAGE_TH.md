@@ -1,8 +1,8 @@
-# คู่มือใช้งาน lnwjud v5.2.2 (ภาษาไทย)
+# คู่มือใช้งาน lnwjud v5.4.0 (ภาษาไทย)
 
 lnwjud คือ cross-platform local AI-agent runtime / MCP gateway สำหรับให้ ChatGPT, Codex และ MCP client อื่นทำงานกับเครื่องของคุณ เช่น อ่าน/ค้น/แก้ไฟล์, Git, รันโปรเซส และเครื่องมือพัฒนาอื่น ๆ โดยงานจริงยังทำบนเครื่องของคุณ ความสามารถ Windows-only เช่น WSL, Registry และ Windows Sandbox จะไม่แสดงเป็นพร้อมใช้งานบน macOS/Linux
 
-คู่มือนี้ใช้กับ public release `v5.2.2` ซึ่งผ่าน verified release flow แล้ว ไฟล์ installer/portable และ artifact ทุกสถาปัตยกรรมอยู่ที่ [GitHub Releases](https://github.com/engasnm111/lnwjud/releases/tag/v5.2.2)
+คู่มือนี้อัปเดตตาม source `v5.4.0`; public release `v5.4.0` คือรุ่นที่เผยแพร่แล้วบน [GitHub Releases](https://github.com/engasnm111/lnwjud/releases/tag/v5.4.0)
 
 > สำหรับผู้ใช้ package ของ lnwjud **ไม่ต้องติดตั้ง Node.js และไม่ต้องดาวน์โหลด `tunnel-client` เอง** ตัว release รวม official OpenAI `tunnel-client v0.0.14` ที่ตรงกับ OS และ architecture ของ target ไว้ให้แล้ว
 
@@ -29,7 +29,7 @@ Outlook/COM ยังคงเป็น Windows-only และจะรายง
 สำหรับ v4.11.0 ตัวโปรแกรมแยก compatibility profile ตามระบบ: Windows 10 x64 ใช้ software rendering เป็นค่าเริ่มต้นเพื่อลดปัญหาหน้าจอ Electron/Chromium ค้าง, วาดไม่ครบ หรือบาง control กดไม่ได้บน GPU/driver รุ่นเก่า ส่วน Windows 11 x64 ยังใช้ hardware acceleration ตามปกติ
 
 งานภายในโปรแกรมที่ต้องเรียก PowerShell ใช้ `powershell.exe` ที่มากับ Windows ไม่บังคับให้ติดตั้ง PowerShell 7 และ child process ภายในถูกเปิดแบบซ่อนหน้าต่าง console. ระบบยังจำกัด durable background task พร้อมกันไว้ 16 งาน และ managed process พร้อมกันไว้ 24 งาน เพื่อกันกรณีหลายแชทสั่งงานพร้อมกันจนเกิด `conhost.exe` จำนวนมาก/CPU เต็ม
-- NexusPilot build ปัจจุบันใช้ artifact ชื่อ `NexusPilot-Setup-5.2.2.exe` หรือ `NexusPilot-Portable-5.2.2.exe`; public NexusPilot release ยังไม่ได้ประกาศ
+- NexusPilot build ปัจจุบันใช้ artifact ชื่อ `NexusPilot-Setup-5.4.0.exe` หรือ `NexusPilot-Portable-5.4.0.exe`; public NexusPilot release ยังไม่ได้ประกาศ
 - OpenAI Platform tunnel ที่ผูกกับ ChatGPT workspace ที่จะใช้
 - Credential ตามโหมดที่เลือก: **OAuth** เมื่อ provider รองรับ Tunnel provisioning หรือ **Runtime API key** ที่มีสิทธิ์ **Tunnels Read + Use** สำหรับโหมดเดิม/สำรอง
 - อินเทอร์เน็ตขาออก HTTPS สำหรับ Secure MCP Tunnel
@@ -49,7 +49,7 @@ Node.js, pnpm และ Git จำเป็นเฉพาะกรณีพั�
 
 ### แบบแนะนำ: Installer
 
-1. ใช้ NexusPilot installer `NexusPilot-Setup-5.2.2.exe` จาก release/build ที่ได้รับการยืนยันแล้ว
+1. ใช้ NexusPilot installer `NexusPilot-Setup-5.4.0.exe` จาก release/build ที่ได้รับการยืนยันแล้ว
 2. ติดตั้งตามปกติ
 3. เปิด **NexusPilot Agent Control Center**
 4. เพิ่ม Project/Workspace ที่ต้องการใช้งาน
@@ -57,7 +57,7 @@ Node.js, pnpm และ Git จำเป็นเฉพาะกรณีพั�
 
 ### แบบไม่ต้องติดตั้ง: Portable EXE
 
-1. ใช้ NexusPilot portable `NexusPilot-Portable-5.2.2.exe` จาก release/build ที่ได้รับการยืนยันแล้ว
+1. ใช้ NexusPilot portable `NexusPilot-Portable-5.4.0.exe` จาก release/build ที่ได้รับการยืนยันแล้ว
 2. วางไว้ในโฟลเดอร์ที่ต้องการแล้วเปิดไฟล์ได้ทันที ไม่ต้องรัน installer
 3. เพิ่ม Project/Workspace และตั้ง Tunnel เหมือนเวอร์ชันติดตั้ง
 
@@ -92,7 +92,7 @@ Portable ของ NexusPilot หมายถึง **ตัวโปรแก�
 3. เปิดหน้า ngrok Authtoken จากปุ่มใน lnwjud แล้ววาง token ครั้งเดียว; lnwjud เก็บ token ผ่าน secure storage ของ host (Windows DPAPI / macOS Keychain / system keyring ที่รองรับบน Linux) และส่งให้ process ผ่าน `NGROK_AUTHTOKEN` เท่านั้น ไม่ใส่ใน command line หรือ config plaintext. ถ้า secure storage ของ host ใช้งานไม่ได้ ระบบจะ fail closed แทนการลดระดับไปเก็บ plaintext
 4. กด **Start Remote MCP**
 5. เมื่อสถานะเป็น RUNNING ให้กด **Copy MCP URL**. สำหรับ ChatGPT Business ให้ Admin/Owner นำ URL `https://...ngrok.app/mcp` ไปตั้งค่า Workspace Settings → Apps → Create เลือก **OAuth**, Scan Tools, Create แล้ว **Publish** ให้ Workspace; สมาชิกทั่วไปไม่ต้องกรอก Server URL เอง
-6. สมาชิกเปิดแอป lnwjud ที่ Publish แล้วกด **Connect** ได้เลย. เมื่อ ChatGPT ใช้ callback ที่รองรับ รวมถึง callback ของ Plugin/App ที่สร้างใหม่รูปแบบ `https://chatgpt.com/connector/oauth/<redirect_id>` browser จะถูก handoff อัตโนมัติไปยัง one-time URL แบบสุ่มบน `127.0.0.1` ของ lnwjud Desktop ก่อน จากนั้นจึงทำ OAuth DCR + Authorization Code + PKCE และ redirect กลับ ChatGPT **โดยไม่ต้องกรอก PIN และไม่ต้องกดยืนยันเพิ่ม**. public ngrok endpoint ใช้ localhost ticket นี้แทนไม่ได้; PIN 6 หลักจะถูกสร้างแบบ on-demand เฉพาะ fallback สำหรับ OAuth client อื่น
+6. สมาชิกเปิดแอป lnwjud ที่ Publish แล้วกด **Connect** ได้เลย. เมื่อ ChatGPT ใช้ callback ที่รองรับ รวมถึง callback ของ Plugin/App ที่สร้างใหม่รูปแบบ `https://chatgpt.com/connector/oauth/<redirect_id>` browser จะถูก handoff อัตโนมัติไปยัง one-time URL แบบสุ่มบน `127.0.0.1` ของ lnwjud Desktop ก่อน จากนั้นจึงทำ OAuth DCR + Authorization Code + PKCE และ redirect กลับ ChatGPT **โดยไม่ต้องกรอกรหัสหรือกดยืนยันเพิ่ม**. public ngrok endpoint ใช้ localhost ticket นี้แทนไม่ได้; OAuth client ที่ไม่ตรง callback ที่รองรับจะถูกปฏิเสธแบบ fail closed ด้วย `403 access_denied`
 
 ตั้งแต่ v4.62.0 **ไม่ต้องซื้อหรือจดโดเมนเองเพื่อให้ Public MCP URL คงที่**: บัญชี ngrok มี development domain ที่ระบบกำหนดให้ และเมื่อ lnwjud เปิด Remote MCP สำเร็จครั้งแรก lnwjud จะจำ HTTPS origin นั้นไว้ใน encrypted Remote MCP state. ครั้งถัดไป/หลังอัปเดต lnwjud จะส่ง origin เดิมกลับให้ ngrok ผ่าน `--url` และจะหยุดพร้อมแจ้งเตือนแทนการเปลี่ยน URL ของ ChatGPT แบบเงียบ ๆ หาก ngrok ไม่สามารถใช้ URL เดิมได้. Custom domain ยังเป็นทางเลือกเสริม ไม่ใช่ข้อบังคับ. ถ้าตั้งใจเปลี่ยนบัญชี ngrok หรือโดเมน ให้บันทึก ngrok Authtoken ใหม่หนึ่งครั้งเพื่อ reset URL ที่จำไว้ แล้ว Start Remote MCP เพื่อเรียนรู้ URL ใหม่
 
@@ -344,8 +344,8 @@ corepack pnpm@10.15.0 package:windows
 ไฟล์ที่ได้จะอยู่ที่:
 
 ```text
-apps/desktop/dist/installers/NexusPilot-Setup-5.2.2.exe
-apps/desktop/dist/installers/NexusPilot-Portable-5.2.2.exe
+apps/desktop/dist/installers/NexusPilot-Setup-5.4.0.exe
+apps/desktop/dist/installers/NexusPilot-Portable-5.4.0.exe
 apps/desktop/dist/installers/latest.yml
 apps/desktop/dist/installers/portable.yml
 ```

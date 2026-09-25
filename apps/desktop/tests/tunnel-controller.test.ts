@@ -208,7 +208,7 @@ describe('TunnelController lifecycle', () => {
     internals.runtimeMode = 'profile-child';
     internals.state = 'running';
 
-    await expect(controller.replaceClientPath(nextClient)).rejects.toThrow('Could not positively verify');
+    await expect(controller.replaceClientPath(nextClient)).rejects.toThrow(/Could not positively verify|Tunnel child liveness is unverifiable/);
     expect(configured).toBe(ownerClient);
     expect(ownerPath).toBe(ownerClient);
   });

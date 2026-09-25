@@ -3,6 +3,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { CodexDiscovery } from '@nexuspilot/codex';
+import { ToolRegistry } from '@nexuspilot/mcp-server';
+import { SqliteAuditRepository, SqliteDatabase } from '@nexuspilot/storage';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createDesktopRuntime, type DesktopRuntime } from '../src/main/desktop-services.js';
 
@@ -129,10 +131,81 @@ describe('DesktopRuntime persistence', () => {
     try {
       expect(runtime.mcpServices.goals).toBeDefined();
       expect(runtime.mcpServices.scheduledContinuations).toBeDefined();
+      expect(runtime.mcpServices.automationFactory).toBeDefined();
     } finally {
       await runtime.close();
     }
   });
+
+  it('restores owner-scoped automation state through the Desktop MCP composition after restart', async () => {
+    const rawDataRoot = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-runtime-automation-data-'));
+    const rawWorkspaceRoot = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-runtime-automation-workspace-'));
+    temporaryRoots.push(rawDataRoot, rawWorkspaceRoot);
+    const dataRoot = await realpath(rawDataRoot);
+    const workspaceRoot = await realpath(rawWorkspaceRoot);
+
+    const first = createDesktopRuntime(dataRoot);
+    const workspace = await first.services.addWorkspace({ rootPath: workspaceRoot });
+    const started = await first.mcpServices.goals?.runGoal(first.mcpActor, {
+      workspaceId: workspace.id,
+      goalKey: 'desktop-automation-restart',
+      objective: 'Persist one Desktop automation run.',
+      plan: { steps: [{ id: 'build', title: 'Build' }] },
+      leaseSeconds: 600,
+    });
+    expect(started).toMatchObject({ ok: true, value: { acquired: true, leaseToken: expect.any(String) } });
+    if (started === undefined || !started.ok || started.value.leaseToken === undefined) {
+      await first.close();
+      return;
+    }
+    const proof = {
+      goalId: started.value.goalId,
+      leaseToken: started.value.leaseToken,
+      leaseGeneration: started.value.leaseGeneration,
+    };
+    const registry = new ToolRegistry(first.mcpServices, first.mcpActor, {
+      authorizationModeProvider: (): 'full_bypass' => 'full_bypass',
+      activeWorkspaceScopeProvider: async (): Promise<{ workspaceId: string; rootPath: string }> => ({ workspaceId: workspace.id, rootPath: workspaceRoot }),
+    });
+    const created = await registry.invoke('automation_create', {
+      workspaceId: workspace.id,
+      goalId: started.value.goalId,
+      leaseToken: started.value.leaseToken,
+      goalLease: proof,
+      plan: {
+        milestones: [{
+          id: 'build', title: 'Build', goalStepId: 'build', dependsOn: [], provider: 'shell', role: 'blocking_job', cancelWithGoal: true,
+          dispatch: {
+            executable: process.execPath,
+            arguments: ['--version'],
+            cwd: workspaceRoot,
+            timeoutSeconds: 30,
+            maxOutputBytes: 16 * 1024,
+            includeStdout: false,
+            includeStderr: true,
+          },
+          verification: [{ id: 'exit', kind: 'command_exit', expectedExitCode: 0 }],
+        }],
+      },
+      userConfirmed: true,
+    });
+    expect(created.isError).not.toBe(true);
+    const runId = String(((created.structuredContent as { run?: { id?: unknown } } | undefined)?.run?.id));
+    await first.close();
+
+    const restarted = createDesktopRuntime(dataRoot);
+    try {
+      const restored = await new ToolRegistry(restarted.mcpServices, restarted.mcpActor)
+        .invoke('automation_status', { workspaceId: workspace.id, runId });
+      expect(restored.isError).not.toBe(true);
+      expect(restored.structuredContent).toMatchObject({
+        run: { id: runId, goalId: started.value.goalId, workspaceId: workspace.id, ownerClientId: restarted.mcpActor.clientId, status: 'active' },
+        milestones: [{ id: 'build', status: 'pending' }],
+      });
+    } finally {
+      await restarted.close();
+    }
+  }, RUNTIME_TEST_TIMEOUT_MS);
   it('updates one connected Desktop MCP client immediately when in-process tool availability changes', async () => {
     const rawDataRoot = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-runtime-tool-availability-data-'));
     const rawWorkspaceRoot = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-runtime-tool-availability-workspace-'));
@@ -186,6 +259,100 @@ describe('DesktopRuntime persistence', () => {
       await secondRuntime.close();
     }
   }, RUNTIME_TEST_TIMEOUT_MS);
+
+  it('keeps completed MCP work-log sessions visible across a Desktop runtime restart', async () => {
+    const rawDataRoot = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-runtime-worklog-restart-data-'));
+    const rawWorkspaceRoot = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-runtime-worklog-restart-workspace-'));
+    temporaryRoots.push(rawDataRoot, rawWorkspaceRoot);
+    const dataRoot = await realpath(rawDataRoot);
+    const workspaceRoot = await realpath(rawWorkspaceRoot);
+
+    const firstRuntime = createDesktopRuntime(dataRoot, { logSessionId: 'desktop-launch-a' });
+    let priorSessionId: string | null = null;
+    try {
+      const workspace = await firstRuntime.services.addWorkspace({ rootPath: workspaceRoot });
+      const status = await firstRuntime.services.startMcp({ workspaceId: workspace.id });
+      if (status.url === null) throw new Error('MCP listener did not expose a URL');
+      const client = new Client({ name: 'desktop-worklog-restart-test', version: '1.0.0' });
+      const transport = new StreamableHTTPClientTransport(new URL(status.url));
+      try {
+        await client.connect(transport);
+        const info = await client.callTool({ name: 'workspace_info', arguments: { workspaceId: workspace.id } });
+        expect(info.isError).not.toBe(true);
+        const previousRows = (await firstRuntime.services.getDashboard()).workLog.filter((entry) => entry.toolName === 'workspace_info');
+        expect(previousRows.length).toBeGreaterThan(0);
+        priorSessionId = previousRows.find((entry) => entry.sessionId !== null)?.sessionId ?? null;
+        expect(priorSessionId).toBe('desktop-launch-a');
+        await expect(readFile(path.join(dataRoot, 'mcp-activity.log'), 'utf8')).resolves.toContain('"sessionId":"desktop-launch-a"');
+      } finally {
+        await client.close().catch(() => undefined);
+      }
+    } finally {
+      await firstRuntime.close();
+    }
+
+    const restartedRuntime = createDesktopRuntime(dataRoot, { logSessionId: 'desktop-launch-b' });
+    try {
+      const restoredRows = (await restartedRuntime.services.getDashboard()).workLog.filter((entry) => entry.toolName === 'workspace_info');
+      expect(restoredRows.some((entry) => entry.sessionId === priorSessionId)).toBe(true);
+      const restoredWorkspace = (await restartedRuntime.services.listWorkspaces()).find((entry) => entry.rootPath === workspaceRoot);
+      if (restoredWorkspace === undefined) throw new Error('Workspace registration was not restored');
+      const status = await restartedRuntime.services.startMcp({ workspaceId: restoredWorkspace.id });
+      if (status.url === null) throw new Error('Restarted MCP listener did not expose a URL');
+      const client = new Client({ name: 'desktop-worklog-restart-test-b', version: '1.0.0' });
+      const transport = new StreamableHTTPClientTransport(new URL(status.url));
+      try {
+        await client.connect(transport);
+        const info = await client.callTool({ name: 'workspace_info', arguments: { workspaceId: restoredWorkspace.id } });
+        expect(info.isError).not.toBe(true);
+      } finally {
+        await client.close().catch(() => undefined);
+      }
+      const allRows = (await restartedRuntime.services.getDashboard()).workLog.filter((entry) => entry.toolName === 'workspace_info');
+      expect(allRows.some((entry) => entry.sessionId === 'desktop-launch-a')).toBe(true);
+      expect(allRows.some((entry) => entry.sessionId === 'desktop-launch-b')).toBe(true);
+    } finally {
+      await restartedRuntime.close();
+    }
+  }, RUNTIME_TEST_TIMEOUT_MS);
+
+  it('discovers and loads a session older than the 500-row dashboard window', async () => {
+    const rawDataRoot = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-runtime-old-session-data-'));
+    temporaryRoots.push(rawDataRoot);
+    const dataRoot = await realpath(rawDataRoot);
+    const database = new SqliteDatabase(path.join(dataRoot, 'lnwjud.sqlite'));
+    const repository = new SqliteAuditRepository(database);
+    const insertActivity = async (id: string, timestamp: string, workspaceId: string, sessionId: string): Promise<void> => {
+      await repository.insert({
+        id, timestamp, actorId: 'test', actorName: 'test', workspaceId, sessionId,
+        action: 'mcp_tool:read_file', resultCode: 'SUCCESS', durationMs: 1,
+        metadata: { toolName: 'read_file', callId: id, phase: 'completed', targetDetail: { detailRef: null, itemCount: 0, preview: [], legacyIncomplete: false } },
+      });
+    };
+    await insertActivity('old-event', '2026-08-20T00:00:00.000Z', 'workspace-old', 'session-old');
+    const base = Date.parse('2026-08-21T00:00:00.000Z');
+    for (let index = 0; index < 520; index += 1) {
+      await insertActivity(`new-${index}`, new Date(base + index * 1_000).toISOString(), 'workspace-new', 'session-new');
+    }
+    database.close();
+
+    const runtime = createDesktopRuntime(dataRoot);
+    try {
+      const dashboard = await runtime.services.getDashboard() as Awaited<ReturnType<typeof runtime.services.getDashboard>> & {
+        readonly workLogSessions?: readonly { readonly sessionId: string; readonly workspaceId: string | null; readonly startedAt: string; readonly lastActivityAt: string }[];
+      };
+      expect(dashboard.workLog.some((entry) => entry.sessionId === 'session-old')).toBe(false);
+      expect(dashboard.workLogSessions).toEqual(expect.arrayContaining([expect.objectContaining({ sessionId: 'session-old', workspaceId: 'workspace-old' })]));
+
+      const historyServices = runtime.services as typeof runtime.services & {
+        loadLogSessionHistory(request: { readonly sessionId: string; readonly workspaceId?: string; readonly limit?: number }): Promise<{ readonly workLog: readonly { readonly sessionId: string | null; readonly id: string }[] }>;
+      };
+      const history = await historyServices.loadLogSessionHistory({ sessionId: 'session-old', workspaceId: 'workspace-old' });
+      expect(history.workLog).toEqual([expect.objectContaining({ id: 'old-event', sessionId: 'session-old' })]);
+    } finally {
+      await runtime.close();
+    }
+  }, LONG_RUNTIME_TEST_TIMEOUT_MS);
 
   it('applies and restores permission settings without restoring an MCP listener', async () => {
     const rawDataRoot = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-runtime-data-'));
@@ -315,11 +482,23 @@ describe('DesktopRuntime persistence', () => {
         .resolves.toMatchObject({ restored: true, path: 'delete-policy.txt' });
       await expect(readFile(path.join(workspaceRoot, 'delete-policy.txt'), 'utf8')).resolves.toBe('payload');
 
+      await expect(runtime.services.setPermissionProfile({ profile: 'full' })).resolves.toEqual({ profile: 'full' });
+      const fullSettings = (await runtime.services.getDashboard()).settings;
+      if (fullSettings === undefined) throw new Error('User settings were not available');
+      await expect(runtime.services.setUserSettings({ settings: { ...fullSettings, desktopFullBypassAll: true, stdioFullBypassAll: true } }))
+        .resolves.toMatchObject({ settings: { desktopFullBypassAll: true, stdioFullBypassAll: true } });
+      await expect(runtime.services.setPermissionProfile({ profile: 'balanced' })).resolves.toEqual({ profile: 'balanced' });
+      await expect(runtime.services.getDashboard()).resolves.toMatchObject({ settings: { desktopFullBypassAll: false, stdioFullBypassAll: true } });
+
       await expect(runtime.services.setStdioPolicy({ profile: 'safe', strictRoots: true, allowedRoots: [workspaceRoot] }))
         .resolves.toMatchObject({ profile: 'safe', strictRoots: true, allowedRoots: [workspaceRoot] });
       await expect(runtime.services.getDashboard()).resolves.toMatchObject({
         allowAiDelete: true, destructiveDeletePolicy: { approvals: { delete_file: true, git_rm: false } }, stdioPermissionProfile: 'safe', stdioStrictRoots: true, stdioAllowedRoots: [workspaceRoot],
+        settings: { desktopFullBypassAll: false, stdioFullBypassAll: false },
       });
+      await expect(runtime.services.setPermissionProfile({ profile: 'full' })).resolves.toEqual({ profile: 'full' });
+      await expect(runtime.services.setStdioPolicy({ profile: 'full', strictRoots: false, allowedRoots: [] })).resolves.toMatchObject({ profile: 'full' });
+      await expect(runtime.services.getDashboard()).resolves.toMatchObject({ settings: { desktopFullBypassAll: false, stdioFullBypassAll: false } });
     } finally {
       await runtime.close();
     }
@@ -327,7 +506,7 @@ describe('DesktopRuntime persistence', () => {
     const restarted = createDesktopRuntime(dataRoot);
     try {
       await expect(restarted.services.getDashboard()).resolves.toMatchObject({
-        allowAiDelete: true, stdioPermissionProfile: 'safe', stdioStrictRoots: true, stdioAllowedRoots: [workspaceRoot],
+        allowAiDelete: true, stdioPermissionProfile: 'full', stdioStrictRoots: false, stdioAllowedRoots: [],
       });
     } finally {
       await restarted.close();

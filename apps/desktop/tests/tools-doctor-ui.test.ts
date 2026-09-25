@@ -86,7 +86,7 @@ describe('Tools and Doctor UX', () => {
   it('renders actionable system/browser remediation labels instead of a generic settings button', () => {
     const browserRemediation: ResolvedRemediation = {
       id: 'configure_browser_cdp',
-      title: 'เปิดเบราว์เซอร์ที่ lnwjud จัดการ',
+      title: 'เปิดเบราว์เซอร์ที่ NexusPilot จัดการ',
       explanation: 'เปิด Managed Browser',
       steps: ['กดเปิด Managed Browser'],
       actions: [{ kind: 'launch_managed_browser' }],
@@ -107,7 +107,7 @@ describe('Tools and Doctor UX', () => {
     expect(toolMarkup).toContain('เปิด Managed Browser');
 
     const englishMarkup = renderToStaticMarkup(createElement(ToolDetailModal, {
-      locale: 'en', item: browserTool, remediations: [{ ...browserRemediation, title: 'Start the lnwjud managed browser' }], onClose: () => undefined, onRemediation: () => undefined,
+      locale: 'en', item: browserTool, remediations: [{ ...browserRemediation, title: 'Start the NexusPilot managed browser' }], onClose: () => undefined, onRemediation: () => undefined,
     }));
     expect(englishMarkup).toContain('Start required');
     expect(englishMarkup).not.toContain('Needs setup');
@@ -204,8 +204,8 @@ describe('Tools and Doctor UX', () => {
     const markup = renderToStaticMarkup(createElement(DoctorPanel, {
       locale: 'th', report, remediations: [], onRunDoctor: async () => undefined,
     }));
-    expect(markup).toContain('ไม่มีการตั้งค่าอัตโนมัติที่ปลอดภัย');
-    expect(markup).toContain('จะไม่พาไปหน้า Settings ที่ไม่เกี่ยวข้อง');
+    expect(markup).toContain('รายการนี้ต้องตรวจหรือแก้ด้วยตนเอง');
+    expect(markup).toContain('จึงไม่มีสวิตช์ใน NexusPilot ที่แก้ให้ได้อย่างปลอดภัย');
   });
 
   it('renders a polished accessible availability switch in both the catalog and detail modal', () => {
@@ -269,7 +269,7 @@ describe('Tools and Doctor UX', () => {
     const toolsPageSource = readFileSync(new URL('../src/renderer/features/tools/ToolsPage.tsx', import.meta.url), 'utf8');
     const desktopServicesSource = readFileSync(new URL('../src/main/desktop-services.ts', import.meta.url), 'utf8');
     const remediationSource = readFileSync(new URL('../src/main/tool-catalog/remediation-registry.ts', import.meta.url), 'utf8');
-    expect(modalSource).toContain('กำลังเปิด Managed Browser…');
+    expect(modalSource).toContain("t('tools.detail.startingManagedBrowser')");
     expect(modalSource).toContain('disabled={busyActionKey !== null}');
     expect(toolsPageSource).toContain('items.find((item) => toolKey(item) === selectedKey)');
     expect(desktopServicesSource).toContain("{ action: 'launch', userConfirmed: true }");

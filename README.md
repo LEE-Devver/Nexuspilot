@@ -9,7 +9,7 @@
   <em>NexusPilot is being developed from the MIT-licensed lnwjud foundation, preserving its mature local tooling while evolving the product identity, compatibility layer, observability, and multi-agent direction.</em>
 </p>
 
-> **Migration status:** NexusPilot currently inherits the lnwjud v5.2.2 runtime foundation. NexusPilot branding, package namespace, environment compatibility, desktop/IPC identity, MCP runtime identity, app-data selection, executables, installers, release artifacts, and canonical stdio launcher have migrated. Bounded legacy compatibility remains for selected tunnel/profile, native-host, workspace-metadata, historical regression, and legacy-launcher identifiers.
+> **Migration status:** NexusPilot currently inherits the lnwjud v5.4.0 runtime foundation. NexusPilot branding, package namespace, environment compatibility, desktop/IPC identity, MCP runtime identity, app-data selection, executables, installers, release artifacts, and canonical stdio launcher have migrated. Bounded legacy compatibility remains for selected tunnel/profile, native-host, workspace-metadata, historical regression, and legacy-launcher identifiers.
 
 <p align="center">
   <em>อ่านที่เหลือใน Readme ได้เลยครับ ติดปัญหาทักมาได้ใน <a href="https://url.in.th/rEZiG"><strong>Line</strong></a> ได้ตลอดครับ / กำลังพัฒนาให้เรื่อยๆครับ ท่านที่ถามหาช่องสนับสนุนค่ากาแฟ แปะลิงก์ไว้ให้แล้วครับ ขอบคุณครับ — <a href="https://easydonate.app/abcz"><strong>Donate</strong></a></em>
@@ -20,31 +20,31 @@
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-0078D4" />
   <img alt="Node" src="https://img.shields.io/badge/Node.js-24.x-339933" />
-  <img alt="MCP" src="https://img.shields.io/badge/MCP-253%20tools-6f42c1" />
+  <img alt="MCP" src="https://img.shields.io/badge/MCP-259%20tools-6f42c1" />
 </p>
 
 <h2 align="center">Upstream baseline downloads</h2>
-<p align="center">NexusPilot does not publish its own installer yet. These links point to the inherited lnwjud v5.2.2 upstream release used as the current baseline.</p>
+<p align="center">NexusPilot does not publish its own installer yet. These links point to the inherited lnwjud v5.4.0 upstream release used as the current baseline.</p>
 
 <table align="center">
   <tr>
     <td align="center" width="33%">
-      <a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-Setup-5.2.2.exe">
+      <a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-Setup-5.4.0.exe">
         <img src="assets/download/download-windows.svg" width="300" alt="Download lnwjud for Windows" />
       </a><br />
-      <sub><a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-Portable-5.2.2.exe">Portable x64</a></sub>
+      <sub><a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-Portable-5.4.0.exe">Portable x64</a></sub>
     </td>
     <td align="center" width="33%">
-      <a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-5.2.2-arm64.dmg">
+      <a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-5.4.0-arm64.dmg">
         <img src="assets/download/download-macos.svg" width="300" alt="Download lnwjud for macOS" />
       </a><br />
-      <sub><a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-5.2.2-x64.dmg">Intel x64 DMG</a> · <a href="docs/INSTALL_MACOS.md">Install guide</a></sub>
+      <sub><a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-5.4.0-x64.dmg">Intel x64 DMG</a> · <a href="docs/INSTALL_MACOS.md">Install guide</a></sub>
     </td>
     <td align="center" width="33%">
-      <a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-5.2.2-x64.deb">
+      <a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-5.4.0-x64.deb">
         <img src="assets/download/download-linux.svg" width="300" alt="Download lnwjud for Linux" />
       </a><br />
-      <sub><a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-5.2.2-x64.AppImage">x64 AppImage</a> · <a href="docs/INSTALL_LINUX.md">Other architectures</a></sub>
+      <sub><a href="https://github.com/engasnm111/lnwjud/releases/latest/download/lnwjud-5.4.0-x64.AppImage">x64 AppImage</a> · <a href="docs/INSTALL_LINUX.md">Other architectures</a></sub>
     </td>
   </tr>
 </table>
@@ -53,13 +53,35 @@
 
 ---
 
-## Upstream baseline version: lnwjud v5.2.2
+## Upstream baseline version: lnwjud v5.4.0
 
-### What's new in v5.2.2
+## Current source version: v5.4.0
 
-- **Safer shutdown and updater handoff:** quit/install now waits for owned runtime cleanup, keeps failed shutdown retryable, and avoids renderer refresh races while an update is installing.
-- **Cross-platform updater/tray polish:** macOS and Linux updater paths use the correct install handoff, while tray icon handling is platform-aware across Windows, macOS, and Linux.
-- **Git status correctness without dashboard regressions:** correctness-sensitive Git status keeps full untracked-file semantics, while lightweight dashboard summaries stay bounded for large workspaces.
+Latest published release: **v5.4.0**. The download buttons above point directly to the published v5.4.0 assets.
+
+### What's new in v5.4.0
+
+- **Crash-safe native Goal automation:** v5.4.0 adds persisted automation runs, milestone dispatch/verification, Goal-owned lifecycle control, scheduled resume, exact durable-shell recovery, and cross-restart reconciliation.
+- **Issue #100 fixed:** durable shell task history no longer grows linearly with historical background-task records; active-task indexing and bounded history reads keep long-lived installations responsive.
+- **Automation safety hardening:** finalize/cancel operations recover cleanly across partial persistence failures, `automation_finalize` now uses destructive confirmation semantics, paused runs are not advertised as resumable work, and Windows verbatim-argument mode is part of immutable dispatch identity.
+- **Verified cross-platform release pipeline:** Windows x64, macOS arm64/x64, and Linux arm64/x64 packages are published only from the exact successful main CI commit with per-target provenance, aggregate manifest, and SHA-256 evidence.
+- **Settings cleanup:** the Factory Reset action spacing/layout cleanup is included in the published desktop build.
+
+### Historical: What's new in v5.3.1
+
+- **Issue #98 fixed:** `dom_cdp.navigate` now decodes the real `Page.navigate` response shape and always returns structured navigation acknowledgement instead of succeeding in Chrome but failing MCP output validation.
+- **Persistent logs and readable session history:** Desktop keeps prior Work Log/Live Log sessions across restarts, uses human-readable session timestamps, and shows project name + path in workspace filters.
+- **Safer reset and setup flow:** Factory Reset clears lnwjud state without deleting unrelated tunnel-client profiles, then returns to the first-run setup guide. The guide now calls out ChatGPT Plugin Developer mode and the Settings connection cards link directly to the relevant ChatGPT/tunnel/API-key setup pages.
+- **Input and log UX fixes:** text inputs no longer lose focus after each character, clearing Work Log also removes already-loaded historical entries, and startup log replay drains the bounded history immediately instead of taking tens of seconds to catch up.
+- **Lower dashboard cost:** activity-session history is loaded once and updated incrementally instead of rescanning/aggregating the full audit table every 2-second dashboard refresh.
+- **Shared skill routing and runtime cleanup:** skill selection is centralized, Serena/skill preflight behavior is more consistent, and the 5.3.1 runtime keeps the lifecycle and crash-diagnostic hardening from 5.3.0.
+- **CI/runtime maintenance:** GitHub Actions use the current Node 24-capable action runtimes, and the optional Dev Windows Installer workflow is manual-only so ordinary `dev` pushes do not build installers in GitHub Actions.
+
+### Historical: What's new in v5.3.0
+
+- **Issue #94 RAM leak fixed:** successful modern MCP requests now tear down their per-request `McpServer` lifecycle, unsubscribe `toolAvailabilityService` listeners, and release retained tool registries/schemas; pagination continuations are also bounded as secondary hardening.
+- **Crash evidence survives hard exits:** Desktop session heartbeats distinguish clean shutdown from abrupt termination. A recent unclean previous session is reported after restart only when stronger current failure evidence is absent. Local-only Crashpad evidence adds bounded crash-dump metadata plus per-process memory diagnostics, while a bounded 6-hour runtime trend samples memory, Electron process groups, CPU/event-loop pressure, active Node resources, retained log-buffer/dedupe counters, MCP activity/errors, and tool-availability listener counts once per minute.
+- **Electron 45 crash diagnostics:** Desktop v5.3.0 targets Electron `45.0.0-alpha.7` so the packaged Windows runtime includes `electron_wer.dll` in addition to local-only Crashpad/session diagnostics. Crash reports stay local and bounded; no automatic crash upload is enabled.
 
 ### Historical: What's new in v5.2.1
 
@@ -103,13 +125,13 @@ Installed lnwjud keeps per-user runtime data outside your source repository: `%A
 
 ## What can NexusPilot do?
 
-The current NexusPilot baseline inherits **253 tool definitions** through one local runtime and MCP gateway. The default advertised set is 241; all 253 are available when Codex delegation plus Agent Swarm is enabled.
+The current NexusPilot baseline inherits **259 tool definitions** through one local runtime and MCP gateway. The default advertised set is 247; all 259 are available when Codex delegation plus Agent Swarm is enabled.
 
 | Area | Examples |
 | --- | --- |
 | Workspace & files | read/search/edit files, paging, full scans, project indexing, recovery trash |
 | Git | status, diff, history, blame, guarded Git mutations |
-| Processes | shell, managed processes, durable background tasks, logs, cancellation |
+| Processes | shell, managed processes, durable background tasks, Goal-owned native automation, logs, cancellation |
 | MCP | local HTTP/stdio MCP, External MCP discovery/describe/call, live tool availability |
 | Development | test, lint, typecheck, build, affected-test context, Codex integration |
 | Browser | managed Chrome/CDP, DOM inspection, Set-of-Marks, screenshots |

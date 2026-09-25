@@ -3,6 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   AgentSwarmService,
+  AutomationService,
+  AutomationVerifier,
   CheckpointService,
   CodexService,
   FileService,
@@ -32,7 +34,7 @@ import {
   WINDOWS_CAPABILITY_BRIDGE_SHA256,
   WINDOWS_CAPABILITY_BRIDGE_SIZE_BYTES,
 } from '@nexuspilot/capabilities';
-import { ALLOW_AI_DELETE_SETTING_KEY, DESTRUCTIVE_AUTO_APPROVAL_SETTING_KEY, DEFAULT_CODEX_TOOLS_ENABLED, DEFAULT_MCP_CALL_TIMEOUT_MS, DEFAULT_MCP_IDLE_TIMEOUT_MS, DEFAULT_PROCESS_TIMEOUT_MS, DEFAULT_MCP_POLL_WAIT_SECONDS, DEFAULT_PONYTAIL_MODE, DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS, USER_SETTING_KEYS, readCompatEnv, parseBooleanSetting, parseCustomPermissionSettings, parseDestructiveAutoApprovalPolicy, parseIntegerSetting, parsePathList, parsePonytailMode, parseStringRecordSetting, type DestructiveAutoApprovalPolicy, type PonytailMode } from '@nexuspilot/shared';
+import { ALLOW_AI_DELETE_SETTING_KEY, DESTRUCTIVE_AUTO_APPROVAL_SETTING_KEY, DEFAULT_CODEX_TOOLS_ENABLED, DEFAULT_MCP_CALL_TIMEOUT_MS, DEFAULT_MCP_IDLE_TIMEOUT_MS, DEFAULT_PROCESS_TIMEOUT_MS, DEFAULT_MCP_POLL_WAIT_SECONDS, DEFAULT_PONYTAIL_MODE, DEFAULT_SHELL_SYNCHRONOUS_WAIT_SECONDS, MAX_CONFIGURABLE_WAIT_SECONDS, MIN_CONFIGURABLE_WAIT_SECONDS, STDIO_ALLOWED_ROOTS_SETTING_KEY, STDIO_PERMISSION_PROFILE_SETTING_KEY, STDIO_STRICT_ROOTS_SETTING_KEY, UNRESTRICTED_SETTING_KEY, USER_SETTING_KEYS, isUnrestricted, parseAllowedRoots, parseBooleanSetting, parseCustomPermissionSettings, parseDestructiveAutoApprovalPolicy, parseIntegerSetting, parsePathList, parsePonytailMode, parseStdioPermissionProfile, parseStringRecordSetting, readCompatEnv, type DestructiveAutoApprovalPolicy, type PonytailMode } from '@nexuspilot/shared';
 import {
   EXTENSIONS_SETTINGS_KEY,
   createLocalExtensionsService,
@@ -43,6 +45,7 @@ import { permissionProfiles, type PermissionProfile, type PermissionProfileName 
 import {
   AesGcmCheckpointCipher,
   SqliteAgentSwarmRepository,
+  SqliteAutomationRepository,
   SqliteAuditRepository,
   SqliteCheckpointRepository,
   SqliteDatabase,
@@ -53,6 +56,15 @@ import {
 import { isMachineRootPath, SecretPolicy, WorkspacePathGuard, WorkspaceService, type Workspace } from '@nexuspilot/workspace';
 import { StrictWorkspaceRepository } from './strict-workspace-repository.js';
 
+export interface PersistedStdioSecurityPolicy {
+  readonly profile: PermissionProfileName;
+  readonly fullBypassAll: boolean;
+  readonly strictRoots: boolean;
+  readonly allowedRoots: readonly string[];
+  readonly unrestricted: boolean;
+  readonly customPermissionRaw: string;
+}
+
 export interface StdioMcpRuntime {
   readonly services: McpApplicationServices;
   readonly actor: FileActor;
@@ -60,6 +72,7 @@ export interface StdioMcpRuntime {
   readonly activityTracker: ActivityTracker;
   readonly activityReady: Promise<void>;
   readonly profileProvider: () => PermissionProfile;
+  readonly persistedSecurityPolicyProvider: () => PersistedStdioSecurityPolicy;
   readonly allowAiDeleteProvider: () => boolean;
   readonly destructivePolicyProvider: () => DestructiveAutoApprovalPolicy;
   readonly activeWorkspaceScopeProvider: () => Promise<WorkspaceScope>;
@@ -92,6 +105,7 @@ export function createStdioMcpRuntime(
     ? rawWorkspaceRepository
     : new StrictWorkspaceRepository(rawWorkspaceRepository, options.strictAllowedRoots);
   const goalRepository = new SqliteGoalRepository(database);
+  const automationRepository = new SqliteAutomationRepository(database);
   const workspaceIndex = new WorkspaceIndexService(workspaceRepository, new JsonWorkspaceIndexStore(path.join(dataPath, 'workspace-index')));
   const settingsRepository = new SqliteSettingsRepository(database);
   const toolAvailabilityService = new ToolAvailabilityService(settingsRepository);
@@ -100,6 +114,19 @@ export function createStdioMcpRuntime(
   const auditService = new AuditService(auditRepository);
   const checkpointRepository = new SqliteCheckpointRepository(database, new AesGcmCheckpointCipher(checkpointKey));
   const workspaceService = new WorkspaceService(workspaceRepository);
+  const persistedSecurityPolicyProvider = (): PersistedStdioSecurityPolicy => {
+    const persistedProfile = parseStdioPermissionProfile(settingsRepository.get(STDIO_PERMISSION_PROFILE_SETTING_KEY), 'full');
+    const persistedFullBypassAll = parseBooleanSetting(settingsRepository.get(USER_SETTING_KEYS.stdioFullBypassAll), false);
+    const persistedStrictRoots = parseBooleanSetting(settingsRepository.get(STDIO_STRICT_ROOTS_SETTING_KEY), false);
+    return {
+      profile: persistedProfile,
+      fullBypassAll: persistedFullBypassAll,
+      strictRoots: persistedStrictRoots,
+      allowedRoots: parseAllowedRoots(settingsRepository.get(STDIO_ALLOWED_ROOTS_SETTING_KEY)),
+      unrestricted: isUnrestricted({}, settingsRepository.get(UNRESTRICTED_SETTING_KEY)),
+      customPermissionRaw: settingsRepository.get(USER_SETTING_KEYS.customPermissionProfile) ?? '',
+    };
+  };
   const profileName = options.permissionProfile ?? 'full';
   const activeProfile = profileName === 'custom' ? customPermissionProfile(settingsRepository) : permissionProfiles[profileName];
   const fullBypassAll = profileName === 'full' && options.fullBypassAll === true;
@@ -176,7 +203,10 @@ export function createStdioMcpRuntime(
     taskCancellation,
     requestCancellation,
   });
-  const scheduledContinuationService = new ScheduledContinuationService(goalRepository, { workerLiveness: goalMutationFence });
+  const scheduledContinuationService = new ScheduledContinuationService(goalRepository, {
+    workerLiveness: goalMutationFence,
+    automationResumes: automationRepository,
+  });
   const actor: FileActor = { clientId: 'cli-mcp-stdio', clientName: 'lnwjud cli MCP' };
   const sharedActivityLease = createSharedActivityLease(process.env.TUNNEL_CLIENT_PROFILE_DIR);
   const activityReady = sharedActivityLease.then(async (lease) => lease?.initialize());
@@ -250,6 +280,16 @@ export function createStdioMcpRuntime(
     process: processService,
     codex: codexService,
     agentSwarm: agentSwarmService,
+    automationFactory: {
+      create(runtime) {
+        return new AutomationService(
+          automationRepository,
+          goalService,
+          runtime,
+          new AutomationVerifier(workspaceRepository, runtime, pathGuard),
+        );
+      },
+    },
   };
 
   return {
@@ -259,6 +299,7 @@ export function createStdioMcpRuntime(
     activityTracker,
     activityReady,
     profileProvider,
+    persistedSecurityPolicyProvider,
     allowAiDeleteProvider,
     destructivePolicyProvider,
     activeWorkspaceScopeProvider: async (): Promise<WorkspaceScope> => ({ workspaceId: workspace.id, rootPath: workspace.realRootPath }),

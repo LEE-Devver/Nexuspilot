@@ -4,6 +4,7 @@ import { ok } from '@nexuspilot/domain';
 import type { FileActor } from '@nexuspilot/application';
 import { UpgradeRuntimeService } from './upgrade-runtime.js';
 import { UPGRADE_TOOL_CATALOG } from './upgrade-catalog.js';
+import { SPECIALIZED_RUNTIME_TOOL_NAMES } from './tools/upgrade-tools.js';
 import type { McpApplicationServices } from './tools/tool-types.js';
 
 const actor: FileActor = { clientId: 'readiness-test', clientName: 'readiness-test' };
@@ -69,7 +70,7 @@ describe('upgrade runtime readiness facades', () => {
     const missingReadyCases = UPGRADE_TOOL_CATALOG
       .filter((entry) => (entry.availability ?? 'ready') === 'ready')
       .map((entry) => entry.name)
-      .filter((name) => !explicitCases.has(name))
+      .filter((name) => !explicitCases.has(name) && !SPECIALIZED_RUNTIME_TOOL_NAMES.has(name))
       .sort();
     expect(missingReadyCases).toEqual([]);
   });
@@ -137,9 +138,55 @@ describe('upgrade runtime readiness facades', () => {
       value: { tool: 'skill_load', status: 'ready', executed: true, skill: { id: 'skill-1' } },
     });
     expect(calls).toEqual([
-      'list:{"query":"smoke","source":"workspace"}',
+      'list:{"source":"workspace"}',
       'read:{"skillId":"skill-1"}',
     ]);
+  });
+
+  it('matches natural-language skill intent instead of treating the whole prompt as one substring', async () => {
+    const calls: unknown[] = [];
+    const skills = [
+      {
+        id: 'claude-skills/diagnosing-bugs',
+        name: 'diagnosing-bugs',
+        description: 'Diagnosis loop for hard bugs and performance regressions. Use when the user says diagnose or debug this.',
+        source: 'claude-skills',
+        trustTier: 'user',
+        rootPath: 'C:\\skills',
+        skillPath: 'C:\\skills\\diagnosing-bugs\\SKILL.md',
+      },
+      {
+        id: 'claude-skills/frontend-design',
+        name: 'frontend-design',
+        description: 'Use for visual frontend design work.',
+        source: 'claude-skills',
+        trustTier: 'user',
+        rootPath: 'C:\\skills',
+        skillPath: 'C:\\skills\\frontend-design\\SKILL.md',
+      },
+    ] as const;
+    const services = {
+      extensions: {
+        async listSkills(input: { readonly query?: string }) {
+          calls.push(input);
+          if (input.query !== undefined) return ok({ skills: [] });
+          return ok({ skills });
+        },
+      },
+    } as unknown as McpApplicationServices;
+    const runtime = new UpgradeRuntimeService(services, actor);
+
+    await expect(runtime.execute('skill_match', {
+      query: 'diagnose the hard MCP lifecycle bug and investigate the performance regression',
+      limit: 1,
+    })).resolves.toMatchObject({
+      ok: true,
+      value: {
+        tool: 'skill_match',
+        skills: [{ id: 'claude-skills/diagnosing-bugs' }],
+      },
+    });
+    expect(calls).toEqual([{}]);
   });
 
   it('pins browser and visual facades to the caller-selected DOM/CDP tab', async () => {

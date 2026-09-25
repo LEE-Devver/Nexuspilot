@@ -24,6 +24,10 @@ export interface NativeMessages {
   readonly cancel: string;
   readonly shutdownBlockedTitle: string;
   readonly shutdownBlockedMessage: string;
+  readonly factoryResetTitle: string;
+  readonly factoryResetMessage: string;
+  readonly factoryResetDetail: string;
+  readonly factoryResetConfirm: string;
   readonly logStatus: string;
   readonly logCapturedRowUnavailable: string;
   readonly logTime: string;
@@ -70,7 +74,11 @@ const th: NativeMessages = {
   ok: 'ตกลง',
   cancel: 'ยกเลิก',
   shutdownBlockedTitle: 'NexusPilot ยังทำงานอยู่',
-  shutdownBlockedMessage: 'ยังยืนยันไม่ได้ว่า Tunnel ที่ NexusPilot ดูแลหยุดทำงานแล้ว โปรแกรมจะยังเปิดอยู่ กรุณาตรวจสอบสถานะ Tunnel แล้วลองปิดโปรแกรมอีกครั้ง',
+  shutdownBlockedMessage: 'ยังยืนยันไม่ได้ว่า Tunnel ที่ lnwjud ดูแลหยุดทำงานแล้ว โปรแกรมจะยังเปิดอยู่ กรุณาตรวจสอบสถานะ Tunnel แล้วลองปิดโปรแกรมอีกครั้ง',
+  factoryResetTitle: 'รีเซ็ต lnwjud เป็นค่าเริ่มต้น',
+  factoryResetMessage: 'ล้างข้อมูล lnwjud ทั้งหมดบนเครื่องนี้และเริ่มใหม่เหมือนติดตั้งครั้งแรก?',
+  factoryResetDetail: 'การรีเซ็ตจะลบฐานข้อมูล การตั้งค่า โปรเจกต์ที่ลงทะเบียน คีย์และ secret, Tunnel profile, backups, logs, cache, ข้อมูลกู้คืน และ First-run state ทั้งหมด ไม่ลบโฟลเดอร์โปรเจกต์จริงของคุณ เมื่อเสร็จ lnwjud จะเปิดใหม่และแสดง Setup Guide',
+  factoryResetConfirm: 'ล้างทั้งหมดและเริ่มใหม่',
   logStatus: 'สถานะ',
   logCapturedRowUnavailable: 'ไม่พบรายการที่จับไว้แล้ว',
   logTime: 'เวลา',
@@ -117,7 +125,11 @@ const en: NativeMessages = {
   ok: 'OK',
   cancel: 'Cancel',
   shutdownBlockedTitle: 'NexusPilot is still running',
-  shutdownBlockedMessage: 'The owned tunnel could not be confirmed stopped. NexusPilot will remain open; check the tunnel status and retry Quit.',
+  shutdownBlockedMessage: 'The owned tunnel could not be confirmed stopped. lnwjud will remain open; check the tunnel status and retry Quit.',
+  factoryResetTitle: 'Reset lnwjud',
+  factoryResetMessage: 'Erase all lnwjud data on this device and start again like a fresh installation?',
+  factoryResetDetail: 'This deletes the database, settings, registered projects, saved keys and secrets, Tunnel profile, backups, logs, cache, recovery data, and first-run state. Your actual project folders are not deleted. lnwjud will relaunch into the Setup Guide.',
+  factoryResetConfirm: 'Erase everything and start over',
   logStatus: 'Status',
   logCapturedRowUnavailable: 'Captured row is no longer available',
   logTime: 'Time',

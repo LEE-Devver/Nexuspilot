@@ -4,11 +4,13 @@ import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createExplicitKeySecretProtector } from '@nexuspilot/shared';
 import { TunnelController } from '../src/main/tunnel-controller.js';
+import { isolateTunnelProfile } from './tunnel-profile-fixture.js';
 
 const temporaryRoots: string[] = [];
 
 afterEach(async () => {
   vi.unstubAllEnvs();
+  vi.restoreAllMocks();
   await Promise.all(temporaryRoots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
 });
 
@@ -16,7 +18,7 @@ describe('TunnelController protected secret provider', () => {
   it('persists a purpose-bound safe envelope and never writes the API key plaintext', async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-tunnel-secret-provider-'));
     temporaryRoots.push(root);
-    vi.stubEnv('APPDATA', path.join(root, 'appdata'));
+    isolateTunnelProfile(root);
     const protector = createExplicitKeySecretProtector(Buffer.alloc(32, 0x42));
     const controller = new TunnelController({
       getClientPath: (): null => null,
@@ -37,7 +39,7 @@ describe('TunnelController protected secret provider', () => {
   it('fails closed when no provider or explicit test seam is injected', async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), 'lnwjud-tunnel-secret-provider-missing-'));
     temporaryRoots.push(root);
-    vi.stubEnv('APPDATA', path.join(root, 'appdata'));
+    isolateTunnelProfile(root);
     const controller = new TunnelController({
       getClientPath: (): null => null,
       setClientPath: (): void => undefined,

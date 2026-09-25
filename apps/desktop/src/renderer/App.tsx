@@ -7,6 +7,7 @@ import type {
   ToolCatalogSnapshot,
   ResolvedRemediation,
   LogLine,
+  LogSessionSummary,
   LiveLogExportReference,
   LogSource,
   PermissionProfileName,
@@ -21,6 +22,7 @@ import type {
   TunnelStatus,
   TunnelOAuthLoginStatus,
   WorkspaceSummary,
+  WorkLogEntry,
 } from '@nexuspilot/ipc-contracts';
 import { AppShell, type Screen } from './features/shell/AppShell.js';
 import { ControlCenterPage } from './features/home/ControlCenterPage.js';
@@ -62,6 +64,7 @@ export function App(): ReactElement {
   const [tunnelBusy, setTunnelBusy] = useState(false);
   const [locale, setLocale] = useState<UiLocale>('th');
   const [logLines, setLogLines] = useState<readonly LogLine[]>([]);
+  const [logSessions, setLogSessions] = useState<readonly LogSessionSummary[]>([]);
   const [tunnelLogPath, setTunnelLogPath] = useState<string | null>(null);
   const [tunnelLogExists, setTunnelLogExists] = useState(false);
   const [incidentClassification, setIncidentClassification] = useState<IncidentClassification | null>(null);
@@ -137,6 +140,7 @@ export function App(): ReactElement {
         logIds.current = merged.ids;
         return merged.lines;
       });
+      setLogSessions(snapshot.sessions ?? []);
       setTunnelLogPath(snapshot.tunnelLogPath);
       setTunnelLogExists(snapshot.tunnelLogExists);
     }).catch(() => undefined);
@@ -280,7 +284,7 @@ export function App(): ReactElement {
     }).catch((cause: unknown) => {
       if (disposed) return;
       setPonytailPolicyContext(null);
-      setPonytailPolicyError(errorMessage(cause, propsText(locale, 'โหลด Ponytail policy ของโปรเจกต์ไม่สำเร็จ', 'Could not load the project Ponytail policy')));
+      setPonytailPolicyError(errorMessage(cause, t('app.ponytailProjectLoadError')));
     }).finally(() => {
       if (!disposed) setPonytailPolicyBusy(false);
     });
@@ -388,7 +392,7 @@ export function App(): ReactElement {
       setUpdateStatus(await window.nexusPilot.checkForUpdates());
     } catch (cause: unknown) {
       updateInstallTransitionRef.current = false;
-      setError(errorMessage(cause, locale === 'th' ? 'ไม่สามารถตรวจอัปเดตได้' : 'Unable to check for updates'));
+      setError(errorMessage(cause, t('app.updateCheckError')));
     }
   }
 
@@ -423,7 +427,7 @@ export function App(): ReactElement {
       await window.nexusPilot.setWorkspaceActive({ workspaceId, active });
       await refresh();
     } catch (cause: unknown) {
-      setError(errorMessage(cause, propsText(locale, 'ไม่สามารถเปลี่ยน Active Project ได้', 'Could not change Active Project')));
+      setError(errorMessage(cause, t('app.workspaceActiveError')));
       throw cause;
     }
   }
@@ -475,7 +479,7 @@ export function App(): ReactElement {
       await window.nexusPilot.setAiDeletePolicy({ policy });
       await refresh();
     } catch (cause: unknown) {
-      setError(errorMessage(cause, propsText(locale, 'ไม่สามารถเปลี่ยนนโยบายการลบได้', 'Could not change destructive-action policy')));
+      setError(errorMessage(cause, t('app.destructivePolicyError')));
     }
   }
 
@@ -485,7 +489,7 @@ export function App(): ReactElement {
       await refresh();
       return result.restartRequired;
     } catch (cause: unknown) {
-      setError(errorMessage(cause, propsText(locale, 'ไม่สามารถบันทึก STDIO policy ได้', 'Could not save STDIO policy')));
+      setError(errorMessage(cause, t('app.stdioPolicyError')));
       throw cause;
     }
   }
@@ -523,6 +527,28 @@ export function App(): ReactElement {
       await refresh();
     } catch (cause: unknown) {
       setError(errorMessage(cause, t('error.workLogClear')));
+      throw cause;
+    }
+  }
+
+  async function loadLogSessionHistory(scope: LogScopeSelection): Promise<readonly WorkLogEntry[]> {
+    if (scope.sessionId === null) return [];
+    try {
+      const history = await window.nexusPilot.loadLogSessionHistory({
+        sessionId: scope.sessionId,
+        ...(scope.workspaceId === null ? {} : { workspaceId: scope.workspaceId }),
+        limit: 500,
+      });
+      setLogLines((previous) => {
+        const merged = applyLogSnapshot(previous, logIds.current, history.logSnapshot.lines, MAX_CLIENT_LOG_LINES);
+        logIds.current = merged.ids;
+        return merged.lines;
+      });
+      setLogSessions(history.logSnapshot.sessions ?? []);
+      return history.workLog;
+    } catch (cause: unknown) {
+      setError(errorMessage(cause, t('error.desktopService')));
+      return [];
     }
   }
 
@@ -630,13 +656,22 @@ export function App(): ReactElement {
     if (doctorPromise !== null) setDoctor(await doctorPromise);
   }
 
+  async function factoryReset(): Promise<{ readonly accepted: boolean }> {
+    try {
+      return await window.nexusPilot.factoryReset();
+    } catch (cause: unknown) {
+      setError(errorMessage(cause, t('settingsPage.factoryResetFailed')));
+      throw cause;
+    }
+  }
+
   async function setUserSettings(settings: UserSettings): Promise<boolean> {
     try {
       const result = await window.nexusPilot.setUserSettings({ settings });
       await refresh();
       return result.restartRequired;
     } catch (cause: unknown) {
-      setError(errorMessage(cause, propsText(locale, 'ไม่สามารถบันทึกการตั้งค่าได้', 'Could not save settings')));
+      setError(errorMessage(cause, t('app.settingsSaveError')));
       throw cause;
     }
   }
@@ -649,7 +684,7 @@ export function App(): ReactElement {
       const context = await window.nexusPilot.setWorkspacePonytailMode({ workspaceId: selectedWorkspaceId, mode });
       setPonytailPolicyContext(context);
     } catch (cause: unknown) {
-      const message = errorMessage(cause, propsText(locale, 'บันทึก Ponytail policy ของโปรเจกต์ไม่สำเร็จ', 'Could not save the project Ponytail policy'));
+      const message = errorMessage(cause, t('app.ponytailProjectSaveError'));
       setPonytailPolicyError(message);
       throw cause;
     } finally {
@@ -665,7 +700,7 @@ export function App(): ReactElement {
       const context = await window.nexusPilot.setGoalPonytailMode({ workspaceId: selectedWorkspaceId, goalId, expectedRevision, mode });
       setPonytailPolicyContext(context);
     } catch (cause: unknown) {
-      const message = errorMessage(cause, propsText(locale, 'บันทึก Ponytail policy ของ goal ไม่สำเร็จ', 'Could not save the goal Ponytail policy'));
+      const message = errorMessage(cause, t('app.ponytailGoalSaveError'));
       setPonytailPolicyError(message);
       throw cause;
     } finally {
@@ -686,7 +721,7 @@ export function App(): ReactElement {
       await loadToolCatalog(['local_pdf_provider']);
       return result;
     } catch (cause: unknown) {
-      const message = errorMessage(cause, propsText(locale, 'ดาวน์โหลดหรือติดตั้ง PDF Provider ไม่สำเร็จ', 'Could not download or install the PDF Provider'));
+      const message = errorMessage(cause, t('app.pdfProviderInstallError'));
       setError(message);
       throw cause instanceof Error ? cause : new Error(message);
     }
@@ -709,7 +744,7 @@ export function App(): ReactElement {
         setDoctor(result.doctor);
       }
     } catch (cause: unknown) {
-      setError(errorMessage(cause, propsText(locale, 'ไม่สามารถโหลดรายการเครื่องมือได้', 'Could not load the tool catalog')));
+      setError(errorMessage(cause, t('app.toolCatalogLoadError')));
     } finally {
       setToolCatalogLoading(false);
     }
@@ -730,7 +765,7 @@ export function App(): ReactElement {
       mergeToolCatalogItem(result.item);
       setToolHostSyncNotice(result.hostSyncMessage);
     } catch (cause: unknown) {
-      const message = errorMessage(cause, propsText(locale, 'เปลี่ยนสถานะเครื่องมือไม่สำเร็จ', 'Could not change tool availability'));
+      const message = errorMessage(cause, t('app.toolAvailabilityChangeError'));
       setError(message);
       throw cause instanceof Error ? cause : new Error(message);
     }
@@ -743,7 +778,7 @@ export function App(): ReactElement {
       mergeToolCatalogItem(result.item);
       setToolHostSyncNotice(result.hostSyncMessage);
     } catch (cause: unknown) {
-      const message = errorMessage(cause, propsText(locale, 'คืนค่าสถานะเครื่องมือเป็นค่าเริ่มต้นไม่สำเร็จ', 'Could not restore default tool availability'));
+      const message = errorMessage(cause, t('app.toolAvailabilityResetError'));
       setError(message);
       throw cause instanceof Error ? cause : new Error(message);
     }
@@ -757,10 +792,10 @@ export function App(): ReactElement {
       setError(null);
       try {
         const status = await window.nexusPilot.launchManagedBrowser();
-        if (!status.ready) throw new Error(propsText(locale, 'Managed Browser เปิดแล้วแต่ CDP ยังไม่พร้อม', 'Managed Browser started but CDP is not ready'));
+        if (!status.ready) throw new Error(t('app.managedBrowserNotReady'));
         await loadToolCatalog(['browser_cdp']);
       } catch (cause: unknown) {
-        const message = errorMessage(cause, propsText(locale, 'ไม่สามารถเปิด Managed Browser ได้', 'Could not start Managed Browser'));
+        const message = errorMessage(cause, t('app.managedBrowserStartError'));
         setError(message);
         throw cause instanceof Error ? cause : new Error(message);
       }
@@ -787,7 +822,7 @@ export function App(): ReactElement {
     }
     const navigation = remediationNavigationForTarget(action.target);
     if (navigation === null) {
-      setError(propsText(locale, `ไม่รู้จักเป้าหมายการตั้งค่า: ${action.target}`, `Unknown settings target: ${action.target}`));
+      setError(t('app.unknownSettingsTarget', { target: action.target }));
       return;
     }
     if (navigation.screen === 'projects') { setScreen('projects'); return; }
@@ -819,11 +854,11 @@ export function App(): ReactElement {
       <div className="boot-screen">
         {bootError === null ? t('app.loading') : (
           <div className="boot-recovery" role="alert">
-            <strong>{locale === 'th' ? 'เปิด NexusPilot ไม่สำเร็จ' : 'NexusPilot could not finish starting'}</strong>
+            <strong>{t('app.bootFailed')}</strong>
             <p>{bootError}</p>
             <div className="inline-actions">
-              <button type="button" onClick={() => { void refresh(); }}>{locale === 'th' ? 'ลองใหม่' : 'Retry'}</button>
-              <button type="button" onClick={() => { void popOutLogViewer(); }}>{locale === 'th' ? 'เปิดบันทึกการทำงาน' : 'Open Logs'}</button>
+              <button type="button" onClick={() => { void refresh(); }}>{t('action.retry')}</button>
+              <button type="button" onClick={() => { void popOutLogViewer(); }}>{t('app.openLogs')}</button>
             </div>
           </div>
         )}
@@ -844,6 +879,7 @@ export function App(): ReactElement {
       onNavigate={(nextScreen) => {
         setError(null);
         const target = startupDoctorNavigationTarget(startupDoctorReady, nextScreen);
+        if (target === 'settings') setRequestedSettingsSection(undefined);
         setScreen(target);
         if (target === 'tools') void loadToolCatalog(['external_mcp_connection']);
       }}
@@ -853,7 +889,7 @@ export function App(): ReactElement {
       {bootError === null ? null : (
         <div className="error-banner boot-partial-error" role="alert">
           <span>{bootError}</span>
-          <button type="button" onClick={() => { void refresh(); }}>{locale === 'th' ? 'ลองใหม่' : 'Retry'}</button>
+          <button type="button" onClick={() => { void refresh(); }}>{t('action.retry')}</button>
         </div>
       )}
       {error === null ? null : <div className="error-banner" role="alert">{error}</div>}
@@ -916,7 +952,7 @@ export function App(): ReactElement {
         />
       ) : null}
       {screen === 'worklog' ? (
-        <WorkLogPage locale={locale} dashboard={dashboard} workspaces={workspaces} onClearWorkLog={clearWorkLog} onExportWorkLog={exportWorkLog} />
+        <WorkLogPage locale={locale} dashboard={dashboard} workspaces={workspaces} onClearWorkLog={clearWorkLog} onExportWorkLog={exportWorkLog} onLoadSessionHistory={loadLogSessionHistory} />
       ) : null}
       {screen === 'live' ? (
         <LiveLogsPage
@@ -935,6 +971,8 @@ export function App(): ReactElement {
           incidentCapturedAt={incidentCapturedAt}
           incidentNotice={incidentNotice}
           workspaces={workspaces}
+          sessions={logSessions}
+          onLoadSessionHistory={loadLogSessionHistory}
         />
       ) : null}
       {screen === 'settings' ? (
@@ -942,6 +980,7 @@ export function App(): ReactElement {
           locale={locale}
           dashboard={dashboard}
           onLocaleChange={changeLocale}
+          onFactoryReset={factoryReset}
           onPermissionProfileChange={setPermissionProfile}
           onUnrestrictedChange={setUnrestrictedMode}
           onDestructiveDeletePolicyChange={setDestructiveDeletePolicy}
@@ -1006,9 +1045,6 @@ export function App(): ReactElement {
   );
 }
 
-function propsText(locale: UiLocale, th: string, en: string): string {
-  return locale === 'th' ? th : en;
-}
 
 function errorMessage(cause: unknown, fallback: string): string {
   return cause instanceof Error && cause.message.trim().length > 0 ? cause.message : fallback;

@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import type { DashboardSnapshot, IncidentClassification, UiLocale, WorkspaceSummary } from '@nexuspilot/ipc-contracts';
+import { EMPTY_REMOTE_MCP_STATUS, type DashboardSnapshot, type IncidentClassification, type UiLocale, type WorkspaceSummary } from '@nexuspilot/ipc-contracts';
 import { formatDateTime } from '../../date-time.js';
 import { createTranslator } from '../../i18n/index.js';
 import { tunnelRuntimeCredentialAvailable } from '../../tunnel-auth-readiness.js';
@@ -60,11 +60,8 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
   const filteredAgentTimeline = filterAgentTimeline(agentTimeline, agentMonitorFilter);
   const tunnelCredentialAvailable = tunnelRuntimeCredentialAvailable(dashboard.tunnel);
   const tunnelPresentation = tunnelAuthPresentation(dashboard.tunnel);
-  const remoteMcp = dashboard.remoteMcp ?? {
-    state: 'stopped' as const, provider: 'ngrok' as const, installed: false, automaticInstallAvailable: false, automaticInstallMethod: null, hasAuthtoken: false, ngrokPath: null,
-    localMcpUrl: dashboard.mcp.url, localGatewayUrl: null, publicMcpUrl: null, pairingCode: null, pairingCodeExpiresAt: null,
-    oauthProtected: true, oauthConnected: false, pairingRequired: false, autoStartEnabled: false, message: null,
-  };
+  const remoteMcp = dashboard.remoteMcp ?? { ...EMPTY_REMOTE_MCP_STATUS, localMcpUrl: dashboard.mcp.url };
+
   const remoteMcpOnline = remoteMcp.state === 'running';
   const [secureTunnelExpanded, setSecureTunnelExpanded] = useState(!remoteMcpOnline);
 
@@ -132,14 +129,14 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
         <div className="heading-actions">
           <button type="button" onClick={() => { void props.onRefresh(); }}>{t('action.refresh')}</button>
           <details className="agent-actions-menu">
-            <summary aria-label={props.locale === 'th' ? 'จัดการ Desktop Agent' : 'Desktop Agent actions'}>•••</summary>
+            <summary aria-label={t('home.agentActions')}>•••</summary>
             <div className="agent-actions-popover">
               <button type="button" disabled={props.incidentBusy} onClick={() => { void props.onCaptureIncident(); }}>{t('live.captureIncident')}</button>
               <button type="button" disabled={props.mcpBusy || dashboard.selectedWorkspace === null} onClick={() => { void props.onRestartMcp(); }}>
-                {props.locale === 'th' ? 'รีสตาร์ท Desktop Agent' : 'Restart Desktop Agent'}
+                {t('home.restartDesktopAgent')}
               </button>
               <button type="button" disabled={props.mcpBusy || !dashboard.mcp.running} onClick={() => { void props.onStopMcp(); }}>
-                {props.locale === 'th' ? 'หยุด Desktop Agent' : 'Stop Desktop Agent'}
+                {t('home.stopDesktopAgent')}
               </button>
             </div>
           </details>
@@ -162,15 +159,13 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
         <div className="agent-monitor-header">
           <div>
             <h2>Agent Monitor</h2>
-            <p className="hint">{props.locale === 'th'
-              ? 'ดู Agent swarm และ task dependency จากทุก client session บน NexusPilot เครื่องนี้ โดยไม่แสดง prompt หรือ result body'
-              : 'Read-only swarm and task dependency view across client sessions on this NexusPilot host. Prompt and result bodies are never shown.'}</p>
+            <p className="hint">{createTranslator(props.locale)('agentMonitor.description')}</p>
           </div>
           <span className={`connection-count-chip ${activeAgentSwarms.length > 0 ? 'is-online' : ''}`}>
-            {activeAgentSwarms.length} {props.locale === 'th' ? 'กำลังทำงาน' : 'active'}
+            {activeAgentSwarms.length} {createTranslator(props.locale)('agentMonitor.active')}
           </span>
         </div>
-        <div className="agent-monitor-tabs" role="tablist" aria-label={props.locale === 'th' ? 'มุมมอง Agent Monitor' : 'Agent Monitor views'}>
+        <div className="agent-monitor-tabs" role="tablist" aria-label={createTranslator(props.locale)('agentMonitor.views')}>
           {(['overview', 'topology', 'timeline', 'telemetry'] as const).map((view) => (
             <button
               type="button"
@@ -186,24 +181,24 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
         </div>
         <div className="agent-monitor-filters">
           <label>
-            <span>{props.locale === 'th' ? 'Provider' : 'Provider'}</span>
+            <span>{createTranslator(props.locale)('agentMonitor.provider')}</span>
             <select value={agentProviderFilter} onChange={(event) => setAgentProviderFilter(event.target.value as 'all' | 'codex' | 'claude_code')}>
-              <option value="all">{props.locale === 'th' ? 'ทั้งหมด' : 'All'}</option>
+              <option value="all">{createTranslator(props.locale)('agentMonitor.all')}</option>
               <option value="codex">Codex</option>
               <option value="claude_code">Claude Code</option>
             </select>
           </label>
           <label>
-            <span>{props.locale === 'th' ? 'Workspace' : 'Workspace'}</span>
+            <span>{createTranslator(props.locale)('agentMonitor.workspace')}</span>
             <select value={agentWorkspaceFilter} onChange={(event) => setAgentWorkspaceFilter(event.target.value)}>
-              <option value="all">{props.locale === 'th' ? 'ทั้งหมด' : 'All'}</option>
+              <option value="all">{createTranslator(props.locale)('agentMonitor.all')}</option>
               {props.workspaces.map((workspace) => <option key={workspace.id} value={workspace.id}>{workspace.displayName}</option>)}
             </select>
           </label>
           <label>
-            <span>{props.locale === 'th' ? 'สถานะ' : 'State'}</span>
+            <span>{createTranslator(props.locale)('agentMonitor.state')}</span>
             <select value={agentStateFilter} onChange={(event) => setAgentStateFilter(event.target.value)}>
-              <option value="all">{props.locale === 'th' ? 'ทั้งหมด' : 'All'}</option>
+              <option value="all">{createTranslator(props.locale)('agentMonitor.all')}</option>
               <option value="running">running</option>
               <option value="queued">queued</option>
               <option value="blocked">blocked</option>
@@ -214,14 +209,14 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
           </label>
         </div>
         <div className="agent-monitor-metrics">
-          <AgentMonitorMetric label={props.locale === 'th' ? 'Swarm ล่าสุด' : 'Recent swarms'} value={String(agentSwarms.length)} />
-          <AgentMonitorMetric label={props.locale === 'th' ? 'Task กำลังรัน' : 'Running tasks'} value={String(runningAgentTasks)} active={runningAgentTasks > 0} />
-          <AgentMonitorMetric label={props.locale === 'th' ? 'Task รอ dependency' : 'Blocked tasks'} value={String(blockedAgentTasks)} />
-          <AgentMonitorMetric label={props.locale === 'th' ? 'Client sessions' : 'Client sessions'} value={String(new Set(agentSwarms.map((swarm) => `${swarm.ownerClientId}:${swarm.ownerSessionId}`)).size)} />
+          <AgentMonitorMetric label={createTranslator(props.locale)('agentMonitor.recentSwarms')} value={String(agentSwarms.length)} />
+          <AgentMonitorMetric label={createTranslator(props.locale)('agentMonitor.runningTasks')} value={String(runningAgentTasks)} active={runningAgentTasks > 0} />
+          <AgentMonitorMetric label={createTranslator(props.locale)('agentMonitor.blockedTasks')} value={String(blockedAgentTasks)} />
+          <AgentMonitorMetric label={createTranslator(props.locale)('agentMonitor.clientSessions')} value={String(new Set(agentSwarms.map((swarm) => `${swarm.ownerClientId}:${swarm.ownerSessionId}`)).size)} />
         </div>
         {agentSwarms.length === 0 ? (
           <div className="agent-monitor-empty">
-            {props.locale === 'th' ? 'ยังไม่มี Agent swarm — เมื่อมีการ delegate งานผ่าน agent_swarm_run รายการจะขึ้นที่นี่' : 'No agent swarms yet. Delegated agent_swarm_run work will appear here.'}
+            {createTranslator(props.locale)('agentMonitor.emptySwarms')}
           </div>
         ) : (
           <div className="agent-monitor-swarms">
@@ -236,7 +231,7 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
                     </div>
                     <span className={`agent-monitor-state state-${swarm.state}`}>{swarm.state.replaceAll('_', ' ')}</span>
                   </div>
-                  <div className="agent-monitor-task-graph" aria-label={props.locale === 'th' ? 'Task dependency graph' : 'Task dependency graph'}>
+                  <div className="agent-monitor-task-graph" aria-label={createTranslator(props.locale)('agentMonitor.taskGraph')}>
                     {swarm.tasks.map((task) => (
                       <div className={`agent-monitor-task task-${task.state}`} key={task.id}>
                         <div className="agent-monitor-task-main">
@@ -245,9 +240,9 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
                         </div>
                         <div className="agent-monitor-task-meta">
                           {task.dependsOn.length === 0
-                            ? (props.locale === 'th' ? 'เริ่มได้ทันที' : 'root task')
-                            : `${props.locale === 'th' ? 'รอ' : 'depends on'}: ${task.dependsOn.join(', ')}`}
-                          {task.resultAvailable ? ` • ${props.locale === 'th' ? 'มีผลลัพธ์' : 'result ready'}` : ''}
+                            ? (createTranslator(props.locale)('agentMonitor.rootTask'))
+                            : `${createTranslator(props.locale)('agentMonitor.dependsOn')}: ${task.dependsOn.join(', ')}`}
+                          {task.resultAvailable ? ` • ${createTranslator(props.locale)('agentMonitor.resultReady')}` : ''}
                           {task.outputTruncated ? ' • truncated' : ''}
                         </div>
                       </div>
@@ -260,13 +255,11 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
         )}
         <div className="agent-monitor-workers">
           <div className="settings-mini-heading">
-            <strong>{props.locale === 'th' ? 'Provider workers ที่ NexusPilot ติดตาม' : 'Provider workers tracked by NexusPilot'}</strong>
+            <strong>{createTranslator(props.locale)('agentMonitor.providerWorkers')}</strong>
             <span>{observedAgentProcesses.length}</span>
           </div>
           {observedAgentProcesses.length === 0 ? (
-            <p className="hint">{props.locale === 'th'
-              ? 'ยังไม่มี Claude Code / Codex process ที่ถูกเริ่มและติดตามโดย NexusPilot'
-              : 'No Claude Code or Codex process is currently owned and tracked by NexusPilot.'}</p>
+            <p className="hint">{createTranslator(props.locale)('agentMonitor.emptyWorkers')}</p>
           ) : (
             <div className="agent-monitor-worker-list">
               {observedAgentProcesses.map((worker) => {
@@ -314,15 +307,15 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
         </div>
         <div className="security-overview-grid">
           <SecurityMetric label={t('security.desktopProfile')} value={dashboard.permissionProfile.toUpperCase()} />
-          <SecurityMetric label="Desktop Full Bypass" value={desktopBypassOn ? 'FULL BYPASS ON' : 'OFF'} state={desktopBypassOn ? 'warn' : 'safe'} />
+          <SecurityMetric label={t('security.desktopFullBypass')} value={desktopBypassOn ? t('userConfig.fullBypassBadgeOn') : t('userConfig.offBadge')} state={desktopBypassOn ? 'warn' : 'safe'} />
           <SecurityMetric label={t('security.stdioProfile')} value={dashboard.stdioPermissionProfile.toUpperCase()} />
-          <SecurityMetric label="STDIO Full Bypass" value={stdioBypassOn ? 'FULL BYPASS ON' : 'OFF'} state={stdioBypassOn ? 'warn' : 'safe'} />
+          <SecurityMetric label={t('security.stdioFullBypass')} value={stdioBypassOn ? t('userConfig.fullBypassBadgeOn') : t('userConfig.offBadge')} state={stdioBypassOn ? 'warn' : 'safe'} />
           <SecurityMetric label={t('security.strictRoots')} value={onOff(dashboard.stdioStrictRoots)} state={dashboard.stdioStrictRoots ? 'safe' : 'warn'} />
           <SecurityMetric label={t('security.aiDelete')} value={onOff(dashboard.allowAiDelete)} state={dashboard.allowAiDelete ? 'warn' : 'safe'} />
           <SecurityMetric label={t('security.unrestricted')} value={onOff(dashboard.unrestricted)} state={dashboard.unrestricted ? 'warn' : 'safe'} />
           <SecurityMetric label={t('security.workspaceScope')} value={workspaceScope} state={dashboard.stdioStrictRoots ? 'safe' : 'warn'} />
           <SecurityMetric label={t('security.tunnelAccess')} value={tunnelLabel} state={dashboard.tunnel.state === 'running' ? 'active' : 'neutral'} />
-          <SecurityMetric label="Remote MCP OAuth" value={remoteMcp.state === 'running' ? 'ONLINE' : remoteMcp.oauthConnected ? (remoteMcp.autoStartEnabled ? 'LINKED · AUTO' : 'LINKED') : remoteMcp.installed && remoteMcp.hasAuthtoken ? 'READY' : 'SETUP'} state={remoteMcp.state === 'running' || remoteMcp.oauthConnected ? 'active' : 'neutral'} />
+          <SecurityMetric label={t('security.remoteMcpOauth')} value={remoteMcp.state === 'running' ? t('status.online') : remoteMcp.oauthConnected ? (remoteMcp.autoStartEnabled ? t('status.linkedAuto') : t('status.linked')) : remoteMcp.installed && remoteMcp.hasAuthtoken ? t('status.ready') : t('status.setup')} state={remoteMcp.state === 'running' || remoteMcp.oauthConnected ? 'active' : 'neutral'} />
           <SecurityMetric label={t('security.registeredWorkspaces')} value={String(props.workspaces.length)} />
         </div>
         {stdioBroad ? <div className="security-warning" role="status">⚠ {t('security.warningBroad')}</div> : null}
@@ -334,7 +327,7 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
           <code data-testid="mcp-endpoint" className="endpoint">
             {dashboard.connectionModes.httpUrl ?? '—'}
           </code>
-          {dashboard.mcp.lastStartError === null || dashboard.mcp.lastStartError === undefined ? null : <p className="hint error-text" role="alert">MCP start error: {dashboard.mcp.lastStartError}</p>}
+          {dashboard.mcp.lastStartError === null || dashboard.mcp.lastStartError === undefined ? null : <p className="hint error-text" role="alert">{t('home.mcpStartError', { detail: dashboard.mcp.lastStartError })}</p>}
           <div className="inline-actions">
             <button
               type="button"
@@ -351,24 +344,23 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
           <code className="endpoint">{dashboard.connectionModes.stdioCommand}</code>
         </section>
 
-        <section className="panel chatgpt-connection-panel" aria-label={props.locale === 'th' ? 'การเชื่อมต่อ ChatGPT' : 'ChatGPT Connection'}>
+        <section className="panel chatgpt-connection-panel" aria-label={t('home.chatgptConnection')}>
           <div className="section-heading">
             <div>
-              <h2>{props.locale === 'th' ? 'การเชื่อมต่อ ChatGPT' : 'ChatGPT Connection'}</h2>
-              <p className="hint">{props.locale === 'th' ? 'ใช้ Remote MCP OAuth เป็นวิธีหลักสำหรับผู้ใช้ทั่วไป ส่วน Secure MCP Tunnel อยู่ในตัวเลือกขั้นสูงด้านล่าง' : 'Remote MCP OAuth is the primary connection for most users. Secure MCP Tunnel remains available below as an advanced option.'}</p>
+              <h2>{t('home.chatgptConnection')}</h2>
+              <p className="hint">{t('home.chatgptHint')}</p>
             </div>
-            <span className={`connection-count-chip ${remoteMcpOnline || dashboard.tunnel.state === 'running' ? 'is-online' : ''}`}>{remoteMcpOnline || dashboard.tunnel.state === 'running' ? (props.locale === 'th' ? 'เชื่อมต่ออยู่' : 'Connected') : (props.locale === 'th' ? 'ยังไม่เชื่อมต่อ' : 'Not connected')}</span>
+            <span className={`connection-count-chip ${remoteMcpOnline || dashboard.tunnel.state === 'running' ? 'is-online' : ''}`}>{remoteMcpOnline || dashboard.tunnel.state === 'running' ? t('home.connected') : t('home.notConnected')}</span>
           </div>
 
           <div className="home-remote-mcp-block chatgpt-primary-connection">
-            <div className="settings-mini-heading"><strong>Remote MCP · OAuth</strong><span>{remoteMcp.state === 'running' ? 'ONLINE' : remoteMcp.oauthConnected ? (remoteMcp.autoStartEnabled ? 'LINKED · AUTO' : 'LINKED') : remoteMcp.state.toUpperCase()}</span></div>
+            <div className="settings-mini-heading"><strong>{t('home.remoteMcpOauth')}</strong><span>{remoteMcp.state === 'running' ? t('status.online') : remoteMcp.oauthConnected ? (remoteMcp.autoStartEnabled ? t('status.linkedAuto') : t('status.linked')) : remoteMcp.installed && remoteMcp.hasAuthtoken ? t('status.ready') : t('status.setup')}</span></div>
             <code className="endpoint">{remoteMcp.publicMcpUrl ?? '—'}</code>
             <div className="inline-actions">
-              <button type="button" disabled={remoteMcp.publicMcpUrl === null} onClick={() => { if (remoteMcp.publicMcpUrl !== null) void copyText(remoteMcp.publicMcpUrl); }}>{props.locale === 'th' ? 'Copy Public /mcp' : 'Copy public /mcp'}</button>
-              <button type="button" onClick={props.onOpenTunnelSetup}>{props.locale === 'th' ? 'ตั้งค่า ChatGPT' : 'Configure ChatGPT'}</button>
+              <button type="button" disabled={remoteMcp.publicMcpUrl === null} onClick={() => { if (remoteMcp.publicMcpUrl !== null) void copyText(remoteMcp.publicMcpUrl); }}>{t('home.copyPublicMcp')}</button>
+              <button type="button" onClick={props.onOpenTunnelSetup}>{t('home.configureChatgpt')}</button>
             </div>
-            {remoteMcp.oauthConnected ? <div className="home-remote-mcp-status is-connected">{props.locale === 'th' ? (remoteMcp.autoStartEnabled ? '✓ ChatGPT เชื่อมแล้ว · Remote MCP จะ Start อัตโนมัติเมื่อเปิด NexusPilot' : '✓ ChatGPT เชื่อมแล้ว · การอนุญาตถูกจำไว้ แต่ Auto-start ปิดอยู่') : (remoteMcp.autoStartEnabled ? '✓ ChatGPT connected · Remote MCP will auto-start with NexusPilot.' : '✓ ChatGPT connected · authorization is remembered, but auto-start is off.')}</div> : null}
-            {remoteMcp.pairingCode === null ? null : <div className="home-remote-mcp-status is-pairing"><strong className="remote-mcp-pairing-line"><span>{props.locale === 'th' ? 'PIN สำรอง OAuth client อื่น' : 'Fallback PIN for another OAuth client'}:</span><span className="remote-mcp-pairing-pin" aria-label={`${props.locale === 'th' ? 'Fallback pairing PIN' : 'Fallback pairing PIN'} ${remoteMcp.pairingCode}`}>{remoteMcp.pairingCode}</span></strong></div>}
+            {remoteMcp.oauthConnected ? <div className="home-remote-mcp-status is-connected">{remoteMcp.autoStartEnabled ? t('home.chatgptConnectedAuto') : t('home.chatgptConnectedManual')}</div> : null}
           </div>
 
           <details
@@ -378,9 +370,9 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
           >
             <summary className="connection-method-summary">
               <div className="connection-method-summary-copy">
-                <span className="connection-method-kicker">{props.locale === 'th' ? 'ตัวเลือกขั้นสูง' : 'Advanced option'}</span>
+                <span className="connection-method-kicker">{t('home.advancedOption')}</span>
                 <strong>{t(tunnelPresentation.titleKey)}</strong>
-                <span>{props.locale === 'th' ? 'ใช้เมื่อองค์กรหรือการตั้งค่าของคุณต้องการ Secure MCP Tunnel โดยเฉพาะ' : 'Use only when your organization or setup specifically requires Secure MCP Tunnel.'}</span>
+                <span>{t('home.secureTunnelHint')}</span>
               </div>
               <div className="connection-method-summary-status">
                 <span className={`connection-method-live-dot ${dashboard.tunnel.state === 'running' ? 'is-online' : ''}`} aria-hidden="true" />
@@ -390,14 +382,14 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
             </summary>
             <div className="connection-method-panel chatgpt-tunnel-panel">
               <p data-testid="tunnel-status">{tunnelLabel}</p>
-              {tunnelPresentation.isOAuth && dashboard.tunnel.auth?.accountLabel ? <p className="hint">{props.locale === 'th' ? 'บัญชี OAuth' : 'OAuth account'}: {dashboard.tunnel.auth.accountLabel}</p> : null}
+              {tunnelPresentation.isOAuth && dashboard.tunnel.auth?.accountLabel ? <p className="hint">{t('home.oauthAccount')}: {dashboard.tunnel.auth.accountLabel}</p> : null}
               {tunnelMessage ? <p className={tunnelMessageIsError ? 'hint error-text' : 'hint'} role={tunnelMessageIsError ? 'alert' : undefined}>{tunnelMessage}</p> : null}
               {!tunnelCredentialAvailable ? <p className="hint">{t(tunnelPresentation.needCredentialKey)}</p> : null}
               {!dashboard.tunnel.profileExists ? <p className="hint">{t('tunnel.needProfile')}</p> : null}
               {tunnelCredentialAvailable && dashboard.tunnel.profileExists ? null : (
                 <div className="guided-tunnel-home-entry">
-                  <p className="hint">{tunnelPresentation.isOAuth ? (props.locale === 'th' ? 'ตรวจ OAuth session และการเชื่อมต่อในหน้าตั้งค่า' : 'Review the OAuth session and connection in Settings.') : t('guidedTunnel.dismissedHint')}</p>
-                  <button type="button" className="btn-save-gold" onClick={props.onOpenTunnelSetup}>{tunnelPresentation.isOAuth ? (props.locale === 'th' ? 'เปิดการตั้งค่าการเชื่อมต่อ' : 'Open connection settings') : t('guidedTunnel.openGuide')}</button>
+                  <p className="hint">{tunnelPresentation.isOAuth ? t('home.reviewOauthSettings') : t('guidedTunnel.dismissedHint')}</p>
+                  <button type="button" className="btn-save-gold" onClick={props.onOpenTunnelSetup}>{tunnelPresentation.isOAuth ? t('home.openConnectionSettings') : t('guidedTunnel.openGuide')}</button>
                 </div>
               )}
               <div className="inline-actions">
@@ -417,23 +409,23 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
         <section className="panel active-projects-panel">
           <div className="project-picker-heading">
             <div>
-              <h2>{props.locale === 'th' ? 'โปรเจกต์ที่ใช้งานพร้อมกัน' : 'Active Projects'}</h2>
-              <p className="hint">{props.locale === 'th' ? 'เลือกหลายโปรเจกต์สำหรับหลายแชทได้พร้อมกัน โดยโปรเจกต์หลัก (Primary) จะใช้เมื่อ tool call ไม่ได้ระบุ workspaceId' : 'Enable multiple projects for parallel chats. Primary is used only when a tool call does not specify workspaceId.'}</p>
+              <h2>{t('home.activeProjectsTitle')}</h2>
+              <p className="hint">{t('home.activeProjectsHint')}</p>
             </div>
-            <span className="active-project-count">{dashboard.activeWorkspaces.length}/{props.workspaces.length} {props.locale === 'th' ? 'กำลังใช้งาน' : 'active'}</span>
+            <span className="active-project-count">{dashboard.activeWorkspaces.length}/{props.workspaces.length} {t('home.activeCount')}</span>
           </div>
 
           {props.workspaces.length === 0 ? (
-            <div className="active-project-empty">{props.locale === 'th' ? 'ยังไม่มีโปรเจกต์ เพิ่มโฟลเดอร์โปรเจกต์ด้านล่างเพื่อเริ่มใช้งาน' : 'No projects yet. Add a project folder below to get started.'}</div>
+            <div className="active-project-empty">{t('home.noProjects')}</div>
           ) : (
-            <div className="active-project-picker" role="group" aria-label={props.locale === 'th' ? 'โปรเจกต์ที่ใช้งานพร้อมกัน' : 'Active projects'}>
+            <div className="active-project-picker" role="group" aria-label={t('home.activeProjectsTitle')}>
               {props.workspaces.map((workspace) => {
                 const active = activeWorkspaceIds.has(workspace.id);
                 const primary = dashboard.selectedWorkspace?.id === workspace.id;
                 const lastActive = active && dashboard.activeWorkspaces.length <= 1;
                 const busy = projectBusyId !== null;
                 const title = lastActive
-                  ? (props.locale === 'th' ? 'ต้องมี Active Project อย่างน้อย 1 โปรเจกต์' : 'At least one Active Project is required')
+                  ? t('project.minActiveRequired')
                   : workspace.realRootPath;
                 return (
                   <label
@@ -454,7 +446,7 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
                       <small>{workspace.realRootPath}</small>
                     </span>
                     <span className="active-project-state">
-                      {primary ? <em className="primary-project-badge">PRIMARY</em> : active ? <em className="active-project-badge">ACTIVE</em> : null}
+                      {primary ? <em className="primary-project-badge">{t('home.primaryBadge')}</em> : active ? <em className="active-project-badge">{t('home.activeBadge')}</em> : null}
                     </span>
                   </label>
                 );
@@ -464,12 +456,12 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
 
           <div className="primary-project-control">
             <div className="primary-project-copy">
-              <strong>{props.locale === 'th' ? 'โปรเจกต์หลัก (Primary)' : 'Primary project'}</strong>
-              <small>{props.locale === 'th' ? 'ใช้เป็นค่าเริ่มต้นเท่านั้น โปรเจกต์อื่นที่เปิด Active ยังทำงานพร้อมกันได้' : 'Used only as the default; other active projects remain available in parallel.'}</small>
+              <strong>{t('home.primaryProject')}</strong>
+              <small>{t('home.primaryProjectHint')}</small>
             </div>
             <div className="form-row primary-project-row">
               <select
-                aria-label={props.locale === 'th' ? 'โปรเจกต์หลัก' : 'Primary project'}
+                aria-label={t('home.primaryProject')}
                 value={selectedId}
                 disabled={activeProjects.length === 0}
                 onChange={(event) => setSelectedId(event.target.value)}
@@ -503,7 +495,7 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
           </div>
         </section>
 
-        <section className="info-cards" aria-label="Status cards">
+        <section className="info-cards" aria-label={t('home.statusCards')}>
           <article className="info-card">
             <p>{t('info.workspace')}</p>
             <strong data-testid="workspace-real-root">{dashboard.selectedWorkspace?.realRootPath ?? '—'}</strong>
@@ -521,7 +513,7 @@ export function ControlCenterPage(props: ControlCenterPageProps): ReactElement {
 }
 
 function agentMonitorViewLabel(view: 'overview' | 'topology' | 'timeline' | 'telemetry', locale: UiLocale): string {
-  if (view === 'overview') return locale === 'th' ? 'ภาพรวม' : 'Overview';
+  if (view === 'overview') return createTranslator(locale)('agentMonitor.overview');
   if (view === 'topology') return 'Topology';
   if (view === 'timeline') return 'Timeline';
   return 'Telemetry';
@@ -533,31 +525,31 @@ function AgentTelemetryView(props: {
 }): ReactElement {
   const telemetry = props.telemetry;
   if (telemetry === undefined) {
-    return <div className="agent-monitor-detail agent-monitor-empty" data-testid="agent-telemetry">{props.locale === 'th' ? 'ยังไม่มีข้อมูล telemetry' : 'Telemetry is not available yet.'}</div>;
+    return <div className="agent-monitor-detail agent-monitor-empty" data-testid="agent-telemetry">{createTranslator(props.locale)('agentMonitor.emptyTelemetry')}</div>;
   }
   return (
     <div className="agent-monitor-detail agent-telemetry-view" data-testid="agent-telemetry">
       <div className="settings-mini-heading">
-        <strong>{props.locale === 'th' ? 'Telemetry ที่วัดได้จริง' : 'Measured telemetry'}</strong>
+        <strong>{createTranslator(props.locale)('agentMonitor.measuredTelemetry')}</strong>
         <span>{telemetry.mcpCalls} MCP calls</span>
       </div>
       <div className="agent-telemetry-grid">
         <AgentMonitorMetric label="MCP calls" value={String(telemetry.mcpCalls)} active={telemetry.activeCalls > 0} />
-        <AgentMonitorMetric label={props.locale === 'th' ? 'สำเร็จ' : 'Successes'} value={String(telemetry.successes)} />
-        <AgentMonitorMetric label={props.locale === 'th' ? 'ผิดพลาด' : 'Errors'} value={String(telemetry.errors)} />
+        <AgentMonitorMetric label={createTranslator(props.locale)('agentMonitor.successes')} value={String(telemetry.successes)} />
+        <AgentMonitorMetric label={createTranslator(props.locale)('agentMonitor.errors')} value={String(telemetry.errors)} />
         <AgentMonitorMetric label="P95 latency" value={formatDurationMs(telemetry.p95LatencyMs)} />
-        <AgentMonitorMetric label={props.locale === 'th' ? 'Agent task avg' : 'Agent task avg'} value={formatDurationMs(telemetry.agentTaskDuration.averageMs)} />
-        <AgentMonitorMetric label={props.locale === 'th' ? 'Provider process avg' : 'Provider process avg'} value={formatDurationMs(telemetry.providerProcessDuration.averageMs)} />
+        <AgentMonitorMetric label={createTranslator(props.locale)('agentMonitor.agentTaskAverage')} value={formatDurationMs(telemetry.agentTaskDuration.averageMs)} />
+        <AgentMonitorMetric label={createTranslator(props.locale)('agentMonitor.providerProcessAverage')} value={formatDurationMs(telemetry.providerProcessDuration.averageMs)} />
         <AgentMonitorMetric label="Task lifecycle calls" value={String(telemetry.taskLifecycleCalls)} />
         <AgentMonitorMetric label="Deterministic route / dry-run" value={`${telemetry.deterministicRouteCalls} / ${telemetry.dedicatedDryRunCalls}`} />
       </div>
       <div className="agent-telemetry-tools">
         <div className="settings-mini-heading">
-          <strong>{props.locale === 'th' ? 'Tools ที่ถูกเรียกมากสุด' : 'Top tools'}</strong>
+          <strong>{createTranslator(props.locale)('agentMonitor.topTools')}</strong>
           <span>{telemetry.topTools.length}</span>
         </div>
         {telemetry.topTools.length === 0 ? (
-          <p className="hint">{props.locale === 'th' ? 'ยังไม่มี tool telemetry' : 'No tool telemetry yet.'}</p>
+          <p className="hint">{createTranslator(props.locale)('agentMonitor.emptyToolTelemetry')}</p>
         ) : (
           telemetry.topTools.map((tool) => (
             <div className="agent-telemetry-tool" key={tool.toolName}>
@@ -569,9 +561,7 @@ function AgentTelemetryView(props: {
           ))
         )}
       </div>
-      <p className="hint">{props.locale === 'th'
-        ? 'ยังไม่แสดง token/context usage จนกว่าจะมีข้อมูลจาก provider ที่เชื่อถือได้'
-        : 'Token/context usage stays hidden until an authoritative provider source is available.'}</p>
+      <p className="hint">{createTranslator(props.locale)('agentMonitor.usageUnavailable')}</p>
     </div>
   );
 }
@@ -591,11 +581,11 @@ function AgentTopologyView(props: {
   return (
     <div className="agent-monitor-detail agent-topology-view" data-testid="agent-topology">
       <div className="settings-mini-heading">
-        <strong>{props.locale === 'th' ? 'โครงสร้าง Agent / Task' : 'Agent / Task topology'}</strong>
+        <strong>{createTranslator(props.locale)('agentMonitor.topology')}</strong>
         <span>{props.topology.nodes.length} nodes · {dependencyEdges.length} edges</span>
       </div>
       {props.topology.nodes.length === 0 ? (
-        <p className="hint">{props.locale === 'th' ? 'ยังไม่มี topology ให้แสดง' : 'No topology is available yet.'}</p>
+        <p className="hint">{createTranslator(props.locale)('agentMonitor.emptyTopology')}</p>
       ) : (
         <div className="agent-topology-grid">
           {props.topology.nodes.slice(0, 30).map((node) => (
@@ -609,7 +599,7 @@ function AgentTopologyView(props: {
               </div>
               {node.parentId === undefined ? null : (
                 <div className="agent-monitor-task-meta">
-                  ↳ {props.locale === 'th' ? 'อยู่ใต้' : 'parent'}: {labelById.get(node.parentId) ?? node.parentId}
+                  ↳ {createTranslator(props.locale)('agentMonitor.parent')}: {labelById.get(node.parentId) ?? node.parentId}
                 </div>
               )}
             </article>
@@ -620,7 +610,7 @@ function AgentTopologyView(props: {
         <div className="agent-topology-edges">
           {dependencyEdges.slice(0, 40).map((edge, index) => (
             <div className="agent-topology-edge" key={`${edge.kind}:${edge.from}:${edge.to}:${index}`}>
-              <span>{edge.kind === 'dependency' ? (props.locale === 'th' ? 'dependency' : 'depends') : 'parent'}</span>
+              <span>{edge.kind === 'dependency' ? (createTranslator(props.locale)('agentMonitor.depends')) : 'parent'}</span>
               <strong>{labelById.get(edge.from) ?? edge.from}</strong>
               <span>→</span>
               <strong>{labelById.get(edge.to) ?? edge.to}</strong>
@@ -640,11 +630,11 @@ function AgentTimelineView(props: {
   return (
     <div className="agent-monitor-detail agent-timeline-view" data-testid="agent-timeline">
       <div className="settings-mini-heading">
-        <strong>{props.locale === 'th' ? 'Timeline ล่าสุด' : 'Recent timeline'}</strong>
+        <strong>{createTranslator(props.locale)('agentMonitor.recentTimeline')}</strong>
         <span>{props.timeline.length}</span>
       </div>
       {props.timeline.length === 0 ? (
-        <p className="hint">{props.locale === 'th' ? 'ยังไม่มี event ที่มี timestamp' : 'No timestamped agent events yet.'}</p>
+        <p className="hint">{createTranslator(props.locale)('agentMonitor.emptyTimeline')}</p>
       ) : (
         <div className="agent-timeline-list">
           {props.timeline.slice(0, 30).map((event) => (
@@ -697,6 +687,7 @@ function SecurityMetric(props: { readonly label: string; readonly value: string;
 }
 
 function incidentLabel(t: ReturnType<typeof createTranslator>, classification: IncidentClassification): string {
+  if (classification === 'desktop_session_ended_uncleanly') return t('live.incident.desktopSessionEndedUncleanly');
   if (classification === 'local_tool_failed') return t('live.incident.localToolFailed');
   if (classification === 'tunnel_disconnected') return t('live.incident.tunnelDisconnected');
   if (classification === 'remote_turn_stopped') return t('live.incident.remoteTurnStopped');

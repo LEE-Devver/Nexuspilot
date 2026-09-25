@@ -1,8 +1,8 @@
 {
   "name": "@nexuspilot/desktop",
-  "version": "5.2.2",
+  "version": "5.4.0",
   "private": true,
-  "description": "Cross-platform local AI-agent runtime and MCP gateway with 253 total tool definitions.",
+  "description": "Cross-platform local AI-agent runtime and MCP gateway with 259 total tool definitions.",
   "author": "NexusPilot contributors",
   "type": "module",
   "main": "dist/main/main.js",
@@ -48,7 +48,7 @@
     "@types/react-dom": "19.1.7",
     "@vitejs/plugin-react": "5.0.2",
     "ecc-universal": "2.2.1",
-    "electron": "43.4.1",
+    "electron": "45.0.0-alpha.7",
     "electron-builder": "26.0.12",
     "esbuild": "0.25.12",
     "vite": "7.3.6"
