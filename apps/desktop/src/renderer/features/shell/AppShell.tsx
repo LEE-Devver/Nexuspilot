@@ -20,15 +20,15 @@ interface AppShellProps {
   readonly children: ReactNode;
 }
 
-const navItems: ReadonlyArray<{ readonly screen: Screen; readonly key: MessageKey }> = [
-  { screen: 'home', key: 'nav.home' },
-  { screen: 'projects', key: 'nav.projects' },
-  { screen: 'tools', key: 'nav.tools' },
-  { screen: 'git', key: 'nav.git' },
-  { screen: 'worklog', key: 'nav.workLog' },
-  { screen: 'live', key: 'nav.live' },
-  { screen: 'settings', key: 'nav.settings' },
-  { screen: 'doctor', key: 'nav.doctor' },
+const navItems: ReadonlyArray<{ readonly screen: Screen; readonly key: MessageKey; readonly icon: string }> = [
+  { screen: 'home', key: 'nav.home', icon: 'M3 10.8 12 3l9 7.8v9.7a.5.5 0 0 1-.5.5H15v-6H9v6H3.5a.5.5 0 0 1-.5-.5z' },
+  { screen: 'projects', key: 'nav.projects', icon: 'M3 6.5h7l2 2h9v10.75A1.75 1.75 0 0 1 19.25 21H4.75A1.75 1.75 0 0 1 3 19.25z' },
+  { screen: 'tools', key: 'nav.tools', icon: 'M14.6 5.4a4 4 0 0 0-5.1 5.1L3.3 16.7a2.1 2.1 0 0 0 3 3l6.2-6.2a4 4 0 0 0 5.1-5.1l-2.7 2.7-2-2z' },
+  { screen: 'git', key: 'nav.git', icon: 'M7 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4m0 14a2 2 0 1 1 0 4 2 2 0 0 1 0-4m10-7a2 2 0 1 1 0 4 2 2 0 0 1 0-4M7 7v10m2-3h3a5 5 0 0 0 5-5V8' },
+  { screen: 'worklog', key: 'nav.workLog', icon: 'M5 3h11l3 3v15H5zM8 9h8M8 13h8M8 17h5' },
+  { screen: 'live', key: 'nav.live', icon: 'M4 18V9m5 9V5m5 13v-7m5 7V3' },
+  { screen: 'settings', key: 'nav.settings', icon: 'M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6m8 3.8 1.3-2.1-2-3.4-2.5.1L15.5 4h-4L10 6.5l-2.6-.1-2 3.4L6.8 12l-1.3 2.1 2 3.4 2.5-.1 1.5 2.6h4l1.4-2.5 2.6.1 2-3.4z' },
+  { screen: 'doctor', key: 'nav.doctor', icon: 'M4 12h4l2-5 4 10 2-5h4M5 4h14v16H5z' },
 ];
 
 export function AppShell(props: AppShellProps): ReactElement {
@@ -36,7 +36,6 @@ export function AppShell(props: AppShellProps): ReactElement {
   const platformLabel = desktopPlatformLabel();
   return (
     <div className="window-container" data-host-platform={props.hostPlatform}>
-      {/* Modern Luxury Dark Gold Titlebar */}
       <header className="custom-titlebar">
         <div className="titlebar-drag-region">
           <div className="titlebar-brand">
@@ -100,8 +99,12 @@ export function AppShell(props: AppShellProps): ReactElement {
                 type="button"
                 className={props.screen === item.screen ? 'nav-item active' : 'nav-item'}
                 onClick={() => props.onNavigate(item.screen)}
+                aria-current={props.screen === item.screen ? 'page' : undefined}
               >
-                {t(item.key)}
+                <svg className="nav-icon" aria-hidden="true" viewBox="0 0 24 24">
+                  <path d={item.icon} />
+                </svg>
+                <span>{t(item.key)}</span>
               </button>
             ))}
           </nav>
@@ -114,7 +117,7 @@ export function AppShell(props: AppShellProps): ReactElement {
         </aside>
 
         <div className="main-pane">
-          <main className="main-content">{props.children}</main>
+          <main className={`main-content screen-${props.screen}`}>{props.children}</main>
         </div>
       </div>
     </div>
